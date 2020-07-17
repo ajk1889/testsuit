@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ajk/CLionProjects/testsuit/Generator.cpp
+Generator.h
+/home/ajk/CLionProjects/testsuit/Generator.h
+
+/home/ajk/CLionProjects/testsuit/Generator.h
+Pair.h
+/home/ajk/CLionProjects/testsuit/Pair.h
+memory
+-
+cmath
+-
+iostream
+-
+
+/home/ajk/CLionProjects/testsuit/Pair.h
+
+/home/ajk/CLionProjects/testsuit/main.cpp
+iostream
+-
+Generator.h
+/home/ajk/CLionProjects/testsuit/Generator.h
+string
+-
+

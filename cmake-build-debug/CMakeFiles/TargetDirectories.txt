@@ -1,0 +1,3 @@
+/home/ajk/CLionProjects/testsuit/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/ajk/CLionProjects/testsuit/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ajk/CLionProjects/testsuit/cmake-build-debug/CMakeFiles/testsuit.dir
