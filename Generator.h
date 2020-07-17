@@ -10,7 +10,8 @@
 #include <iostream>
 
 typedef long long Long;
-typedef unsigned char Char ;
+typedef unsigned char Char;
+
 struct Generator {
     /**
      * @return Pair of "the index at which number's digit changes; Eg: 9->10, 99->100"
@@ -40,14 +41,14 @@ struct Generator {
         auto extraChars = (index - lowIndex) % (digits + 1);
         return {spaces, static_cast<int>(extraChars)};
     }
-    static unsigned int toString(Long num, Char *ptr, int freeMemory){
+    static uint toString(Long num, Char *ptr, int freeMemory){
         if (num>0){
-            int charLen = std::ceil(std::log10(num));
+            uint charLen = static_cast<uint>(std::floor(std::log10(num)))+1;
             while (charLen>freeMemory){
                 num/=10;
                 --charLen;
             }
-            unsigned int written = charLen;
+            uint written = charLen;
             while (num){
                 ptr[--charLen] = '0' + num%10;
                 num/=10;
@@ -61,7 +62,6 @@ struct Generator {
 
     static void generateString(Long start, Long end, Char *memory, const int N){
         unsigned written = toString(start, memory, N);
-        std::cout<<written<<std::endl;
         for (;start < end && N>written;) {
             memory[written++] = ' ';
             written += toString(++start, memory + written, static_cast<int>(N - written));
@@ -70,9 +70,20 @@ struct Generator {
 
     static void get(Long start, Long end, Char *memory){
         std::allocator<Char> allocator;
-        if (start==end) return;
-        else if (start==0) {
-
+        if (start==end) {
+            return;
+        } else if (start==0) {
+            auto totalSpaces = spacesBehind(end).first + 2;
+            generateString(0, totalSpaces, memory, end);
+        } else {
+            auto spaces = spacesBehind(start);
+            auto startSpaces = spaces.first + 1;
+            auto startExtraChars = spaces.second;
+            auto endSpaces = spacesBehind(end).first + 1;
+            generateString(startSpaces+1,endSpaces+1,
+                    memory+startExtraChars,
+                    static_cast<uint>(end - start));
+            toString(startSpaces, memory, startExtraChars);
         }
     }
     inline static Long pow(Long base, unsigned long long exp){
