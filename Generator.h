@@ -60,9 +60,12 @@ struct Generator {
     }
 
     static void generateString(Long start, Long end, Char *memory, const int N){
-        Long written = 0;
-        for (;start < end && N>written; ++start)
-            written += toString(start, memory+written, static_cast<int>(N-written));
+        unsigned written = toString(start, memory, N);
+        std::cout<<written<<std::endl;
+        for (;start < end && N>written;) {
+            memory[written++] = ' ';
+            written += toString(++start, memory + written, static_cast<int>(N - written));
+        }
     }
 
     static void get(Long start, Long end, Char *memory){
