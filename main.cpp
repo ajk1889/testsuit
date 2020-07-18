@@ -1,11 +1,20 @@
 #include <iostream>
 #include "Generator.h"
-#include <string>
+#include <chrono>
 int main() {
-    constexpr auto N = 50U;
-    unsigned char arr[N];
-    arr[N-1] = '\0';
-    Generator::get(50,50+N-1, arr);
-    std::cout<<arr<<std::endl;
+    constexpr auto bfr = 100*1024;
+    constexpr auto size = 2UL * 1024UL * 1024UL * 1024UL;
+
+    auto *memory = new unsigned char[100 * 1024];
+    auto read = 0UL;
+
+    auto t_start = std::chrono::high_resolution_clock::now();
+    while (read<size){
+        Generator::get(read, read+bfr, memory);
+        read += bfr;
+    }
+    auto t_end = std::chrono::high_resolution_clock::now();
+
+    std::cout<<std::chrono::duration<double, std::milli>(t_end-t_start).count()<<std::endl;
     return 0;
 }
