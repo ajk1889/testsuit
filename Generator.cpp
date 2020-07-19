@@ -4,7 +4,7 @@
 
 #include "Generator.h"
 
-void Generator::get(Long start, Long end, Char *memory) {
+void Generator::get(Long start, Long end, char *memory) {
     if (start == 0) {
         auto totalSpaces = spacesBehind(end).first + 2;
         generateString(0, totalSpaces, memory, end);
@@ -12,26 +12,29 @@ void Generator::get(Long start, Long end, Char *memory) {
         auto spaces = spacesBehind(start);
         auto startSpaces = spaces.first + 1;
         auto startExtraChars = spaces.second;
-        auto endSpaces = spacesBehind(end).first + 1;
+        auto endSpaces = spacesBehind(end).first + 2;
         Long freeMemory = end - start;
         Long written;
         if (startExtraChars == 0) {
             *memory = ' ';
-            written = 1 + toString(startSpaces % pow(10, lenDigits(startSpaces) - startExtraChars),
-                                   memory + 1, static_cast<uint>(freeMemory - 1));
+            written = 1 + toString(startSpaces, memory + 1, static_cast<uint>(freeMemory - 1));
         } else {
-            written = toString(startSpaces % pow(10, lenDigits(startSpaces) - startExtraChars + 1),
-                               memory, static_cast<uint>(freeMemory));
+            auto digitsToWrite = lenDigits(startSpaces) - startExtraChars + 1;
+            auto extractedDigits = startSpaces % pow(10, digitsToWrite);
+            written = 0;
+            for (int len = lenDigits(extractedDigits); len < digitsToWrite; ++len)
+                memory[written++] = '0';
+            written = toString(extractedDigits, memory + written, static_cast<uint>(freeMemory - written));
         }
         if (freeMemory > written)
             memory[written++] = ' ';
 
-        generateString(startSpaces + 1, endSpaces + 1,
+        generateString(startSpaces + 1, endSpaces,
                        memory + written, static_cast<uint>(freeMemory - written));
     }
 }
 
-inline uint Generator::toString(Long num, Char *ptr, uint freeMemory) {
+inline uint Generator::toString(Long num, char *ptr, uint freeMemory) {
     if (num > 0) {
         uint charLen = lenDigits(num);
         while (charLen > freeMemory) {
@@ -40,7 +43,7 @@ inline uint Generator::toString(Long num, Char *ptr, uint freeMemory) {
         }
         ptr += charLen;
         while (num) {
-            *(--ptr) = '0' + num % 10;
+            *(--ptr) = static_cast<char>('0' + num % 10);
             num /= 10;
         }
         return charLen;
@@ -61,8 +64,8 @@ inline Pair<Long, int> Generator::spacesBehind(Long index) {
 }
 
 inline Pair<Long, int> Generator::lowerDigitChangeIndex(Long index) {
-    auto upperIndex = 1L;
-    auto lowerIndex = 1L;
+    auto upperIndex = 1UL;
+    auto lowerIndex = 1UL;
     auto digits = 0;
     while (index < lowerIndex || index > upperIndex) {
         lowerIndex = upperIndex;
@@ -72,7 +75,7 @@ inline Pair<Long, int> Generator::lowerDigitChangeIndex(Long index) {
     return {lowerIndex, digits};
 }
 
-void Generator::generateString(Long start, Long end, Char *memory, const int freeMemory) {
+void Generator::generateString(Long start, Long end, char *memory, const int freeMemory) {
     unsigned written = toString(start, memory, freeMemory);
     for (; start < end && freeMemory > written;) {
         memory[written++] = ' ';
