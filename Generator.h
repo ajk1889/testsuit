@@ -14,6 +14,8 @@ typedef unsigned long long Long;
 class Generator {
     friend void visualize();
 
+    friend int main();
+
     friend void performanceTest();
 
 private:
@@ -21,9 +23,9 @@ private:
 
     static Pair<Long, int> spacesBehind(Long index);
 
-    static uint toString(Long num, char *ptr, uint freeMemory);
+    static char *toString(Long num, char *ptr, const char *offTheEnd);
 
-    static void generateString(Long start, Long end, char *memory, int freeMemory);
+    static void generateString(Long start, char *memory, const char *offTheEnd);
 
     static void get(Long start, Long end, char *memory);
 

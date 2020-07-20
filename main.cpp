@@ -6,8 +6,10 @@
 void visualize() {
     char memory[51];
     memory[50] = '\0';
-    Generator::get(38911 - 25, 38911 + 25, memory);
-    std::cout << memory << std::endl;
+    for (int i = 0; i < 5; ++i) {
+        Generator::get(i * 50, (i + 1) * 50, memory);
+        std::cout << memory << std::endl;
+    }
 }
 
 void performanceTest() {
@@ -47,8 +49,8 @@ void write() {
 }
 
 int main() {
-    //visualize();
+//    visualize();
     performanceTest();
-    //write();
+//    write();
     return 0;
 }
