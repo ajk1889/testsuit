@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Generator.h"
+#include "implementations/Generator.h"
 #include <chrono>
 #include <fstream>
 
