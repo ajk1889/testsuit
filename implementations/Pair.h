@@ -14,4 +14,5 @@ struct Pair{
         second = b;
     }
 };
+
 #endif //TESTSUIT_PAIR_H

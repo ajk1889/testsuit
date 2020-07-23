@@ -5,8 +5,8 @@
 #ifndef TESTSUIT_SERVER_H
 #define TESTSUIT_SERVER_H
 
-#include "implementations/ServerSocket.h"
-#include "implementations/Socket.h"
+#include "../implementations/networking/ServerSocket.h"
+#include "../implementations/networking/Socket.h"
 #include <thread>
 #include <iostream>
 
