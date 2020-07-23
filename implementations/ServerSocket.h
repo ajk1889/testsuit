@@ -20,6 +20,10 @@ public:
     explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10);
 
     Socket accept() const;
+
+    void close() const { ::close(serverSocketFd); }
+
+    ~ServerSocket() { close(); }
 };
 
 

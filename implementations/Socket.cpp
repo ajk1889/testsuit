@@ -22,9 +22,11 @@ ssize_t Socket::read(char *buffer, const uint N) const {
     return result;
 }
 
-ssize_t Socket::write(const char *buffer, const uint N) const {
+void Socket::write(const char *buffer, const uint N) const {
     auto result = ::write(socketFd, buffer, N);
-    if (result < 0)
-        throw std::runtime_error("ERROR writing to socket");
-    return result;
+    while (result < N) {
+        if (result < 0)
+            throw std::runtime_error("ERROR writing to socket");
+        result += ::write(socketFd, buffer + result, N - result);
+    }
 }

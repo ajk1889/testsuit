@@ -16,18 +16,16 @@ struct Server {
     static void startServer() {
         ServerSocket server;
         Socket client = server.accept();
-        char bfr[256];
-        bfr[client.read(bfr, 255)] = '\0';
-        std::cout << bfr << std::endl;
-        client.write("hello world! from server");
+        int number;
+        std::cout << client.read(number) << std::endl;
+        client.write(81273);
     }
 
     static void connect() {
         Socket socket("127.0.0.1", 1234);
-        socket.write("hello world! from client");
-        char bfr[256];
-        bfr[socket.read(bfr, 255)] = '\0';
-        std::cout << bfr << std::endl;
+        socket.write(10000);
+        int number;
+        std::cout << socket.read(number) << std::endl;
     }
 
     static void test() {

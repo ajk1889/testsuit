@@ -28,14 +28,21 @@ public:
     Socket(const string &ip, short port);
 
     template<unsigned int N>
-    ssize_t write(const char (&buffer)[N]) const {
+    void write(const char (&buffer)[N]) const {
         auto result = ::write(socketFd, buffer, N);
-        if (result < 0)
-            throw std::runtime_error("ERROR writing to socket");
-        return result;
+        while (result < N) {
+            if (result < 0)
+                throw std::runtime_error("ERROR writing to socket");
+            result += ::write(socketFd, buffer + result, N - result);
+        }
     }
 
-    ssize_t write(const char *buffer, uint N) const;
+    template<typename T>
+    void write(const T &object) const {
+        write(reinterpret_cast<const char *>(&object), sizeof(T));
+    }
+
+    void write(const char *buffer, uint N) const;
 
     template<unsigned int N>
     ssize_t read(char (&buffer)[N]) const {
@@ -45,11 +52,24 @@ public:
         return result;
     }
 
+    template<typename T>
+    T &read(T &to) const {
+        auto toPtr = reinterpret_cast<char *>(&to);
+        constexpr auto N = sizeof(T);
+        auto result = read(toPtr, N);
+        while (result < N) {
+            if (result < 0)
+                throw std::runtime_error("ERROR reading from socket");
+            result += read(toPtr + result, N - result);
+        }
+        return to;
+    }
+
     ssize_t read(char *buffer, uint N) const;
 
-    void close() const {
-        ::close(socketFd);
-    }
+    void close() const { ::close(socketFd); }
+
+    ~Socket() { close(); }
 };
 
 
