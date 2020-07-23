@@ -13,9 +13,7 @@ typedef unsigned long long Long;
 
 class Generator {
     friend void visualize();
-
     friend int main();
-
     friend void performanceTest();
 
 private:
@@ -55,5 +53,10 @@ public:
     }
 };
 
+void visualize();
+
+void performanceTest();
+
+void write();
 
 #endif //TESTSUIT_GENERATOR_H

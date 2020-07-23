@@ -10,28 +10,16 @@
 #include <netinet/in.h>
 #include <strings.h>
 
+#include "Socket.h"
+
 class ServerSocket {
-    int socketFd;
+    int serverSocketFd;
     uint maxParallelConns = 1;
     short port;
+public:
+    explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10);
 
-    explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10)
-            : port(portNo), maxParallelConns(maxParallelConnections) {
-        socketFd = socket(AF_INET, SOCK_STREAM, 0);
-        if (socketFd < 0)
-            throw std::runtime_error("ERROR opening socket");
-        sockaddr_in serv_addr{};
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        serv_addr.sin_addr.s_addr = INADDR_ANY;
-        serv_addr.sin_port = htons(port);
-        if (bind(socketFd, (sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-            throw std::runtime_error("ERROR on binding");
-        listen(socketFd, maxParallelConns);
-    }
-
-    void accept() {
-    }
+    Socket accept() const;
 };
 
 
