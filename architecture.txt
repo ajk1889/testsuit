@@ -1,0 +1,28 @@
+command line params
+    port
+    download speed limit
+    upload speed limit
+    shared folder
+        ignored paths
+    uploads folder
+    shared text log file
+    123 file path
+    123 file size
+    if file path conflicts with 123 file, prefer which
+    cookie
+    ping
+    lengthonly
+    nolength
+    logging
+
+generate custom config file template: all
+
+direct input to cmd: all except port + 'stop' command
+
+textshare: bidirectional
+    api = GET /textInput returns data from server
+    api = POST /textOutput saves data to shared text log file
+    page = GET /text uses AJAX to communicate using API
+
+file listing:
+    
