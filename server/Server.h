@@ -1,7 +1,3 @@
-//
-// Created by ajk on 08/07/20.
-//
-
 #ifndef TESTSUIT_SERVER_H
 #define TESTSUIT_SERVER_H
 
@@ -14,9 +10,9 @@
 using std::thread;
 
 class Server {
-    static void startServer();
+    friend void startServer();
 
-    static void connect();
+    friend void connectToServer();
 
 public:
     static void test();
