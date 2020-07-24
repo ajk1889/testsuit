@@ -48,7 +48,7 @@ void write() {
     op.close();
 }
 
-void Generator::get(Long start, Long end, char *memory) {
+void Generator::get(ULong start, ULong end, char *memory) {
     if (start < end) {
         auto offTheEnd = memory + (end - start);
         if (start == 0) {
@@ -74,7 +74,7 @@ void Generator::get(Long start, Long end, char *memory) {
     }
 }
 
-inline char *Generator::toString(Long num, char *ptr, const char *offTheEnd) {
+inline char *Generator::toString(ULong num, char *ptr, const char *offTheEnd) {
     if (ptr < offTheEnd) {
         if (num > 0) {
             auto writePtr = ptr + lenDigits(num);
@@ -95,7 +95,7 @@ inline char *Generator::toString(Long num, char *ptr, const char *offTheEnd) {
     } else return ptr;
 }
 
-inline Pair<Long, int> Generator::spacesBehind(Long index) {
+inline Pair<ULong, int> Generator::spacesBehind(ULong index) {
     auto digitChangeIndex = lowerDigitChangeIndex(index);
     auto lowIndex = digitChangeIndex.first;
     auto digits = digitChangeIndex.second;
@@ -105,7 +105,7 @@ inline Pair<Long, int> Generator::spacesBehind(Long index) {
     return {spaces, static_cast<int>(extraChars)};
 }
 
-inline Pair<Long, int> Generator::lowerDigitChangeIndex(Long index) {
+inline Pair<ULong, int> Generator::lowerDigitChangeIndex(ULong index) {
     auto upperIndex = 1UL;
     auto lowerIndex = 1UL;
     auto digits = 0;
@@ -117,7 +117,7 @@ inline Pair<Long, int> Generator::lowerDigitChangeIndex(Long index) {
     return {lowerIndex, digits};
 }
 
-inline void Generator::generateString(Long start, char *memory, const char *offTheEnd) {
+inline void Generator::generateString(ULong start, char *memory, const char *offTheEnd) {
     memory = toString(start, memory, offTheEnd);
     while (memory < offTheEnd) {
         *(memory++) = ' ';
