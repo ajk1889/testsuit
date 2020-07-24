@@ -1,7 +1,3 @@
-//
-// Created by ajk on 20/07/20.
-//
-
 #ifndef TESTSUIT_SERVERSOCKET_H
 #define TESTSUIT_SERVERSOCKET_H
 

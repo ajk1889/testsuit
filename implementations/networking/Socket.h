@@ -1,7 +1,3 @@
-//
-// Created by ajk on 20/07/20.
-//
-
 #ifndef TESTSUIT_SOCKET_H
 #define TESTSUIT_SOCKET_H
 

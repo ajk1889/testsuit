@@ -1,7 +1,3 @@
-//
-// Created by ajk on 08/07/20.
-//
-
 #ifndef TESTSUIT_GENERATOR_H
 #define TESTSUIT_GENERATOR_H
 #include "Pair.h"

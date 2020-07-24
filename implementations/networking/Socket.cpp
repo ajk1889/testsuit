@@ -1,7 +1,3 @@
-//
-// Created by ajk on 20/07/20.
-//
-
 #include "Socket.h"
 
 Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STREAM, 0)) {
