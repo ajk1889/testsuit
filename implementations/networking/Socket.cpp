@@ -12,6 +12,7 @@ Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STR
 }
 
 ssize_t Socket::read(char *buffer, const uint N) const {
+    if (N == 0) return 0;
     auto result = ::read(socketFd, buffer, N);
     if (result < 0)
         throw std::runtime_error("ERROR reading from socket");
@@ -19,6 +20,7 @@ ssize_t Socket::read(char *buffer, const uint N) const {
 }
 
 void Socket::write(const char *buffer, const uint N) const {
+    if (N == 0) return;
     auto result = ::write(socketFd, buffer, N);
     while (result < N) {
         if (result < 0)

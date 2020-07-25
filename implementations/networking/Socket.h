@@ -16,9 +16,14 @@ using std::string;
 
 class Socket {
     friend class ServerSocket;
+
     int socketFd;
+
+    friend class Server;
+
 public:
     explicit Socket(int fd) : socketFd(fd) {}
+
     Socket(const string &ip, short port);
 
     template<unsigned int N>

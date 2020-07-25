@@ -19,7 +19,7 @@ class Server {
 
     friend void connectToServer();
 
-    void handleClient(SocketPtr socketPtr) {
+    void handleClient(const SocketPtr &socketPtr) {
 
     }
 
