@@ -3,18 +3,19 @@
 #include <unistd.h>
 #include "server/Server.h"
 
-thread *asyncTest() {
-    return new thread([] {
-        for (int i = 0; i < 120; ++i) {
-            usleep(30000);
+void asyncTest() {
+    thread t([] {
+        int i = 0;
+        while (++i < 100) {
+            usleep(40000);
             std::cout << i << std::endl;
         }
     });
+    t.detach();
 }
 
 int main() {
-    auto thread = asyncTest();
-    usleep(3000000);
-    delete thread;
+    asyncTest();
+    usleep(10000000);
     return 0;
 }

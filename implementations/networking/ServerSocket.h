@@ -5,7 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <strings.h>
-
+#include <memory>
 #include "Socket.h"
 
 class ServerSocket {
@@ -15,7 +15,7 @@ class ServerSocket {
 public:
     explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10);
 
-    Socket accept() const;
+    std::shared_ptr<Socket> accept() const;
 
     void close() const { ::close(serverSocketFd); }
 

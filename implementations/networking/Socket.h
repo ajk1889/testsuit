@@ -10,17 +10,15 @@
 #include <strings.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <memory>
 
 using std::string;
 
 class Socket {
     friend class ServerSocket;
-
     int socketFd;
-
-    explicit Socket(int fd) : socketFd(fd) {}
-
 public:
+    explicit Socket(int fd) : socketFd(fd) {}
     Socket(const string &ip, short port);
 
     template<unsigned int N>
@@ -60,7 +58,6 @@ public:
         }
         return to;
     }
-
     ssize_t read(char *buffer, uint N) const;
 
     void close() const { ::close(socketFd); }

@@ -1,7 +1,7 @@
 #ifndef TESTSUIT_HELPERS_H
 #define TESTSUIT_HELPERS_H
 
-#include <cstdio>  /* defines FILENAME_MAX */
+#include <cstdio>
 #include <string>
 
 #ifdef WINDOWS
@@ -17,11 +17,6 @@
 
 using std::string;
 
-string currentWorkingDir() {
-    char cCurrentPath[FILENAME_MAX];
-    if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
-        throw std::runtime_error("ERROR writing to socket");
-    return cCurrentPath;
-}
+string currentWorkingDir();
 
 #endif //TESTSUIT_HELPERS_H

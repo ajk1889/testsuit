@@ -2,10 +2,10 @@
 
 void startServer() {
     ServerSocket server;
-    Socket client = server.accept();
+    auto client = server.accept();
     int number;
-    std::cout << client.read(number) << std::endl;
-    client.write(-81273);
+    std::cout << client->read(number) << std::endl;
+    client->write(-81273);
 }
 
 void connectToServer() {
