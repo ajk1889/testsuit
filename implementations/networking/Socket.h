@@ -22,6 +22,7 @@ class Socket {
     friend class Server;
 
 public:
+    Socket(const Socket &) = delete;
     explicit Socket(int fd) : socketFd(fd) {}
 
     Socket(const string &ip, short port);
@@ -45,10 +46,7 @@ public:
 
     template<unsigned int N>
     ssize_t read(char (&buffer)[N]) const {
-        auto result = ::read(socketFd, buffer, N);
-        if (result < 0)
-            throw std::runtime_error("ERROR reading from socket");
-        return result;
+        return ::read(socketFd, buffer, N);
     }
 
     template<typename T>
@@ -63,6 +61,7 @@ public:
         }
         return to;
     }
+
     ssize_t read(char *buffer, uint N) const;
 
     void close() const { ::close(socketFd); }

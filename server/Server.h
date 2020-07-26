@@ -4,6 +4,7 @@
 #include "../implementations/networking/ServerSocket.h"
 #include "../implementations/networking/Socket.h"
 #include "../server/ServerParams.h"
+#include "../implementations/networking/HttpRequest.h"
 #include <thread>
 #include <set>
 #include <iostream>
@@ -19,16 +20,17 @@ class Server {
 
     friend void connectToServer();
 
-    void handleClient(const SocketPtr &socketPtr) {
-
-    }
-
-    void handleClientAsync(SocketPtr socketPtr) {
-        thread handler([&] { handleClient(socketPtr); });
-        handler.detach();
+    static void handleClient(const SocketPtr &socketPtr) {
+        HttpRequest request(socketPtr);
+        std::cout << request.extractRawHeaders() << std::endl;
+        char bfr[BUFSIZ + 1];
+        bfr[request.read(bfr, BUFSIZ)] = '\0';
+        std::cout << bfr << std::endl;
+        socketPtr->close();
     }
 
     shared_ptr<ServerSocket> serverSocket;
+    thread clientAcceptor;
 public:
     ServerParams params;
     bool isRunning = true;
@@ -37,11 +39,16 @@ public:
 
     void start() {
         serverSocket = make_shared<ServerSocket>(params.port, params.maxDownloadSpeed);
-        thread clientAcceptor([&] {
+        clientAcceptor = thread([&] {
             while (isRunning)
-                handleClientAsync(serverSocket->accept());
+                handleClient(serverSocket->accept());
         });
         clientAcceptor.detach();
+    }
+
+    void stop() {
+        isRunning = false;
+        serverSocket->close();
     }
 };
 

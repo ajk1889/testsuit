@@ -13,6 +13,8 @@ class ServerSocket {
     uint maxParallelConns = 1;
     short port;
 public:
+    ServerSocket(const ServerSocket &) = delete;
+
     explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10);
 
     std::shared_ptr<Socket> accept() const;
