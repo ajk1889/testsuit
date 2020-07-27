@@ -10,15 +10,13 @@
 #include <memory>
 #include "../ArrayJoiner.h"
 #include "Socket.h"
+#include <curl/curl.h>
+#include <curl/easy.h>
 
 using std::string;
 using std::map;
 using std::vector;
 using std::shared_ptr;
-
-enum RequestType {
-    GET, POST, PUT, DELETE, HEAD
-};
 
 class HttpRequest {
     friend class Socket;
@@ -33,15 +31,24 @@ public:
     map<string, vector<string>> HEADERS;
     map<string, string> GET;
     map<string, string> POST;
-    RequestType requestType = RequestType::GET;
+    string httpVersion;
+    string path;
+    string requestType;
+    CURL *curl = nullptr;
 
     ssize_t read(char *buffer, uint N) const;
 
     string extractRawHeaders();
 
+    void extractGetParams(const string &basicString);
+
+    void setRequestParams();
+
     shared_ptr<Socket> socket;
 
-    explicit HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)) {}
+    explicit HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)), curl(curl_easy_init()) {}
+
+    void extractHeaderKeyValues(const string &headerKeyValues);
 };
 
 

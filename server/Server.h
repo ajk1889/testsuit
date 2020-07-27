@@ -22,10 +22,7 @@ class Server {
 
     static void handleClient(const SocketPtr &socketPtr) {
         HttpRequest request(socketPtr);
-        std::cout << request.extractRawHeaders() << std::endl;
-        char bfr[BUFSIZ + 1];
-        bfr[request.read(bfr, BUFSIZ)] = '\0';
-        std::cout << bfr << std::endl;
+        request.setRequestParams();
         socketPtr->close();
     }
 

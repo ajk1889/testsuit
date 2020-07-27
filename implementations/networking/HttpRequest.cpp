@@ -59,3 +59,58 @@ int HttpRequest::headerTerminationPoint(const char *buffer, uint len, const char
     }
     return -1;
 }
+
+void HttpRequest::extractGetParams(const string &basicString) {
+
+}
+
+void HttpRequest::setRequestParams() {
+    auto rawHeaders = extractRawHeaders();
+    auto headersLen = rawHeaders.length();
+
+    // finding HTTP Method
+    size_t leftFlagPos = 0, rightFlagPos = rawHeaders.find(' ');
+    if (rightFlagPos < 3 || rightFlagPos > 6)
+        throw std::runtime_error("Invalid request method\n" + rawHeaders);
+    requestType = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
+    leftFlagPos = rightFlagPos + 1;
+
+    // finding request path
+    if (leftFlagPos >= headersLen)
+        throw std::runtime_error("Invalid headers\n" + rawHeaders);
+    rightFlagPos = rawHeaders.find(' ', leftFlagPos);
+    path = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
+    auto queryStartIndex = path.find('?');
+    if (queryStartIndex != -1) {
+        extractGetParams(path.substr(queryStartIndex + 1));
+        path = curl_easy_unescape(curl, path.c_str(), queryStartIndex, nullptr);
+    } else path = curl_easy_unescape(curl, path.c_str(), path.length(), nullptr);
+    leftFlagPos = rightFlagPos + 1;
+
+    // finding HTTP protocol version
+    if (leftFlagPos >= headersLen)
+        throw std::runtime_error("Invalid headers\n" + rawHeaders);
+    rightFlagPos = rawHeaders.find('\r', leftFlagPos);
+    httpVersion = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
+
+    // setting HTTP-Headers
+    leftFlagPos = rightFlagPos + 2;
+    if (leftFlagPos >= headersLen)
+        throw std::runtime_error("Incomplete headers\n" + rawHeaders);
+    extractHeaderKeyValues(rawHeaders.substr(leftFlagPos));
+}
+
+void HttpRequest::extractHeaderKeyValues(const string &headerKeyValues) {
+    int startPos = 0, separatorPos, endPos;
+    while (true) {
+        separatorPos = headerKeyValues.find(':', startPos);
+        if (separatorPos == -1) break;
+        endPos = headerKeyValues.find('\r', separatorPos);
+        auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
+        separatorPos += 2;
+        auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
+        std::cout << '|' << key << '|' << value << '|' << std::endl;
+        HEADERS[key].push_back(value);
+        startPos = endPos + 2;
+    }
+}
