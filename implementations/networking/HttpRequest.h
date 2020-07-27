@@ -24,8 +24,15 @@ class HttpRequest {
     char extraReadBytes[BUFSIZ]{};
     uint extraReadBytesLen = 0;
     mutable uint extraReadBytesOffset = 0;
+    CURL *curl = nullptr;
 
     static int headerTerminationPoint(const char *buffer, uint len, const char (&last3)[3]);
+
+    string extractRawHeaders();
+
+    void extractGetParams(const string &basicString);
+
+    void extractHeaderKeyValues(const string &headerKeyValues);
 
 public:
     map<string, vector<string>> HEADERS;
@@ -34,21 +41,11 @@ public:
     string httpVersion;
     string path;
     string requestType;
-    CURL *curl = nullptr;
+    shared_ptr<Socket> socket;
 
     ssize_t read(char *buffer, uint N) const;
 
-    string extractRawHeaders();
-
-    void extractGetParams(const string &basicString);
-
-    void setRequestParams();
-
-    shared_ptr<Socket> socket;
-
-    explicit HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)), curl(curl_easy_init()) {}
-
-    void extractHeaderKeyValues(const string &headerKeyValues);
+    explicit HttpRequest(shared_ptr<Socket> client);
 };
 
 

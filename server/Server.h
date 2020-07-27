@@ -22,7 +22,6 @@ class Server {
 
     static void handleClient(const SocketPtr &socketPtr) {
         HttpRequest request(socketPtr);
-        request.setRequestParams();
         socketPtr->close();
     }
 

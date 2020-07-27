@@ -64,7 +64,7 @@ void HttpRequest::extractGetParams(const string &basicString) {
 
 }
 
-void HttpRequest::setRequestParams() {
+HttpRequest::HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)), curl(curl_easy_init()) {
     auto rawHeaders = extractRawHeaders();
     auto headersLen = rawHeaders.length();
 
