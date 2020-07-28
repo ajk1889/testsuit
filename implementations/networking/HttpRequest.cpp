@@ -25,9 +25,9 @@ string HttpRequest::extractRawHeaders() {
     auto n = client.read(buffer, BUFSIZ);
     char last3[] = {'0', '0', '0'}; // some random value other than \r\n\r\n
     string rawHeaders;
-    while (n && rawHeaders.size() < MAX_HEADER_SIZE) {
+    while (n > -1 && rawHeaders.length() < MAX_HEADER_SIZE) {
         auto headerTermination = headerTerminationPoint(buffer, n, last3);
-        if (headerTermination > -1) {
+        if (headerTermination == -1) {
             buffer[n] = '\0';
             rawHeaders += buffer;
             fill(std::max(reinterpret_cast<char *>(buffer), buffer + n - 3), last3, n);
@@ -42,6 +42,8 @@ string HttpRequest::extractRawHeaders() {
             break;
         }
     }
+    if (rawHeaders.length() >= MAX_HEADER_SIZE)
+        throw std::runtime_error("Error too long headers");
     return std::move(rawHeaders);
 }
 
@@ -50,7 +52,7 @@ inline bool matchesCRLF(ArrayJoiner &joined, int offset) {
            joined[offset + 3] == '\n';
 }
 
-int HttpRequest::headerTerminationPoint(const char *buffer, uint len, const char (&last3)[3]) {
+int HttpRequest::headerTerminationPoint(const char *buffer, int len, const char (&last3)[3]) {
     if (len == 0) return -1;
     ArrayJoiner joined(last3, buffer);
     for (int j = -3; j < len; ++j) {
@@ -61,7 +63,7 @@ int HttpRequest::headerTerminationPoint(const char *buffer, uint len, const char
 }
 
 void HttpRequest::extractGetParams(const string &basicString) {
-
+    std::cout << basicString << std::endl;
 }
 
 HttpRequest::HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)), curl(curl_easy_init()) {
@@ -109,7 +111,6 @@ void HttpRequest::extractHeaderKeyValues(const string &headerKeyValues) {
         auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
         separatorPos += 2;
         auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
-        std::cout << '|' << key << '|' << value << '|' << std::endl;
         HEADERS[key].push_back(value);
         startPos = endPos + 2;
     }

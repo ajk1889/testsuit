@@ -26,7 +26,7 @@ class HttpRequest {
     mutable uint extraReadBytesOffset = 0;
     CURL *curl = nullptr;
 
-    static int headerTerminationPoint(const char *buffer, uint len, const char (&last3)[3]);
+    static int headerTerminationPoint(const char *buffer, int len, const char (&last3)[3]);
 
     string extractRawHeaders();
 

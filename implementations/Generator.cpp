@@ -34,10 +34,7 @@ void performanceTest() {
 void write() {
     constexpr auto bfr = 1024UL * 1024UL;
     std::ofstream op("nums.bin", std::ios::out | std::ios::binary);
-    if (!op) {
-        std::cout << "Failed to open file";
-        return;
-    }
+    if (!op) throw std::runtime_error("Failed to open file");
     Generator generator(0);
     auto *memory = new char[bfr];
     for (int i = 0; i < 100; ++i) {

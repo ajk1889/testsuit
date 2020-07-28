@@ -24,9 +24,9 @@ public:
     template<unsigned N>
     ArrayJoiner(const char (&arr1)[N], const char *arr2): first(arr1), second(arr2), len1(N) {}
 
-    char operator[](uint index) {
+    char operator[](int index) {
         if (index < 0) return first[index + len1];
-        else return second[index - len1];
+        else return second[index];
     }
 };
 
