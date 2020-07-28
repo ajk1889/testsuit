@@ -34,6 +34,8 @@ class HttpRequest {
 
     void extractHeaderKeyValues(const string &headerKeyValues);
 
+    explicit HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)) {}
+
 public:
     map<string, vector<string>> HEADERS;
     map<string, string> GET;
@@ -45,7 +47,7 @@ public:
 
     ssize_t read(char *buffer, uint N) const;
 
-    explicit HttpRequest(shared_ptr<Socket> client);
+    static HttpRequest from(const shared_ptr<Socket> &client);
 };
 
 

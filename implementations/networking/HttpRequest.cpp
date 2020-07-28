@@ -84,40 +84,42 @@ void HttpRequest::extractGetParams(const string &basicString) {
     }
 }
 
-HttpRequest::HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)), curl(curl_easy_init()) {
-    auto rawHeaders = extractRawHeaders();
+HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
+    auto req = HttpRequest(client);
+    auto rawHeaders = req.extractRawHeaders();
     auto headersLen = rawHeaders.length();
 
     // finding HTTP Method
     size_t leftFlagPos = 0, rightFlagPos = rawHeaders.find(' ');
     if (rightFlagPos < 3 || rightFlagPos > 6)
         throw std::runtime_error("Invalid request method\n" + rawHeaders);
-    requestType = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
+    req.requestType = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
     leftFlagPos = rightFlagPos + 1;
 
     // finding request path
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Invalid headers\n" + rawHeaders);
     rightFlagPos = rawHeaders.find(' ', leftFlagPos);
-    path = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
-    auto queryStartIndex = path.find('?');
+    req.path = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
+    auto queryStartIndex = req.path.find('?');
     if (queryStartIndex != -1) {
-        extractGetParams(path.substr(queryStartIndex + 1));
-        path = unEscape(path, queryStartIndex);
-    } else path = unEscape(path, path.length());
+        req.extractGetParams(req.path.substr(queryStartIndex + 1));
+        req.path = unEscape(req.path, queryStartIndex);
+    } else req.path = unEscape(req.path, req.path.length());
     leftFlagPos = rightFlagPos + 1;
 
     // finding HTTP protocol version
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Invalid headers\n" + rawHeaders);
     rightFlagPos = rawHeaders.find('\r', leftFlagPos);
-    httpVersion = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
+    req.httpVersion = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
 
     // setting HTTP-Headers
     leftFlagPos = rightFlagPos + 2;
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Incomplete headers\n" + rawHeaders);
-    extractHeaderKeyValues(rawHeaders.substr(leftFlagPos));
+    req.extractHeaderKeyValues(rawHeaders.substr(leftFlagPos));
+    return req;
 }
 
 void HttpRequest::extractHeaderKeyValues(const string &headerKeyValues) {

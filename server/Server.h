@@ -21,7 +21,8 @@ class Server {
     friend void connectToServer();
 
     static void handleClient(const SocketPtr &socketPtr) {
-        HttpRequest request(socketPtr);
+        auto request = HttpRequest::from(socketPtr);
+        std::cout << request.path << std::endl;
         socketPtr->close();
     }
 
