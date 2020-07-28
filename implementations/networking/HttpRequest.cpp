@@ -1,6 +1,7 @@
 #include <iostream>
 #include "HttpRequest.h"
 #include "../constants.h"
+#include "../helpers.h"
 
 ssize_t HttpRequest::read(char *buffer, uint N) const {
     auto copyLen = std::min(N, extraReadBytesLen - extraReadBytesOffset);
@@ -63,7 +64,24 @@ int HttpRequest::headerTerminationPoint(const char *buffer, int len, const char 
 }
 
 void HttpRequest::extractGetParams(const string &basicString) {
-    std::cout << basicString << std::endl;
+    int start = 0, separator, end;
+    while (true) {
+        end = basicString.find('&', start);
+        separator = basicString.find('=', start);
+        if (end < 0) {
+            if (separator >= 0) {
+                GET[unEscape(basicString.substr(start, separator - start))] =
+                        unEscape(basicString.substr(separator + 1));
+            } else GET[unEscape(basicString.substr(start))];
+            break;
+        } else {
+            if (separator >= 0) {
+                GET[unEscape(basicString.substr(start, separator - start))] =
+                        unEscape(basicString.substr(separator + 1, end - separator - 1));
+            } else GET[unEscape(basicString.substr(start, end - start))];
+            start = end + 1;
+        }
+    }
 }
 
 HttpRequest::HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)), curl(curl_easy_init()) {
@@ -85,8 +103,8 @@ HttpRequest::HttpRequest(shared_ptr<Socket> client) : socket(std::move(client)),
     auto queryStartIndex = path.find('?');
     if (queryStartIndex != -1) {
         extractGetParams(path.substr(queryStartIndex + 1));
-        path = curl_easy_unescape(curl, path.c_str(), queryStartIndex, nullptr);
-    } else path = curl_easy_unescape(curl, path.c_str(), path.length(), nullptr);
+        path = unEscape(path, queryStartIndex);
+    } else path = unEscape(path, path.length());
     leftFlagPos = rightFlagPos + 1;
 
     // finding HTTP protocol version

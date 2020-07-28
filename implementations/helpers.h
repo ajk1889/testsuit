@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <string>
+#include <curl/curl.h>
 
 #ifdef WINDOWS
 #include <direct.h>
@@ -17,6 +18,9 @@
 
 using std::string;
 
+void *getCurl();
+
 string currentWorkingDir();
 
+string unEscape(const string &escaped, size_t length = 0);
 #endif //TESTSUIT_HELPERS_H
