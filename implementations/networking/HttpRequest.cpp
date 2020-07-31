@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include "HttpRequest.h"
 #include "../constants.h"
 #include "../helpers.h"
@@ -20,26 +21,25 @@ inline void fill(const char *source, char (&dest)[3], int len) {
 }
 
 string HttpRequest::extractRawHeaders() {
-    char buffer[BUFSIZ + 1];
-    buffer[BUFSIZ] = '\0';
+    char buffer[BUFFER_SIZE + 1];
+    buffer[BUFFER_SIZE] = '\0';
     auto &client = *socket;
-    auto n = client.read(buffer, BUFSIZ);
+    decltype(client.read(buffer, BUFFER_SIZE)) bytesRead;
     char last3[] = {'0', '0', '0'}; // some random value other than \r\n\r\n
     string rawHeaders;
-    while (n > -1 && rawHeaders.length() < MAX_HEADER_SIZE) {
-        auto headerTermination = headerTerminationPoint(buffer, n, last3);
+    while ((bytesRead = client.read(buffer, BUFFER_SIZE)) > -1 && rawHeaders.length() < MAX_HEADER_SIZE) {
+        auto headerTermination = headerTerminationPoint(buffer, bytesRead, last3);
         if (headerTermination == -1) {
-            buffer[n] = '\0';
+            buffer[bytesRead] = '\0';
             rawHeaders += buffer;
-            fill(std::max(reinterpret_cast<char *>(buffer), buffer + n - 3), last3, n);
-            n = client.read(buffer, BUFSIZ);
+            fill(std::max(reinterpret_cast<char *>(buffer), buffer + bytesRead - 3), last3, bytesRead);
         } else {
             auto backup = buffer[headerTermination];
             buffer[headerTermination] = '\0';
             rawHeaders += buffer;
             buffer[headerTermination] = backup;
-            memcpy(extraReadBytes, buffer + headerTermination, n - headerTermination);
-            extraReadBytes[n - headerTermination] = '\0';
+            memcpy(extraReadBytes, buffer + headerTermination, bytesRead - headerTermination);
+            extraReadBytesLen = bytesRead - headerTermination;
             break;
         }
     }
@@ -63,26 +63,57 @@ int HttpRequest::headerTerminationPoint(const char *buffer, int len, const char 
     return -1;
 }
 
-void HttpRequest::extractGetParams(const string &basicString) {
+string readStringFromRequest(const HttpRequest &request, long long nBytes) {
+    string str;
+    str.reserve(nBytes);
+    char buffer[BUFFER_SIZE + 1]{};
+    decltype(request.read(buffer, min(BUFFER_SIZE, nBytes))) bytesRead;
+    while ((bytesRead = request.read(buffer, min(BUFFER_SIZE, nBytes))) > -1 && nBytes > 0) {
+        buffer[bytesRead] = '\0';
+        str.append(buffer);
+        nBytes -= bytesRead;
+    }
+    return str;
+}
+
+void parseUrlEncodedPairs(const string &basicString, map<string, string> &outMap) {
     int start = 0, separator, end;
     while (true) {
         end = basicString.find('&', start);
         separator = basicString.find('=', start);
-        if (end < 0) {
-            if (separator >= 0) {
-                GET[unEscape(basicString.substr(start, separator - start))] =
-                        unEscape(basicString.substr(separator + 1));
-            } else GET[unEscape(basicString.substr(start))];
+        if (end == string::npos) {
+            if (separator != string::npos) {
+                outMap[urlDecode(basicString.substr(start, separator - start))] =
+                        urlDecode(basicString.substr(separator + 1));
+            } else outMap[urlDecode(basicString.substr(start))];
             break;
         } else {
-            if (separator >= 0) {
-                GET[unEscape(basicString.substr(start, separator - start))] =
-                        unEscape(basicString.substr(separator + 1, end - separator - 1));
-            } else GET[unEscape(basicString.substr(start, end - start))];
+            if (separator != string::npos) {
+                outMap[urlDecode(basicString.substr(start, separator - start))] =
+                        urlDecode(basicString.substr(separator + 1, end - separator - 1));
+            } else outMap[urlDecode(basicString.substr(start, end - start))];
             start = end + 1;
         }
     }
 }
+
+void extractRequestDataConditionally(HttpRequest &httpRequest) {
+    auto searchResult = httpRequest.HEADERS.find("Content-Length");
+    if (searchResult == httpRequest.HEADERS.cend()) return;
+    try {
+        auto contentLength = std::stoll(searchResult->second[0]);
+        if (contentLength == 0) return;
+        if (contentLength < 1 * MB) {
+            searchResult = httpRequest.HEADERS.find("Content-Type");
+            if (searchResult != httpRequest.HEADERS.cend() &&
+                searchResult->second[0] == "application/x-www-form-urlencoded") {
+                string postData = readStringFromRequest(httpRequest, contentLength);
+                parseUrlEncodedPairs(postData, httpRequest.POST);
+            }
+        } else throw std::runtime_error("Post data above 1 MB is not supported now");
+    } catch (...) {}
+}
+
 
 HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     auto req = HttpRequest(client);
@@ -100,18 +131,22 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Invalid headers\n" + rawHeaders);
     rightFlagPos = rawHeaders.find(' ', leftFlagPos);
+    if (rightFlagPos == string::npos)
+        throw std::runtime_error("Invalid headers\n" + rawHeaders);
     req.path = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
     auto queryStartIndex = req.path.find('?');
-    if (queryStartIndex != -1) {
-        req.extractGetParams(req.path.substr(queryStartIndex + 1));
-        req.path = unEscape(req.path, queryStartIndex);
-    } else req.path = unEscape(req.path, req.path.length());
+    if (queryStartIndex != string::npos) {
+        parseUrlEncodedPairs(req.path.substr(queryStartIndex + 1), req.GET);
+        req.path = urlDecode(req.path, queryStartIndex);
+    } else req.path = urlDecode(req.path);
     leftFlagPos = rightFlagPos + 1;
 
     // finding HTTP protocol version
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Invalid headers\n" + rawHeaders);
     rightFlagPos = rawHeaders.find('\r', leftFlagPos);
+    if (rightFlagPos == string::npos)
+        throw std::runtime_error("Invalid headers\n" + rawHeaders);
     req.httpVersion = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
 
     // setting HTTP-Headers
@@ -119,6 +154,8 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Incomplete headers\n" + rawHeaders);
     req.extractHeaderKeyValues(rawHeaders.substr(leftFlagPos));
+
+    extractRequestDataConditionally(req);
     return req;
 }
 
@@ -126,8 +163,10 @@ void HttpRequest::extractHeaderKeyValues(const string &headerKeyValues) {
     int startPos = 0, separatorPos, endPos;
     while (true) {
         separatorPos = headerKeyValues.find(':', startPos);
-        if (separatorPos == -1) break;
+        if (separatorPos == string::npos) break;
         endPos = headerKeyValues.find('\r', separatorPos);
+        if (endPos == string::npos)
+            throw std::runtime_error("Invalid headers\n" + headerKeyValues);
         auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
         separatorPos += 2;
         auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);

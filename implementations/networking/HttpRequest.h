@@ -10,6 +10,7 @@
 #include <memory>
 #include "../ArrayJoiner.h"
 #include "Socket.h"
+#include "../constants.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
 
@@ -21,16 +22,13 @@ using std::shared_ptr;
 class HttpRequest {
     friend class Socket;
 
-    char extraReadBytes[BUFSIZ]{};
+    char extraReadBytes[BUFFER_SIZE]{};
     uint extraReadBytesLen = 0;
     mutable uint extraReadBytesOffset = 0;
-    CURL *curl = nullptr;
 
     static int headerTerminationPoint(const char *buffer, int len, const char (&last3)[3]);
 
     string extractRawHeaders();
-
-    void extractGetParams(const string &basicString);
 
     void extractHeaderKeyValues(const string &headerKeyValues);
 

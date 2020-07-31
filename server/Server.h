@@ -22,7 +22,11 @@ class Server {
 
     static void handleClient(const SocketPtr &socketPtr) {
         auto request = HttpRequest::from(socketPtr);
-        std::cout << request.path << std::endl;
+        std::cout << "Path: " << request.path << std::endl;
+        for (auto &item: request.GET)
+            std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
+        for (auto &item: request.POST)
+            std::cout << "POST[" << item.first << "] = " << item.second << std::endl;
         socketPtr->close();
     }
 
