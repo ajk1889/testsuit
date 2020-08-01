@@ -4,17 +4,6 @@
 #include "../constants.h"
 #include "../helpers.h"
 
-ssize_t HttpRequest::read(char *buffer, uint N) const {
-    auto copyLen = std::min(N, extraReadBytesLen - extraReadBytesOffset);
-    if (copyLen > 0) {
-        memcpy(buffer, extraReadBytes + extraReadBytesOffset, copyLen);
-        extraReadBytesOffset += copyLen;
-        buffer += copyLen;
-        N -= copyLen;
-    }
-    return copyLen + socket->read(buffer, N);
-}
-
 inline void fill(const char *source, char (&dest)[3], int len) {
     auto offset = 3 - len;
     while (len--) dest[offset + len] = source[len];
@@ -27,7 +16,7 @@ string HttpRequest::extractRawHeaders() {
     decltype(client.read(buffer, BUFFER_SIZE)) bytesRead;
     char last3[] = {'0', '0', '0'}; // some random value other than \r\n\r\n
     string rawHeaders;
-    while ((bytesRead = client.read(buffer, BUFFER_SIZE)) > -1 && rawHeaders.length() < MAX_HEADER_SIZE) {
+    while (rawHeaders.length() < MAX_HEADER_SIZE && (bytesRead = client.read(buffer, BUFFER_SIZE)) > -1) {
         auto headerTermination = headerTerminationPoint(buffer, bytesRead, last3);
         if (headerTermination == -1) {
             buffer[bytesRead] = '\0';
@@ -38,8 +27,7 @@ string HttpRequest::extractRawHeaders() {
             buffer[headerTermination] = '\0';
             rawHeaders += buffer;
             buffer[headerTermination] = backup;
-            memcpy(extraReadBytes, buffer + headerTermination, bytesRead - headerTermination);
-            extraReadBytesLen = bytesRead - headerTermination;
+            client.unread(buffer + headerTermination, bytesRead - headerTermination);
             break;
         }
     }
@@ -68,7 +56,7 @@ string readStringFromRequest(const HttpRequest &request, long long nBytes) {
     str.reserve(nBytes);
     char buffer[BUFFER_SIZE + 1]{};
     decltype(request.read(buffer, min(BUFFER_SIZE, nBytes))) bytesRead;
-    while ((bytesRead = request.read(buffer, min(BUFFER_SIZE, nBytes))) > -1 && nBytes > 0) {
+    while (nBytes > 0 && (bytesRead = request.read(buffer, min(BUFFER_SIZE, nBytes))) > -1) {
         buffer[bytesRead] = '\0';
         str.append(buffer);
         nBytes -= bytesRead;
@@ -97,21 +85,29 @@ void parseUrlEncodedPairs(const string &basicString, map<string, string> &outMap
     }
 }
 
-void extractRequestDataConditionally(HttpRequest &httpRequest) {
-    auto searchResult = httpRequest.HEADERS.find("Content-Length");
-    if (searchResult == httpRequest.HEADERS.cend()) return;
-    try {
-        auto contentLength = std::stoll(searchResult->second[0]);
-        if (contentLength == 0) return;
-        if (contentLength < 1 * MB) {
-            searchResult = httpRequest.HEADERS.find("Content-Type");
-            if (searchResult != httpRequest.HEADERS.cend() &&
-                searchResult->second[0] == "application/x-www-form-urlencoded") {
-                string postData = readStringFromRequest(httpRequest, contentLength);
-                parseUrlEncodedPairs(postData, httpRequest.POST);
+void parseMultiPartFormData(const string &basicString) {
+}
+
+void extractRequestDataConditionally(HttpRequest &req) {
+    auto contentTypeIter = req.HEADERS.find("Content-Type");
+    if (contentTypeIter != req.HEADERS.cend()) {
+        if (contentTypeIter->second[0] == "application/x-www-form-urlencoded") {
+            auto contentLengthIter = req.HEADERS.find("Content-Length");
+            if (contentLengthIter == req.HEADERS.cend()) return;
+            try {
+                auto contentLength = std::stoll(contentLengthIter->second[0]);
+                if (contentLength == 0) return;
+                if (contentLength >= 2 * MB)
+                    throw std::runtime_error("POST should be below 2 MB for application/x-www-form-urlencoded data");
+                string postData = readStringFromRequest(req, contentLength);
+                parseUrlEncodedPairs(postData, req.POST);
+            } catch (...) {
+                throw std::runtime_error("Invalid content length value " + contentLengthIter->second[0]);
             }
-        } else throw std::runtime_error("Post data above 1 MB is not supported now");
-    } catch (...) {}
+        } else if (contentTypeIter->second[0].find("multipart/form-data;") != string::npos) {
+
+        }
+    }
 }
 
 

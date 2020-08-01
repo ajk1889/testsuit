@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Socket.h"
 
 Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STREAM, 0)) {
@@ -11,9 +12,18 @@ Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STR
         throw std::runtime_error("ERROR connecting");
 }
 
-ssize_t Socket::read(char *buffer, const uint N) const {
-    if (N == 0) return 0;
-    return ::read(socketFd, buffer, N);
+ssize_t Socket::read(char *buffer, uint N) {
+    decltype(min(N, unreadBytesCount)) availableBytesLen = 0;
+    if (N && unreadBytesCount) {
+        availableBytesLen = min(N, unreadBytesCount);
+        unreadBytesCount -= availableBytesLen;
+        N -= availableBytesLen;
+        memcpy(buffer, unreadBytes, availableBytesLen);
+        memmove(const_cast<char *>(unreadBytes),
+                unreadBytes + availableBytesLen, unreadBytesCount);
+    }
+    if (N) return ::read(socketFd, buffer, N) + availableBytesLen;
+    else return availableBytesLen;
 }
 
 void Socket::write(const char *buffer, const uint N) const {

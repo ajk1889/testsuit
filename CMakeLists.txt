@@ -27,6 +27,7 @@ add_executable(
         implementations/helpers.h
         implementations/helper.cpp
         implementations/ArrayJoiner.h
+        implementations/file/FileOrString.h
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})

@@ -11,6 +11,9 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <memory>
+#include <cstring>
+#include "../helpers.h"
+#include "../constants.h"
 
 using std::string;
 
@@ -18,11 +21,15 @@ class Socket {
     friend class ServerSocket;
 
     int socketFd;
+    constexpr static auto UNREAD_BUFFER_SIZE = 8 * KB;
+    char unreadBytes[UNREAD_BUFFER_SIZE]{};
+    uint unreadBytesCount = 0;
 
     friend class Server;
 
 public:
     Socket(const Socket &) = delete;
+
     explicit Socket(int fd) : socketFd(fd) {}
 
     Socket(const string &ip, short port);
@@ -46,11 +53,11 @@ public:
 
     template<unsigned int N>
     ssize_t read(char (&buffer)[N]) const {
-        return ::read(socketFd, buffer, N);
+        return read(buffer, N);
     }
 
     template<typename T>
-    T &read(T &to) const {
+    T &read(T &to) {
         auto toPtr = reinterpret_cast<char *>(&to);
         constexpr auto N = sizeof(T);
         auto result = read(toPtr, N);
@@ -62,7 +69,12 @@ public:
         return to;
     }
 
-    ssize_t read(char *buffer, uint N) const;
+    void unread(char *extraReadBytes, uint N) {
+        unreadBytesCount = min(N, UNREAD_BUFFER_SIZE);
+        memcpy(unreadBytes, extraReadBytes, unreadBytesCount);
+    }
+
+    ssize_t read(char *buffer, uint N);
 
     void close() const { ::close(socketFd); }
 

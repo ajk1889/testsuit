@@ -22,10 +22,6 @@ using std::shared_ptr;
 class HttpRequest {
     friend class Socket;
 
-    char extraReadBytes[BUFFER_SIZE]{};
-    uint extraReadBytesLen = 0;
-    mutable uint extraReadBytesOffset = 0;
-
     static int headerTerminationPoint(const char *buffer, int len, const char (&last3)[3]);
 
     string extractRawHeaders();
@@ -43,7 +39,10 @@ public:
     string requestType;
     shared_ptr<Socket> socket;
 
-    ssize_t read(char *buffer, uint N) const;
+    ssize_t read(char *buffer, uint N) const {
+        return socket->read(buffer, N);
+    }
+
 
     static HttpRequest from(const shared_ptr<Socket> &client);
 };
