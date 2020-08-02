@@ -12,18 +12,18 @@ Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STR
         throw std::runtime_error("ERROR connecting");
 }
 
-ssize_t Socket::read(char *buffer, uint N) {
+ssize_t Socket::read(char *buffer, const uint N) {
     decltype(min(N, unreadBytesCount)) availableBytesLen = 0;
     if (N && unreadBytesCount) {
         availableBytesLen = min(N, unreadBytesCount);
         unreadBytesCount -= availableBytesLen;
-        N -= availableBytesLen;
         memcpy(buffer, unreadBytes, availableBytesLen);
         memmove(const_cast<char *>(unreadBytes),
                 unreadBytes + availableBytesLen, unreadBytesCount);
-    }
-    if (N) return ::read(socketFd, buffer, N) + availableBytesLen;
-    else return availableBytesLen;
+        return availableBytesLen;
+    } else if (N) {
+        return ::read(socketFd, buffer, N);
+    } else return 0;
 }
 
 void Socket::write(const char *buffer, const uint N) const {

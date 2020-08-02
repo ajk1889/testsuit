@@ -12,6 +12,7 @@
 
 #include <unistd.h>
 #include <stdexcept>
+#include "constants.h"
 
 #define GetCurrentDir getcwd
 #endif
@@ -50,5 +51,13 @@ void replaceAll(string &base, const StrOrChar1 &searchKey, const StrOrChar2 &rep
 string urlDecode(string &escaped, size_t length = 0);
 
 string urlDecode(const string &escaped, size_t length = 0);
+
+class Socket;
+
+string readUntilMatch(Socket &socket, const string &match, ULong maxLen = ULONG_LONG_MAX);
+
+string readExact(Socket &socket, long long nBytes);
+
+void print(char *str, size_t lastIndex);
 
 #endif //TESTSUIT_HELPERS_H
