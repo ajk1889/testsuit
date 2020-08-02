@@ -54,7 +54,7 @@ string urlDecode(const string &escaped, size_t length = 0);
 
 class Socket;
 
-string readUntilMatch(Socket &socket, const string &match, ULong maxLen = ULONG_LONG_MAX);
+string readUntilMatch(Socket &socket, const string &match, ULong maxLen = 8 * KB);
 
 string readExact(Socket &socket, long long nBytes);
 

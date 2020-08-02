@@ -40,7 +40,7 @@ inline void fill(const char *source, string &destination, int len) {
     while (len--) destination[offset + len] = source[len];
 }
 
-bool matches(ArrayJoiner &joined, const int offset, const string &key) {
+bool matches(const ArrayJoiner &joined, const int offset, const string &key) {
     auto len = static_cast<int>(key.length());
     for (auto i = 0; i < len; ++i) {
         if (joined[i + offset] != key[i])
@@ -51,10 +51,11 @@ bool matches(ArrayJoiner &joined, const int offset, const string &key) {
 
 int find(const char *hayStack, const string &key, const int hayStackLen, const string &lastFew) {
     if (hayStackLen == 0) return -1;
-    ArrayJoiner joined(lastFew, hayStack);
-    for (int j = -static_cast<int>(lastFew.length()); j < hayStackLen; ++j) {
+    const ArrayJoiner joined(lastFew, hayStack);
+    const int lenLastFew = static_cast<int>(lastFew.length());
+    for (int j = -lenLastFew; j < hayStackLen; ++j) {
         if (matches(joined, j, key))
-            return j + lastFew.length() + 1;
+            return j + lenLastFew + 1;
     }
     return -1;
 }
@@ -67,23 +68,27 @@ string readUntilMatch(Socket &socket, const string &match, const ULong maxLen) {
     buffer[BUFFER_SIZE] = '\0';
     decltype(socket.read(buffer, BUFFER_SIZE)) bytesRead;
     string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
-    string rawHeaders;
-    while (rawHeaders.length() < maxLen && (bytesRead = socket.read(buffer, BUFFER_SIZE)) > -1) {
+    bool matchFound = false;
+    string data;
+    while (data.length() < maxLen && (bytesRead = socket.read(buffer, BUFFER_SIZE)) > -1) {
         auto terminationPoint = find(buffer, match, bytesRead, lastFew);
         if (terminationPoint == -1) {
             buffer[bytesRead] = '\0';
-            rawHeaders += buffer;
+            data += buffer;
             fill(std::max(reinterpret_cast<char *>(buffer), buffer + bytesRead - lenMatch), lastFew, bytesRead);
         } else {
             auto backup = buffer[terminationPoint];
             buffer[terminationPoint] = '\0';
-            rawHeaders += buffer;
+            data += buffer;
             buffer[terminationPoint] = backup;
             socket.unread(buffer + terminationPoint, bytesRead - terminationPoint);
+            matchFound = true;
             break;
         }
     }
-    return std::move(rawHeaders);
+    if (!matchFound)
+        throw std::runtime_error("Given match [" + match + "] could not be found");
+    return std::move(data);
 }
 
 string readExact(Socket &socket, long long nBytes) {
@@ -102,6 +107,6 @@ string readExact(Socket &socket, long long nBytes) {
 void print(char *str, size_t lastIndex) {
     auto bkp = str[lastIndex];
     str[lastIndex] = '\0';
-    std::cout << str << std::endl;
+    std::cout << "print: |" << str << '|' << std::endl;
     str[lastIndex] = bkp;
 }

@@ -1,13 +1,7 @@
 #include <iostream>
 #include "HttpRequest.h"
 #include "boost/algorithm/string.hpp"
-
-string HttpRequest::extractRawHeaders() {
-    auto rawHeaders = readUntilMatch(*socket, "\r\n\r\n", MAX_HEADER_SIZE);
-    if (rawHeaders.find_last_of("\r\n\r\n") == string::npos)
-        throw std::runtime_error("Error too long headers");
-    return std::move(rawHeaders);
-}
+#include "http/ContentDisposition.h"
 
 void parseUrlEncodedPairs(const string &rawString, map<string, string> &outMap) {
     int start = 0, separator, end;
@@ -30,11 +24,54 @@ void parseUrlEncodedPairs(const string &rawString, map<string, string> &outMap) 
     }
 }
 
-void parseMultiPartFormData(const HttpRequest &request, const string &boundary) {
-    auto realBoundary = "--" + boundary;
-    std::cout << "Bound: " << boundary << "| Bound end" << std::endl;
-    auto rawString = readUntilMatch(*request.socket, boundary, 8 * KB);
-    std::cout << "RAw: " << rawString << "| Raw end" << std::endl;
+void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap) {
+    int startPos = 0, separatorPos, endPos;
+    while (true) {
+        separatorPos = headerKeyValues.find(':', startPos);
+        if (separatorPos == string::npos) break;
+        endPos = headerKeyValues.find('\r', separatorPos);
+        if (endPos == string::npos)
+            throw std::runtime_error("Invalid headers\n" + headerKeyValues);
+        auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
+        separatorPos += 2;
+        auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
+        boost::trim(value);
+        headerMap[key].push_back(value);
+        startPos = endPos + 2;
+    }
+}
+
+//fixme
+void parseMultiPartFormData(const HttpRequest &request, const string &boundary, map<string, string> &outMap) {
+    auto &socket = *request.socket;
+    readUntilMatch(socket, "--" + boundary); // beginning boundary, ignorable
+    readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
+    auto realBoundary = "\r\n--" + boundary;
+    while (true) {
+        const auto rawItemHeader = readUntilMatch(socket, "\r\n\r\n");
+        std::cout << "AJK: |" << rawItemHeader << '|' << std::endl;
+        map<string, vector<string>> parsedItemHeader;
+        parseHttpHeader(rawItemHeader, parsedItemHeader);
+        auto result = parsedItemHeader.find(ContentDisposition::KEY);
+        if (result != parsedItemHeader.cend()) {
+            const ContentDisposition disposition = result->second[0];
+            if (disposition.type == ContentDisposition::TYPE_FORM_DATA) {
+                // TODO check whether the data is a file
+                auto value = readUntilMatch(socket, realBoundary, 10 * KB); // TODO change max read post data size
+                value = value.substr(value.find(realBoundary));
+                outMap[disposition.name] = value;
+                char next2bytes[2];
+                socket.read(next2bytes);
+                print(socket.unreadBytes, socket.unreadBytesCount);
+                if (next2bytes[0] == '-' && next2bytes[1] == '-')
+                    break; // no more form data
+                else socket.unread(next2bytes, 2);
+                print(socket.unreadBytes, socket.unreadBytesCount);
+                readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
+            }
+        } else throw std::runtime_error("Item without Content-Disposition");
+    }
+    //std::cout << "raw: |" << readUntilMatch(*request.socket, "--"+boundary+"--", 8*KB) << "| Raw end" << std::endl;
 }
 
 void extractRequestDataConditionally(HttpRequest &req) {
@@ -64,7 +101,7 @@ void extractRequestDataConditionally(HttpRequest &req) {
             if (boundary[0] == '"')
                 boundary = boundary.substr(1, boundary.length() - 1);
             else boost::trim(boundary);
-            parseMultiPartFormData(req, boundary);
+            parseMultiPartFormData(req, boundary, req.POST);
         }
     }
 }
@@ -72,8 +109,8 @@ void extractRequestDataConditionally(HttpRequest &req) {
 
 HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     auto req = HttpRequest(client);
-    auto rawHeaders = req.extractRawHeaders();
-    auto headersLen = rawHeaders.length();
+    const auto rawHeaders = readUntilMatch(*client, "\r\n\r\n", MAX_HEADER_SIZE);
+    const auto headersLen = rawHeaders.length();
 
     // finding HTTP Method
     size_t leftFlagPos = 0, rightFlagPos = rawHeaders.find(' ');
@@ -108,25 +145,8 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     leftFlagPos = rightFlagPos + 2;
     if (leftFlagPos >= headersLen)
         throw std::runtime_error("Incomplete headers\n" + rawHeaders);
-    req.extractHeaderKeyValues(rawHeaders.substr(leftFlagPos));
+    parseHttpHeader(rawHeaders.substr(leftFlagPos), req.HEADERS);
 
     extractRequestDataConditionally(req);
     return req;
-}
-
-void HttpRequest::extractHeaderKeyValues(const string &headerKeyValues) {
-    int startPos = 0, separatorPos, endPos;
-    while (true) {
-        separatorPos = headerKeyValues.find(':', startPos);
-        if (separatorPos == string::npos) break;
-        endPos = headerKeyValues.find('\r', separatorPos);
-        if (endPos == string::npos)
-            throw std::runtime_error("Invalid headers\n" + headerKeyValues);
-        auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
-        separatorPos += 2;
-        auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
-        boost::trim(value);
-        HEADERS[key].push_back(value);
-        startPos = endPos + 2;
-    }
 }

@@ -27,7 +27,7 @@ public:
     ArrayJoiner(const std::string &arr1, const char *arr2) :
             first(reinterpret_cast<const char *>(&arr1)), second(arr2), len1(arr1.length()) {}
 
-    char operator[](int index) {
+    char operator[](int index) const {
         if (index < 0) return first[index + len1];
         else return second[index];
     }

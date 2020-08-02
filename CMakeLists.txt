@@ -28,6 +28,7 @@ add_executable(
         implementations/helper.cpp
         implementations/ArrayJoiner.h
         implementations/file/FileOrString.h
+        implementations/networking/http/ContentDisposition.h
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})
