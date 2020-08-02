@@ -35,3 +35,16 @@ void Socket::write(const char *buffer, const uint N) const {
         result += ::write(socketFd, buffer + result, N - result);
     }
 }
+
+void Socket::unread(char *extraReadBytes, uint N) {
+    if (unreadBytesCount == 0) {
+        unreadBytesCount = min(N, MAX_UNREAD_BYTES_COUNT);
+        memcpy(unreadBytes, extraReadBytes, unreadBytesCount);
+    } else {
+        // the extraBytes were read from unreadBytes buffer, re-insert it to front
+        auto len = min(N, MAX_UNREAD_BYTES_COUNT - unreadBytesCount);
+        memmove(unreadBytes + len, unreadBytes, len);
+        memcpy(unreadBytes, extraReadBytes, len);
+        unreadBytesCount += len;
+    }
+}

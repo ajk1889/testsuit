@@ -21,8 +21,8 @@ class Socket {
     friend class ServerSocket;
 
     int socketFd;
-    constexpr static auto UNREAD_BUFFER_SIZE = 8 * KB;
-    char unreadBytes[UNREAD_BUFFER_SIZE]{};
+    constexpr static auto MAX_UNREAD_BYTES_COUNT = 8 * KB;
+    char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
     uint unreadBytesCount = 0;
 
     friend class Server;
@@ -69,10 +69,7 @@ public:
         return to;
     }
 
-    void unread(char *extraReadBytes, uint N) {
-        unreadBytesCount = min(N, UNREAD_BUFFER_SIZE);
-        memcpy(unreadBytes, extraReadBytes, unreadBytesCount);
-    }
+    void unread(char *extraReadBytes, uint N);
 
     ssize_t read(char *buffer, uint N);
 
