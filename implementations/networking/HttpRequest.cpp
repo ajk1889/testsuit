@@ -1,8 +1,6 @@
 #include <iostream>
-#include <sstream>
 #include "HttpRequest.h"
-#include "../constants.h"
-#include "../helpers.h"
+#include "boost/algorithm/string.hpp"
 
 inline void fill(const char *source, char (&dest)[3], int len) {
     auto offset = 3 - len;
@@ -64,34 +62,39 @@ string readStringFromRequest(const HttpRequest &request, long long nBytes) {
     return str;
 }
 
-void parseUrlEncodedPairs(const string &basicString, map<string, string> &outMap) {
+void parseUrlEncodedPairs(const string &rawString, map<string, string> &outMap) {
     int start = 0, separator, end;
     while (true) {
-        end = basicString.find('&', start);
-        separator = basicString.find('=', start);
+        end = rawString.find('&', start);
+        separator = rawString.find('=', start);
         if (end == string::npos) {
             if (separator != string::npos) {
-                outMap[urlDecode(basicString.substr(start, separator - start))] =
-                        urlDecode(basicString.substr(separator + 1));
-            } else outMap[urlDecode(basicString.substr(start))];
+                outMap[urlDecode(rawString.substr(start, separator - start))] =
+                        urlDecode(rawString.substr(separator + 1));
+            } else outMap[urlDecode(rawString.substr(start))];
             break;
         } else {
             if (separator != string::npos) {
-                outMap[urlDecode(basicString.substr(start, separator - start))] =
-                        urlDecode(basicString.substr(separator + 1, end - separator - 1));
-            } else outMap[urlDecode(basicString.substr(start, end - start))];
+                outMap[urlDecode(rawString.substr(start, separator - start))] =
+                        urlDecode(rawString.substr(separator + 1, end - separator - 1));
+            } else outMap[urlDecode(rawString.substr(start, end - start))];
             start = end + 1;
         }
     }
 }
 
-void parseMultiPartFormData(const string &basicString) {
+void parseMultiPartFormData(const HttpRequest &request, const string &boundary) {
+    auto realBoundary = "\r\n--" + boundary;
+    auto rawString = readStringFromRequest(request, 100);
+    std::cout << boundary << '\n' << rawString << std::endl;
 }
 
 void extractRequestDataConditionally(HttpRequest &req) {
     auto contentTypeIter = req.HEADERS.find("Content-Type");
     if (contentTypeIter != req.HEADERS.cend()) {
-        if (contentTypeIter->second[0] == "application/x-www-form-urlencoded") {
+        auto contentType = contentTypeIter->second[0];
+        std::cout << contentType << std::endl;
+        if (contentType == "application/x-www-form-urlencoded") {
             auto contentLengthIter = req.HEADERS.find("Content-Length");
             if (contentLengthIter == req.HEADERS.cend()) return;
             try {
@@ -104,8 +107,17 @@ void extractRequestDataConditionally(HttpRequest &req) {
             } catch (...) {
                 throw std::runtime_error("Invalid content length value " + contentLengthIter->second[0]);
             }
-        } else if (contentTypeIter->second[0].find("multipart/form-data;") != string::npos) {
-
+        } else if (contentType.find("multipart/form-data;") != string::npos) {
+            constexpr auto lenSearchKey = 11; // len('; boundary=')
+            auto boundaryStart = contentType.find("; boundary=");
+            if (boundaryStart == string::npos)
+                throw std::runtime_error("Invalid boundary for multipart/form-data " + contentType);
+            boundaryStart += lenSearchKey;
+            auto boundary = contentType.substr(boundaryStart);
+            if (boundary[0] == '"')
+                boundary = boundary.substr(1, boundary.length() - 1);
+            else boost::trim(boundary);
+            parseMultiPartFormData(req, boundary);
         }
     }
 }
@@ -166,6 +178,7 @@ void HttpRequest::extractHeaderKeyValues(const string &headerKeyValues) {
         auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
         separatorPos += 2;
         auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
+        boost::trim(value);
         HEADERS[key].push_back(value);
         startPos = endPos + 2;
     }
