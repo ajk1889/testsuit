@@ -104,9 +104,13 @@ string readExact(Socket &socket, long long nBytes) {
     return str;
 }
 
-void print(char *str, size_t lastIndex) {
+void print(const string &tag, char *str, size_t lastIndex) {
+    if (lastIndex == 0) {
+        std::cout << tag << ": ||" << std::endl;
+        return;
+    }
     auto bkp = str[lastIndex];
     str[lastIndex] = '\0';
-    std::cout << "print: |" << str << '|' << std::endl;
+    std::cout << tag << ": |" << str << '|' << std::endl;
     str[lastIndex] = bkp;
 }

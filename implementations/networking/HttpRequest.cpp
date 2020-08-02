@@ -41,7 +41,6 @@ void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> 
     }
 }
 
-//fixme
 void parseMultiPartFormData(const HttpRequest &request, const string &boundary, map<string, string> &outMap) {
     auto &socket = *request.socket;
     readUntilMatch(socket, "--" + boundary); // beginning boundary, ignorable
@@ -49,7 +48,6 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
     auto realBoundary = "\r\n--" + boundary;
     while (true) {
         const auto rawItemHeader = readUntilMatch(socket, "\r\n\r\n");
-        std::cout << "AJK: |" << rawItemHeader << '|' << std::endl;
         map<string, vector<string>> parsedItemHeader;
         parseHttpHeader(rawItemHeader, parsedItemHeader);
         auto result = parsedItemHeader.find(ContentDisposition::KEY);
@@ -58,20 +56,17 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
             if (disposition.type == ContentDisposition::TYPE_FORM_DATA) {
                 // TODO check whether the data is a file
                 auto value = readUntilMatch(socket, realBoundary, 10 * KB); // TODO change max read post data size
-                value = value.substr(value.find(realBoundary));
+                value = value.substr(0, value.find(realBoundary));
                 outMap[disposition.name] = value;
                 char next2bytes[2];
                 socket.read(next2bytes);
-                print(socket.unreadBytes, socket.unreadBytesCount);
                 if (next2bytes[0] == '-' && next2bytes[1] == '-')
                     break; // no more form data
                 else socket.unread(next2bytes, 2);
-                print(socket.unreadBytes, socket.unreadBytesCount);
                 readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
             }
         } else throw std::runtime_error("Item without Content-Disposition");
     }
-    //std::cout << "raw: |" << readUntilMatch(*request.socket, "--"+boundary+"--", 8*KB) << "| Raw end" << std::endl;
 }
 
 void extractRequestDataConditionally(HttpRequest &req) {

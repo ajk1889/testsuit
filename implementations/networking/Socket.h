@@ -22,14 +22,12 @@ class Socket {
 
     int socketFd;
     constexpr static auto MAX_UNREAD_BYTES_COUNT = 8 * KB;
+    char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
+    uint unreadBytesCount = 0;
 
     friend class Server;
 
 public:
-    char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
-    uint unreadBytesCount = 0;
-    // todo make above vars private
-
     Socket(const Socket &) = delete;
 
     explicit Socket(int fd) : socketFd(fd) {}

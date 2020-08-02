@@ -43,7 +43,7 @@ void Socket::unread(char *extraReadBytes, uint N) {
     } else {
         // the extraBytes were read from unreadBytes buffer, re-insert it to front
         auto len = min(N, MAX_UNREAD_BYTES_COUNT - unreadBytesCount);
-        memmove(unreadBytes + len, unreadBytes, len);
+        memmove(unreadBytes + len, unreadBytes, unreadBytesCount);
         memcpy(unreadBytes, extraReadBytes, len);
         unreadBytesCount += len;
     }

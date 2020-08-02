@@ -58,6 +58,6 @@ string readUntilMatch(Socket &socket, const string &match, ULong maxLen = 8 * KB
 
 string readExact(Socket &socket, long long nBytes);
 
-void print(char *str, size_t lastIndex);
+void print(const string &tag, char *str, size_t lastIndex);
 
 #endif //TESTSUIT_HELPERS_H
