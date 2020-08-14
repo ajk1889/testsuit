@@ -13,9 +13,8 @@ Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STR
 }
 
 ssize_t Socket::read(char *buffer, const uint N) {
-    decltype(min(N, unreadBytesCount)) availableBytesLen = 0;
     if (N && unreadBytesCount) {
-        availableBytesLen = min(N, unreadBytesCount);
+        auto availableBytesLen = min(N, unreadBytesCount);
         unreadBytesCount -= availableBytesLen;
         memcpy(buffer, unreadBytes, availableBytesLen);
         memmove(const_cast<char *>(unreadBytes),

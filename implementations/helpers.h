@@ -11,6 +11,7 @@
 #else
 
 #include <unistd.h>
+#include <iostream>
 #include <stdexcept>
 #include "constants.h"
 
@@ -22,12 +23,12 @@ using std::string;
 void *getCurl();
 
 template<typename A, typename B>
-inline A min(A a, B b) {
+inline auto min(const A a, const B b) -> decltype(a < b ? a : b) {
     return a < b ? a : b;
 }
 
 template<typename A, typename B>
-inline A max(A a, B b) {
+inline auto max(const A a, const B b) -> decltype(a > b ? a : b) {
     return a > b ? a : b;
 }
 
@@ -59,5 +60,16 @@ string readUntilMatch(Socket &socket, const string &match, ULong maxLen = 8 * KB
 string readExact(Socket &socket, long long nBytes);
 
 void print(const string &tag, char *str, size_t lastIndex);
+
+template<typename A>
+void print(A a) {
+    std::cout << a << std::endl;
+}
+
+template<typename A, typename ...B>
+void print(A a, B ...b) {
+    std::cout << a << ' ';
+    print(b...);
+}
 
 #endif //TESTSUIT_HELPERS_H

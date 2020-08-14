@@ -41,10 +41,17 @@ void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> 
     }
 }
 
+void ignoreStreamUntil(Socket &socket, const string &boundary) {
+    auto end = readUntilMatch(socket, boundary, 1 * KB);
+    while (end.find_last_of(boundary) == string::npos)
+        end = readUntilMatch(socket, boundary, 1 * KB);
+}
+
 void parseMultiPartFormData(const HttpRequest &request, const string &boundary, map<string, string> &outMap) {
     auto &socket = *request.socket;
-    readUntilMatch(socket, "--" + boundary); // beginning boundary, ignorable
-    readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
+    ignoreStreamUntil(socket, "--" + boundary); // ignore until beginning boundary
+    ignoreStreamUntil(socket, "\r\n"); // ignore until boundary's whitespaces
+
     auto realBoundary = "\r\n--" + boundary;
     while (true) {
         const auto rawItemHeader = readUntilMatch(socket, "\r\n\r\n");

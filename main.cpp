@@ -1,6 +1,4 @@
 #include <iostream>
-#include <fstream>
-#include <unistd.h>
 #include "server/Server.h"
 
 void runServer() {
@@ -10,7 +8,6 @@ void runServer() {
     std::cin >> i;
     server.stop();
 }
-
 int main() {
     runServer();
     return 0;

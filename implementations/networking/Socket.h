@@ -17,20 +17,22 @@
 
 using std::string;
 
+class Server;
+
 class Socket {
     friend class ServerSocket;
+
+    friend class Server;
 
     int socketFd;
     constexpr static auto MAX_UNREAD_BYTES_COUNT = 8 * KB;
     char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
     uint unreadBytesCount = 0;
-
-    friend class Server;
-
 public:
+    const Server *server = nullptr;
     Socket(const Socket &) = delete;
 
-    explicit Socket(int fd) : socketFd(fd) {}
+    explicit Socket(int fd, const Server *server) : socketFd(fd), server(server) {}
 
     Socket(const string &ip, short port);
 

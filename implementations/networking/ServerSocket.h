@@ -8,14 +8,18 @@
 #include <memory>
 #include "Socket.h"
 
+class Server;
+
 class ServerSocket {
     int serverSocketFd;
     uint maxParallelConns = 1;
     short port;
 public:
+    const Server *server = nullptr;
+
     ServerSocket(const ServerSocket &) = delete;
 
-    explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10);
+    explicit ServerSocket(const Server *server = nullptr, short portNo = 1234, uint maxParallelConnections = 10);
 
     std::shared_ptr<Socket> accept() const;
 

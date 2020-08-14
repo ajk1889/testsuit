@@ -1,7 +1,7 @@
 #include "ServerSocket.h"
 
-ServerSocket::ServerSocket(short portNo, uint maxParallelConnections)
-        : port(portNo), maxParallelConns(maxParallelConnections) {
+ServerSocket::ServerSocket(const Server *server, short portNo, uint maxParallelConnections)
+        : port(portNo), maxParallelConns(maxParallelConnections), server(server) {
     serverSocketFd = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocketFd < 0)
         throw std::runtime_error("ERROR opening socket");
@@ -20,5 +20,5 @@ std::shared_ptr<Socket> ServerSocket::accept() const {
     auto socketFd = ::accept(serverSocketFd, (sockaddr *) &clientAddress, &size);
     if (socketFd < 0)
         throw std::runtime_error("ERROR while accepting");
-    return std::make_shared<Socket>(socketFd);
+    return std::make_shared<Socket>(socketFd, this->server);
 }
