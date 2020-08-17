@@ -7,24 +7,25 @@
 
 #include <string>
 #include <fstream>
+#include <utility>
 #include "../networking/Socket.h"
-#include "../../server/Server.h"
+#include "../networking/http/ContentDisposition.h"
 
 using std::string;
 
 class FileOrString {
+    static constexpr auto BYTES_TO_STORE_IN_MEMORY = 2 * KB;
+public:
     string data;
-    bool isFile;
+    bool isFile = false;
 
-    void readFrom(Socket &socket, string &boundary) {
-        data.append(readUntilMatch(socket, boundary, 2 * KB));
-        if (data.find_last_of(boundary) == string::npos) {
-            std::ofstream op(socket.server->params.sharedPath + "/a.txt");
-        }
-        while (data.find_last_of(boundary) == string::npos) {
+    FileOrString() = default;
 
-        }
-    }
+    FileOrString(string rawString) : data(std::move(rawString)) {}
+
+    static FileOrString readFrom(Socket &socket, string &boundary);
+
+    static string getRandomString(uint len);
 };
 
 

@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "../implementations/file/FileOrString.h"
 
 void startServer() {
     ServerSocket server;
@@ -20,4 +21,14 @@ void Server::test() {
     thread client(connectToServer);
     server.join();
     client.join();
+}
+
+void Server::handleClient(const SocketPtr &socketPtr) {
+    auto request = HttpRequest::from(socketPtr);
+    std::cout << "Path: " << request.path << std::endl;
+    for (auto &item: request.GET)
+        std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
+    for (auto &item: request.POST)
+        std::cout << "POST[" << item.first << "] = " << item.second.data << std::endl;
+    socketPtr->close();
 }

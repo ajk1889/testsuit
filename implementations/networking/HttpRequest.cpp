@@ -3,7 +3,8 @@
 #include "boost/algorithm/string.hpp"
 #include "http/ContentDisposition.h"
 
-void parseUrlEncodedPairs(const string &rawString, map<string, string> &outMap) {
+template<typename MapValue>
+void parseUrlEncodedPairs(const string &rawString, map<string, MapValue> &outMap) {
     int start = 0, separator, end;
     while (true) {
         end = rawString.find('&', start);
@@ -47,7 +48,7 @@ void ignoreStreamUntil(Socket &socket, const string &boundary) {
         end = readUntilMatch(socket, boundary, 1 * KB);
 }
 
-void parseMultiPartFormData(const HttpRequest &request, const string &boundary, map<string, string> &outMap) {
+void parseMultiPartFormData(const HttpRequest &request, const string &boundary, map<string, FileOrString> &outMap) {
     auto &socket = *request.socket;
     ignoreStreamUntil(socket, "--" + boundary); // ignore until beginning boundary
     ignoreStreamUntil(socket, "\r\n"); // ignore until boundary's whitespaces
@@ -61,9 +62,7 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
         if (result != parsedItemHeader.cend()) {
             const ContentDisposition disposition = result->second[0];
             if (disposition.type == ContentDisposition::TYPE_FORM_DATA) {
-                // TODO check whether the data is a file
-                auto value = readUntilMatch(socket, realBoundary, 10 * KB); // TODO change max read post data size
-                value = value.substr(0, value.find(realBoundary));
+                auto value = FileOrString::readFrom(socket, realBoundary);
                 outMap[disposition.name] = value;
                 char next2bytes[2];
                 socket.read(next2bytes);
@@ -71,7 +70,7 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
                     break; // no more form data
                 else socket.unread(next2bytes, 2);
                 readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
-            }
+            } else throw std::runtime_error("Unsupported content type");
         } else throw std::runtime_error("Item without Content-Disposition");
     }
 }

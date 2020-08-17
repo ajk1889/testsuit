@@ -20,15 +20,7 @@ class Server {
 
     friend void connectToServer();
 
-    static void handleClient(const SocketPtr &socketPtr) {
-        auto request = HttpRequest::from(socketPtr);
-        std::cout << "Path: " << request.path << std::endl;
-        for (auto &item: request.GET)
-            std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
-        for (auto &item: request.POST)
-            std::cout << "POST[" << item.first << "] = " << item.second << std::endl;
-        socketPtr->close();
-    }
+    static void handleClient(const SocketPtr &socketPtr);
 
     shared_ptr<ServerSocket> serverSocket;
     thread clientAcceptor;

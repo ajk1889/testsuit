@@ -11,6 +11,7 @@
 #include "../ArrayJoiner.h"
 #include "Socket.h"
 #include "../constants.h"
+#include "../file/FileOrString.h"
 #include <curl/curl.h>
 #include <curl/easy.h>
 
@@ -27,7 +28,7 @@ class HttpRequest {
 public:
     map<string, vector<string>> HEADERS;
     map<string, string> GET;
-    map<string, string> POST;
+    map<string, FileOrString> POST;
     string httpVersion;
     string path;
     string requestType;
