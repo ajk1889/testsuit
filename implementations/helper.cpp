@@ -35,9 +35,12 @@ string urlDecode(const string &escaped, size_t length) {
     return urlDecode(copied, length);
 }
 
-inline void fill(const char *source, string &destination, int len) {
-    auto offset = destination.length() - len;
-    while (len--) destination[offset + len] = source[len];
+inline void fill(const char (&source)[BUFFER_SIZE + 1], string &destination, int bytesRead) {
+    auto destinationLen = destination.length();
+    if (destinationLen > bytesRead)
+        memmove((void *) destination.c_str(), destination.c_str() + bytesRead, (destinationLen - bytesRead));
+    while (bytesRead-- && destinationLen--)
+        destination[destinationLen] = source[bytesRead];
 }
 
 bool matches(const ArrayJoiner &joined, const int offset, const string &key) {
@@ -68,26 +71,19 @@ string readUntilMatch(Socket &socket, const string &match, const ULong maxLen) {
     buffer[BUFFER_SIZE] = '\0';
     decltype(socket.read(buffer, BUFFER_SIZE)) bytesRead;
     string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
-    bool matchFound = false;
     string data;
-    while (data.length() < maxLen && (bytesRead = socket.read(buffer, BUFFER_SIZE)) > -1) {
+    while (data.length() < maxLen &&
+           (bytesRead = socket.read(buffer, min(BUFFER_SIZE, maxLen - data.length()))) > -1) {
         auto terminationPoint = find(buffer, match, bytesRead, lastFew);
         if (terminationPoint == -1) {
-            buffer[bytesRead] = '\0';
-            data += buffer;
-            fill(std::max(reinterpret_cast<char *>(buffer), buffer + bytesRead - lenMatch), lastFew, bytesRead);
+            data.append(buffer, bytesRead);
+            fill(buffer, lastFew, bytesRead);
         } else {
-            auto backup = buffer[terminationPoint];
-            buffer[terminationPoint] = '\0';
-            data += buffer;
-            buffer[terminationPoint] = backup;
+            data.append(buffer, terminationPoint);
             socket.unread(buffer + terminationPoint, bytesRead - terminationPoint);
-            matchFound = true;
             break;
         }
     }
-    if (!matchFound)
-        throw std::runtime_error("Given match [" + match + "] could not be found");
     return std::move(data);
 }
 
