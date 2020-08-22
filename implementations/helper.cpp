@@ -58,7 +58,7 @@ int find(const char *hayStack, const string &key, const int hayStackLen, const s
     const int lenLastFew = static_cast<int>(lastFew.length());
     for (int j = -lenLastFew; j < hayStackLen; ++j) {
         if (matches(joined, j, key))
-            return j + lenLastFew + 1;
+            return j + lenLastFew;
     }
     return -1;
 }

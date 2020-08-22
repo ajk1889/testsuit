@@ -59,6 +59,8 @@ string readUntilMatch(Socket &socket, const string &match, ULong maxLen = 8 * KB
 
 string readExact(Socket &socket, long long nBytes);
 
+int find(const char *hayStack, const string &key, const int hayStackLen, const string &lastFew);
+
 void print(const string &tag, char *str, size_t lastIndex);
 
 template<typename A>
