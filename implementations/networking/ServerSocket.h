@@ -1,7 +1,3 @@
-//
-// Created by ajk on 20/07/20.
-//
-
 #ifndef TESTSUIT_SERVERSOCKET_H
 #define TESTSUIT_SERVERSOCKET_H
 
@@ -9,17 +5,23 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <strings.h>
-
+#include <memory>
 #include "Socket.h"
+
+class Server;
 
 class ServerSocket {
     int serverSocketFd;
     uint maxParallelConns = 1;
     short port;
 public:
-    explicit ServerSocket(short portNo = 1234, uint maxParallelConnections = 10);
+    const Server *server = nullptr;
 
-    Socket accept() const;
+    ServerSocket(const ServerSocket &) = delete;
+
+    explicit ServerSocket(const Server *server = nullptr, short portNo = 1234, uint maxParallelConnections = 10);
+
+    std::shared_ptr<Socket> accept() const;
 
     void close() const { ::close(serverSocketFd); }
 

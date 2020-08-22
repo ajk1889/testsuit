@@ -1,7 +1,3 @@
-//
-// Created by ajk on 08/07/20.
-//
-
 #ifndef TESTSUIT_PAIR_H
 #define TESTSUIT_PAIR_H
 

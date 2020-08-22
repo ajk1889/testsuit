@@ -1,7 +1,3 @@
-//
-// Created by ajk on 20/07/20.
-//
-
 #ifndef TESTSUIT_SOCKET_H
 #define TESTSUIT_SOCKET_H
 
@@ -14,17 +10,30 @@
 #include <strings.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <memory>
+#include <cstring>
+#include "../helpers.h"
+#include "../constants.h"
 
 using std::string;
+
+class Server;
 
 class Socket {
     friend class ServerSocket;
 
+    friend class Server;
+
     int socketFd;
-
-    explicit Socket(int fd) : socketFd(fd) {}
-
+    constexpr static auto MAX_UNREAD_BYTES_COUNT = 8 * KB;
+    char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
+    uint unreadBytesCount = 0;
 public:
+    const Server *server = nullptr;
+    Socket(const Socket &) = delete;
+
+    explicit Socket(int fd, const Server *server) : socketFd(fd), server(server) {}
+
     Socket(const string &ip, short port);
 
     template<unsigned int N>
@@ -46,14 +55,11 @@ public:
 
     template<unsigned int N>
     ssize_t read(char (&buffer)[N]) const {
-        auto result = ::read(socketFd, buffer, N);
-        if (result < 0)
-            throw std::runtime_error("ERROR reading from socket");
-        return result;
+        return read(buffer, N);
     }
 
     template<typename T>
-    T &read(T &to) const {
+    T &read(T &to) {
         auto toPtr = reinterpret_cast<char *>(&to);
         constexpr auto N = sizeof(T);
         auto result = read(toPtr, N);
@@ -65,7 +71,9 @@ public:
         return to;
     }
 
-    ssize_t read(char *buffer, uint N) const;
+    void unread(char *extraReadBytes, uint N);
+
+    ssize_t read(char *buffer, uint N);
 
     void close() const { ::close(socketFd); }
 

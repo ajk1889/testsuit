@@ -1,7 +1,4 @@
-//
-// Created by ajk on 20/07/20.
-//
-
+#include <iostream>
 #include "Socket.h"
 
 Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STREAM, 0)) {
@@ -15,18 +12,38 @@ Socket::Socket(const string &ip, short port) : socketFd(socket(AF_INET, SOCK_STR
         throw std::runtime_error("ERROR connecting");
 }
 
-ssize_t Socket::read(char *buffer, const uint N) const {
-    auto result = ::read(socketFd, buffer, N);
-    if (result < 0)
-        throw std::runtime_error("ERROR reading from socket");
-    return result;
+ssize_t Socket::read(char *buffer, const uint N) {
+    if (N && unreadBytesCount) {
+        auto availableBytesLen = min(N, unreadBytesCount);
+        unreadBytesCount -= availableBytesLen;
+        memcpy(buffer, unreadBytes, availableBytesLen);
+        memmove(const_cast<char *>(unreadBytes),
+                unreadBytes + availableBytesLen, unreadBytesCount);
+        return availableBytesLen;
+    } else if (N) {
+        return ::read(socketFd, buffer, N);
+    } else return 0;
 }
 
 void Socket::write(const char *buffer, const uint N) const {
+    if (N == 0) return;
     auto result = ::write(socketFd, buffer, N);
     while (result < N) {
         if (result < 0)
             throw std::runtime_error("ERROR writing to socket");
         result += ::write(socketFd, buffer + result, N - result);
+    }
+}
+
+void Socket::unread(char *extraReadBytes, uint N) {
+    if (unreadBytesCount == 0) {
+        unreadBytesCount = min(N, MAX_UNREAD_BYTES_COUNT);
+        memcpy(unreadBytes, extraReadBytes, unreadBytesCount);
+    } else {
+        // the extraBytes were read from unreadBytes buffer, re-insert it to front
+        auto len = min(N, MAX_UNREAD_BYTES_COUNT - unreadBytesCount);
+        memmove(unreadBytes + len, unreadBytes, unreadBytesCount);
+        memcpy(unreadBytes, extraReadBytes, len);
+        unreadBytesCount += len;
     }
 }
