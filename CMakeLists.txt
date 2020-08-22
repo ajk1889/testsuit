@@ -5,7 +5,7 @@ set(GCC_PTHREAD_FLAG "-pthread")
 set(CURL_LIBRARY "-lcurl")
 find_package(CURL REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_PTHREAD_FLAG}")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 include_directories(${CURL_INCLUDE_DIR})
 
 add_executable(

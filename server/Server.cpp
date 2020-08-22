@@ -1,8 +1,11 @@
 #include "Server.h"
-#include "../implementations/file/FileOrString.h"
+#include <filesystem>
 
 void startServer() {
     ServerSocket server;
+    std::filesystem::path uploadsDir(server.server->params.uploadsPath);
+    if (!std::filesystem::exists(uploadsDir) && !std::filesystem::create_directory(uploadsDir))
+        throw std::runtime_error("Unable to create uploads directory");
     auto client = server.accept();
     int number;
     std::cout << client->read(number) << std::endl;
