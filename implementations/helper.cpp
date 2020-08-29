@@ -45,20 +45,18 @@ inline void fill(const char (&source)[BUFFER_SIZE + 1], string &destination, int
 
 bool matches(const ArrayJoiner &joined, const int offset, const string &key) {
     auto len = static_cast<int>(key.length());
-    for (auto i = 0; i < len; ++i) {
+    for (auto i = 0; i < len; ++i)
         if (joined[i + offset] != key[i])
             return false;
-    }
     return true;
 }
 
 int find(const char *hayStack, const string &key, const int hayStackLen, const string &lastFew) {
     if (hayStackLen == 0) return -1;
     const ArrayJoiner joined(lastFew, hayStack);
-    const int lenLastFew = static_cast<int>(lastFew.length());
-    for (int j = -lenLastFew; j < hayStackLen; ++j) {
+    for (int j = -static_cast<int>(lastFew.length()); j < hayStackLen; ++j) {
         if (matches(joined, j, key))
-            return j + lenLastFew;
+            return j + static_cast<int>(key.length());
     }
     return -1;
 }

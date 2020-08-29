@@ -9,7 +9,6 @@ void runServer() {
     server.stop();
 }
 int main() {
-//    print(find("defghijklmn", "def", 11, "abc"));
     runServer();
     return 0;
 }
