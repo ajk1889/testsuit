@@ -44,7 +44,7 @@ void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> 
 
 void ignoreStreamUntil(Socket &socket, const string &boundary) {
     auto end = readUntilMatch(socket, boundary, 1 * KB);
-    while (end.find_last_of(boundary) == string::npos)
+    while (end.rfind(boundary) == string::npos)
         end = readUntilMatch(socket, boundary, 1 * KB);
 }
 

@@ -5,10 +5,10 @@ FileOrString FileOrString::readFrom(Socket &socket, string &boundary) {
     FileOrString fileOrString;
     auto &data = fileOrString.data;
     data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
-    if (data.find_last_of(boundary) == string::npos) {
+    if (data.rfind(boundary) == string::npos) {
         string filePath = socket.server->params.sharedPath + "/" + getRandomString(10);
         std::ofstream op(filePath);
-        while (data.find_last_of(boundary) == string::npos) {
+        while (data.rfind(boundary) == string::npos) {
             op.write(data.c_str(), data.length());
             data.clear();
             data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
