@@ -1,46 +1,6 @@
-#include <iostream>
 #include "HttpRequest.h"
 #include "boost/algorithm/string.hpp"
 #include "http/ContentDisposition.h"
-
-template<typename MapValue>
-void parseUrlEncodedPairs(const string &rawString, map<string, MapValue> &outMap) {
-    int start = 0, separator, end;
-    while (true) {
-        end = rawString.find('&', start);
-        separator = rawString.find('=', start);
-        if (end == string::npos) {
-            if (separator != string::npos) {
-                outMap[urlDecode(rawString.substr(start, separator - start))] =
-                        urlDecode(rawString.substr(separator + 1));
-            } else outMap[urlDecode(rawString.substr(start))];
-            break;
-        } else {
-            if (separator != string::npos) {
-                outMap[urlDecode(rawString.substr(start, separator - start))] =
-                        urlDecode(rawString.substr(separator + 1, end - separator - 1));
-            } else outMap[urlDecode(rawString.substr(start, end - start))];
-            start = end + 1;
-        }
-    }
-}
-
-void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap) {
-    int startPos = 0, separatorPos, endPos;
-    while (true) {
-        separatorPos = headerKeyValues.find(':', startPos);
-        if (separatorPos == string::npos) break;
-        endPos = headerKeyValues.find('\r', separatorPos);
-        if (endPos == string::npos)
-            throw std::runtime_error("Invalid headers\n" + headerKeyValues);
-        auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
-        separatorPos += 2;
-        auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
-        boost::trim(value);
-        headerMap[key].push_back(value);
-        startPos = endPos + 2;
-    }
-}
 
 void ignoreStreamUntil(Socket &socket, const string &boundary) {
     auto end = readUntilMatch(socket, boundary, 1 * KB);

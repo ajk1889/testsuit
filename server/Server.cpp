@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "../implementations/networking/HttpResponse.h"
 #include <filesystem>
 
 void startServer() {
@@ -33,5 +34,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
         std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
     for (auto &item: request.POST)
         std::cout << "POST[" << item.first << "] = " << item.second.data << std::endl;
+    HttpResponse response("<H1>Success</H1>");
+    *socketPtr << response;
     socketPtr->close();
 }

@@ -42,7 +42,6 @@ public:
     void stop() {
         isRunning = false;
         serverSocket->close();
-        clientAcceptor.join();
     }
 };
 

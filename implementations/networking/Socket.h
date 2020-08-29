@@ -38,17 +38,21 @@ public:
 
     template<unsigned int N>
     void write(const char (&buffer)[N]) const {
-        auto result = ::write(socketFd, buffer, N);
-        while (result < N) {
+        auto result = ::write(socketFd, buffer, N - 1);
+        while (result < N - 1) {
             if (result < 0)
                 throw std::runtime_error("ERROR writing to socket");
-            result += ::write(socketFd, buffer + result, N - result);
+            result += ::write(socketFd, buffer + result, N - result - 1);
         }
     }
 
     template<typename T>
     void write(const T &object) const {
         write(reinterpret_cast<const char *>(&object), sizeof(T));
+    }
+
+    void write(const string &str) const {
+        write(str.c_str(), str.length());
     }
 
     void write(const char *buffer, uint N) const;

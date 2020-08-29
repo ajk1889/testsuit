@@ -2,6 +2,8 @@
 #define TESTSUIT_HELPERS_H
 
 #include <cstdio>
+#include <vector>
+#include <map>
 #include <string>
 #include <curl/curl.h>
 
@@ -19,8 +21,12 @@
 #endif
 
 using std::string;
+using std::map;
+using std::vector;
 
 void *getCurl();
+
+string currentDateTime();
 
 template<typename A, typename B>
 inline auto min(const A a, const B b) -> decltype(a < b ? a : b) {
@@ -73,5 +79,29 @@ void print(A a, B ...b) {
     std::cout << a << ' ';
     print(b...);
 }
+
+template<typename MapValue>
+void parseUrlEncodedPairs(const string &rawString, map<string, MapValue> &outMap) {
+    int start = 0, separator, end;
+    while (true) {
+        end = rawString.find('&', start);
+        separator = rawString.find('=', start);
+        if (end == string::npos) {
+            if (separator != string::npos) {
+                outMap[urlDecode(rawString.substr(start, separator - start))] =
+                        urlDecode(rawString.substr(separator + 1));
+            } else outMap[urlDecode(rawString.substr(start))];
+            break;
+        } else {
+            if (separator != string::npos) {
+                outMap[urlDecode(rawString.substr(start, separator - start))] =
+                        urlDecode(rawString.substr(separator + 1, end - separator - 1));
+            } else outMap[urlDecode(rawString.substr(start, end - start))];
+            start = end + 1;
+        }
+    }
+}
+
+void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap);
 
 #endif //TESTSUIT_HELPERS_H

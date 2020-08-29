@@ -2,6 +2,7 @@
 #include "networking/Socket.h"
 #include "helpers.h"
 #include "ArrayJoiner.h"
+#include "boost/algorithm/string.hpp"
 
 string currentWorkingDir() {
     char cCurrentPath[FILENAME_MAX];
@@ -107,4 +108,29 @@ void print(const string &tag, char *str, size_t lastIndex) {
     str[lastIndex] = '\0';
     std::cout << tag << ": |" << str << '|' << std::endl;
     str[lastIndex] = bkp;
+}
+
+void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap) {
+    int startPos = 0, separatorPos, endPos;
+    while (true) {
+        separatorPos = headerKeyValues.find(':', startPos);
+        if (separatorPos == string::npos) break;
+        endPos = headerKeyValues.find('\r', separatorPos);
+        if (endPos == string::npos)
+            throw std::runtime_error("Invalid headers\n" + headerKeyValues);
+        auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
+        separatorPos += 2;
+        auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);
+        boost::trim(value);
+        headerMap[key].push_back(value);
+        startPos = endPos + 2;
+    }
+}
+
+string currentDateTime() {
+    time_t now = time(nullptr);
+    tm *gmt = gmtime(&now);
+    char buf[35];
+    strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", gmt);
+    return buf;
 }
