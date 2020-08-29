@@ -21,7 +21,7 @@ public:
 
     explicit ServerSocket(const Server *server = nullptr, short portNo = 1234, uint maxParallelConnections = 10);
 
-    std::shared_ptr<Socket> accept() const;
+    [[nodiscard]] std::shared_ptr<Socket> accept() const;
 
     void close() const { ::close(serverSocketFd); }
 
