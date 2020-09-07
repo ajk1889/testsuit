@@ -30,14 +30,7 @@ public:
 
     static void test();
 
-    void start() {
-        serverSocket = make_shared<ServerSocket>(this, params.port, params.maxDownloadSpeed);
-        clientAcceptor = thread([&] {
-            while (isRunning)
-                handleClient(serverSocket->accept());
-        });
-        clientAcceptor.detach();
-    }
+    void start();
 
     void stop() {
         isRunning = false;

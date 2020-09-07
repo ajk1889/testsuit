@@ -28,13 +28,30 @@ void Server::test() {
 }
 
 void Server::handleClient(const SocketPtr &socketPtr) {
-    auto request = HttpRequest::from(socketPtr);
-    std::cout << "Path: " << request.path << std::endl;
-    for (auto &item: request.GET)
-        std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
-    for (auto &item: request.POST)
-        std::cout << "POST[" << item.first << "] = " << item.second.data << std::endl;
-    HttpResponse response("<H1>Success</H1>");
-    *socketPtr << response;
+    try {
+        auto request = HttpRequest::from(socketPtr);
+        std::cout << "Path: " << request.path << std::endl;
+        for (auto &item: request.GET)
+            std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
+        for (auto &item: request.POST)
+            std::cout << "POST[" << item.first << "] = " << item.second.data << std::endl;
+        HttpResponse response(ResponseCode::OK, "<H1>Success</H1>");
+        *socketPtr << response;
+    } catch (std::runtime_error &e) {
+        std::ostringstream data("<H1>Internal server error</H1>");
+        data << "<H3>Description</H3>";
+        data << e.what();
+        HttpResponse response(ResponseCode::InternalServerError, data.str());
+        *socketPtr << response;
+    }
     socketPtr->close();
+}
+
+void Server::start() {
+    serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
+    clientAcceptor = thread([&] {
+        while (isRunning)
+            handleClient(serverSocket->accept());
+    });
+    clientAcceptor.detach();
 }

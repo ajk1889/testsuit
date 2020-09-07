@@ -24,21 +24,15 @@ public:
     string httpVersion = "1.1";
     uint responseCode = 200;
     bool destroyDataStream = false;
-    istream *dataStream;
+    string data;
     ulong streamLength;
 
-    explicit HttpResponse(const string &data);
+    explicit HttpResponse(uint responseCode, const string &data);
 
-    HttpResponse(decltype(HEADERS) headers, const string &data) :
-            HEADERS(std::move(headers)), dataStream(new istringstream(data)), destroyDataStream(true) {
-        dataStream->seekg(0, istream::end);
-        streamLength = dataStream->tellg();
-        dataStream->seekg(0, istream::beg);
+    HttpResponse(decltype(HEADERS) headers, string response) :
+            HEADERS(std::move(headers)), data(std::move(response)), destroyDataStream(true) {
+        streamLength = this->data.length();
         HEADERS["Content-Length"].push_back(std::to_string(streamLength));
-    }
-
-    ~HttpResponse() {
-        if (destroyDataStream) delete dataStream;
     }
 };
 
