@@ -31,6 +31,6 @@ add_executable(
         implementations/networking/http/ContentDisposition.h
         implementations/file/FileOrString.cpp
         implementations/Constants.cpp
-)
+        test.h)
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})

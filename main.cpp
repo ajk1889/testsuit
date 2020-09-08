@@ -1,5 +1,6 @@
 #include <iostream>
 #include "server/Server.h"
+#include "test.h"
 
 void runServer() {
     Server server;
@@ -9,6 +10,10 @@ void runServer() {
     server.stop();
 }
 int main() {
-    runServer();
+    char c1[] = "python3";
+    char c2[] = "-c";
+    char c3[] = "print(input())";
+    char *arr[] = {c1, c2, c3, nullptr};
+    createChild("python3", arr, "Hello world\n");
     return 0;
 }
