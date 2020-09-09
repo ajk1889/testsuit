@@ -1,6 +1,6 @@
 #include <iostream>
 #include "server/Server.h"
-#include "test.h"
+#include "implementations/Process.h"
 
 void runServer() {
     Server server;
@@ -10,10 +10,9 @@ void runServer() {
     server.stop();
 }
 int main() {
-    char c1[] = "python3";
-    char c2[] = "-c";
-    char c3[] = "print(input())";
-    char *arr[] = {c1, c2, c3, nullptr};
-    createChild("python3", arr, "Hello world\n");
+    Process p{"python3", "-c", "print(input())"};
+    char data[1024];
+    data[p.run("Hello world\n")->read(data, 1023)] = '\0';
+    std::cout << data << std::endl;
     return 0;
 }

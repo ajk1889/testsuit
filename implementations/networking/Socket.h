@@ -32,7 +32,7 @@ public:
     const Server *server = nullptr;
     Socket(const Socket &) = delete;
 
-    explicit Socket(int fd, const Server *server) : socketFd(fd), server(server) {}
+    Socket(int fd, const Server *server) : socketFd(fd), server(server) {}
 
     Socket(const string &ip, short port);
 
