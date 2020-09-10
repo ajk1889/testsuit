@@ -6,7 +6,7 @@ FileOrString FileOrString::readFrom(Socket &socket, string &boundary) {
     auto &data = fileOrString.data;
     data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
     if (data.rfind(boundary) == string::npos) {
-        string filePath = socket.server->params.sharedPath + "/" + getRandomString(10);
+        string filePath = socket.server->params.tempDir + "/" + getRandomString(10);
         std::ofstream op(filePath);
         while (data.rfind(boundary) == string::npos) {
             op.write(data.c_str(), data.length());

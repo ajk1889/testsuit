@@ -5,7 +5,7 @@
 using json = nlohmann::json;
 void startServer() {
     ServerSocket server;
-    std::filesystem::path uploadsDir(server.server->params.uploadsPath);
+    std::filesystem::path uploadsDir(server.server->params.tempDir);
     if (!std::filesystem::exists(uploadsDir) && !std::filesystem::create_directory(uploadsDir))
         throw std::runtime_error("Unable to create uploads directory");
     auto client = server.accept();
