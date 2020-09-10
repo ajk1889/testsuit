@@ -31,7 +31,9 @@ add_executable(
         implementations/networking/http/ContentDisposition.h
         implementations/file/FileOrString.cpp
         implementations/Constants.cpp
-        implementations/Process.cpp implementations/Process.h
+        implementations/Process.cpp
+        implementations/Process.h
+        lib/json.hpp
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})
