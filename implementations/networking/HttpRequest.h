@@ -12,9 +12,11 @@
 #include "Socket.h"
 #include "../constants.h"
 #include "../file/FileOrString.h"
+#include "../../lib/json.hpp"
 #include <curl/curl.h>
 #include <curl/easy.h>
 
+using json = nlohmann::json;
 using std::string;
 using std::map;
 using std::vector;
@@ -39,6 +41,8 @@ public:
     }
 
     static HttpRequest from(const shared_ptr<Socket> &client);
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(HttpRequest, HEADERS, GET, POST, httpVersion, path, requestType);
 };
 
 

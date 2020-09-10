@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <utility>
+#include "../../lib/json.hpp"
 #include "../networking/Socket.h"
 #include "../networking/http/ContentDisposition.h"
 
@@ -26,6 +27,8 @@ public:
     static FileOrString readFrom(Socket &socket, string &boundary);
 
     static string getRandomString(uint len);
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(FileOrString, data, isFile);
 };
 
 

@@ -2,6 +2,7 @@
 #include "../implementations/networking/HttpResponse.h"
 #include <filesystem>
 
+using json = nlohmann::json;
 void startServer() {
     ServerSocket server;
     std::filesystem::path uploadsDir(server.server->params.uploadsPath);
@@ -30,11 +31,7 @@ void Server::test() {
 void Server::handleClient(const SocketPtr &socketPtr) {
     try {
         auto request = HttpRequest::from(socketPtr);
-        std::cout << "Path: " << request.path << std::endl;
-        for (auto &item: request.GET)
-            std::cout << "GET[" << item.first << "] = " << item.second << std::endl;
-        for (auto &item: request.POST)
-            std::cout << "POST[" << item.first << "] = " << item.second.data << std::endl;
+        std::cout << std::setw(2) << json(request) << std::endl;
         HttpResponse response(ResponseCode::OK, "<H1>Success</H1>");
         *socketPtr << response;
     } catch (std::runtime_error &e) {
