@@ -10,9 +10,6 @@ void runServer() {
     server.stop();
 }
 int main() {
-    Process p{"python3", "-c", "print(input())"};
-    char data[1024];
-    data[p.run("Hello world\n")->read(data, 1023)] = '\0';
-    std::cout << data << std::endl;
+    Process::test();
     return 0;
 }

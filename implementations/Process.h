@@ -37,6 +37,7 @@ public:
 
     shared_ptr<Socket> run(const char *input);
 
+    static void test();
     ~Process() {
         delete[] args;
         close(aStdinPipe[PIPE_READ]);

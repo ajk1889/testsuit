@@ -40,3 +40,13 @@ shared_ptr<Socket> Process::run(const char *input) {
     }
     return shared_ptr<Socket>();
 }
+
+void Process::test() {
+    Process process = {"python3", "-c", "print(int(input())**237)"};
+    char data[1024];
+    data[0] = '\0';
+    auto socket = process.run("1820\n");
+    if (socket) data[socket->read(data, 1023)] = '\0';
+    else std::cout << "Null socket" << std::endl;
+    std::cout << data << std::endl;
+}
