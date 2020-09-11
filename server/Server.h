@@ -28,6 +28,12 @@ public:
     ServerParams params;
     bool isRunning = true;
 
+    Server() = default;
+
+    Server(int argc, char *argv[]) {
+        params.initializeFrom(argc, argv);
+    }
+
     static void test();
 
     void start();

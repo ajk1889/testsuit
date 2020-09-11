@@ -33,5 +33,35 @@ struct ServerParams {
             tempDir, loggingAllowed, urlMapFile,
             additionalKwargs
     )
+
+    void initializeFrom(int argc, char *argv[]) {
+        for (int i = 1; i < argc; ++i) {
+            if (strstr(argv[i], "--pingMs=") != nullptr) {
+                pingMs = atoi(index(argv[i], '=') + 1);
+                std::cout << "Ping: " << pingMs << std::endl;
+            } else if (strstr(argv[i], "--maxDownloadSpeed=") != nullptr) {
+                maxDownloadSpeed = atoi(index(argv[i], '=') + 1);
+                std::cout << "Max download speed: " << maxDownloadSpeed << std::endl;
+            } else if (strstr(argv[i], "--maxUploadSpeed=") != nullptr) {
+                maxUploadSpeed = atoi(index(argv[i], '=') + 1);
+                std::cout << "Max upload speed: " << maxUploadSpeed << std::endl;
+            } else if (strstr(argv[i], "--port=") != nullptr) {
+                port = atoi(index(argv[i], '=') + 1);
+                std::cout << "Port: " << port << std::endl;
+            } else if (strstr(argv[i], "--parallelConnections=") != nullptr) {
+                parallelConnections = atoi(index(argv[i], '=') + 1);
+                std::cout << "Max parallel connections: " << parallelConnections << std::endl;
+            } else if (strstr(argv[i], "--loggingAllowed=") != nullptr) {
+                loggingAllowed = atoi(index(argv[i], '=') + 1);
+                std::cout << "Logging allowed: " << loggingAllowed << std::endl;
+            } else if (strstr(argv[i], "--urlMapFile=") != nullptr) {
+                urlMapFile = index(argv[i], '=') + 1;
+                std::cout << "Url mapping file: " << urlMapFile << std::endl;
+            } else if (strstr(argv[i], "--tempDir=") != nullptr) {
+                tempDir = index(argv[i], '=') + 1;
+                std::cout << "Temp files directory: " << tempDir << std::endl;
+            }
+        }
+    }
 };
 #endif //TESTSUIT_SERVERPARAMS_H
