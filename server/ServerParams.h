@@ -49,7 +49,6 @@ struct ServerParams {
         is >> data;
         is.close();
         urlMap = data.get<map<string, vector<string>>>();
-        std::cout << std::setw(2) << json(urlMap) << std::endl;
     }
 
     void initializeFrom(int argc, char *argv[]) {
@@ -75,7 +74,7 @@ struct ServerParams {
             else additionalKwargs[argv[i]];
         }
         initializeUrlMap(urlMapFile);
-        std::cout << std::setw(2) << json(*this) << std::endl;
+        std::cout << json(*this) << std::endl;
     }
 };
 

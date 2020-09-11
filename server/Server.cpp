@@ -34,10 +34,8 @@ void Server::handleClient(const SocketPtr &socketPtr) {
     try {
         auto request = HttpRequest::from(socketPtr);
         Process process = socketPtr->server->params.urlMap.find(request.path)->second;
-        string input = json(request).dump();
-        print(input);
         char data[1024];
-        data[process.run(input.c_str())->read(data, 1023)] = '\0';
+        data[process.run(json(request).dump().c_str())->read(data, 1023)] = '\0';
         HttpResponse response(ResponseCode::OK, data);
         *socketPtr << response;
     } catch (std::runtime_error &e) {
