@@ -1,8 +1,10 @@
 #include "Server.h"
-#include "../implementations/networking/HttpResponse.h"
+#include "../implementations/networking/http_response/HttpResponse.h"
+#include "../implementations/Process.h"
 #include <filesystem>
 
 using json = nlohmann::json;
+
 void startServer() {
     ServerSocket server;
     std::filesystem::path uploadsDir(server.server->params.tempDir);
@@ -31,8 +33,12 @@ void Server::test() {
 void Server::handleClient(const SocketPtr &socketPtr) {
     try {
         auto request = HttpRequest::from(socketPtr);
-        std::cout << std::setw(2) << json(request) << std::endl;
-        HttpResponse response(ResponseCode::OK, "<H1>Success</H1>");
+        Process process = socketPtr->server->params.urlMap.find(request.path)->second;
+        string input = json(request).dump();
+        print(input);
+        char data[1024];
+        data[process.run(input.c_str())->read(data, 1023)] = '\0';
+        HttpResponse response(ResponseCode::OK, data);
         *socketPtr << response;
     } catch (std::runtime_error &e) {
         std::ostringstream data("<H1>Internal server error</H1>");

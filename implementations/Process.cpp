@@ -23,7 +23,7 @@ shared_ptr<Socket> Process::run(const char *input) {
         close(aStdinPipe[PIPE_WRITE]);
         close(aStdoutPipe[PIPE_READ]);
         close(aStdoutPipe[PIPE_WRITE]);
-        exit(execvp(command[0], const_cast<char *const *>(args)));
+        exit(execvp(command[0].c_str(), const_cast<char *const *>(args)));
     } else if (nChild > 0) {
         // parent continues here
         close(aStdinPipe[PIPE_READ]);

@@ -10,8 +10,8 @@ include_directories(${CURL_INCLUDE_DIR})
 
 add_executable(
         testsuit main.cpp
-        implementations/networking/HttpResponse.cpp
-        implementations/networking/HttpResponse.h
+        implementations/networking/http_response/HttpResponse.cpp
+        implementations/networking/http_response/HttpResponse.h
         implementations/networking/HttpRequest.cpp
         implementations/networking/HttpRequest.h
         server/Server.cpp server/Server.h
@@ -34,6 +34,10 @@ add_executable(
         implementations/Process.cpp
         implementations/Process.h
         lib/json.hpp
+        implementations/networking/http_response/StringResponse.cpp
+        implementations/networking/http_response/StringResponse.h
+        implementations/networking/http_response/FileResponse.cpp
+        implementations/networking/http_response/FileResponse.h
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})

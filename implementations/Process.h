@@ -22,22 +22,32 @@ using std::shared_ptr;
 
 class Process {
 private:
-    vector<const char *> command;
+    vector<string> command;
     char const **args;
     int aStdinPipe[2]{};
     int aStdoutPipe[2]{};
-public:
-    Process(const std::initializer_list<const char *> &cmdAndArgs) : command(cmdAndArgs) {
+
+    void init() {
         const auto N = this->command.size();
         args = new char const *[N + 1];
         for (int i = 0; i < N; ++i)
-            args[i] = this->command[i];
+            args[i] = this->command[i].c_str();
         args[N] = nullptr;
+    }
+
+public:
+    Process(const std::initializer_list<const char *> &cmdAndArgs) : command(cmdAndArgs.begin(), cmdAndArgs.end()) {
+        init();
+    }
+
+    Process(std::vector<string> cmdAndArgs) : command(std::move(cmdAndArgs)) {
+        init();
     }
 
     shared_ptr<Socket> run(const char *input);
 
     static void test();
+
     ~Process() {
         delete[] args;
         close(aStdinPipe[PIPE_READ]);

@@ -1,5 +1,5 @@
 #include "HttpResponse.h"
-#include "Socket.h"
+#include "../Socket.h"
 
 HttpResponse::HttpResponse(uint responseCode, const string &data)
         : HttpResponse(map<string, vector<string>>(), data) {
