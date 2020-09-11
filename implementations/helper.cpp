@@ -134,3 +134,10 @@ string currentDateTime() {
     strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", gmt);
     return buf;
 }
+
+bool startsWith(const char *search, const char *key) {
+    size_t searchLen = strlen(search), keyLen = strlen(key);
+    if (searchLen < keyLen) return false;
+    while ((keyLen--) > 0) if (key[keyLen] != search[keyLen]) return false;
+    return true;
+}

@@ -104,4 +104,5 @@ void parseUrlEncodedPairs(const string &rawString, map<string, MapValue> &outMap
 
 void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap);
 
+bool startsWith(const char *search, const char *key);
 #endif //TESTSUIT_HELPERS_H
