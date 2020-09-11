@@ -17,28 +17,14 @@ using std::istream;
 using std::ostream;
 using std::istringstream;
 
-class HttpResponse {
-    friend Socket &operator<<(Socket &socket, const HttpResponse &response);
-
-public:
+struct HttpResponse {
     map<string, vector<string>> HEADERS;
     string httpVersion = "1.1";
     uint responseCode = 200;
-    bool destroyDataStream = false;
-    string data;
-    ulong streamLength;
 
-    explicit HttpResponse(uint responseCode, const string &data);
-
-    HttpResponse(decltype(HEADERS) headers, string response) :
-            HEADERS(std::move(headers)), data(std::move(response)), destroyDataStream(true) {
-        streamLength = this->data.length();
-        HEADERS["Content-Length"].push_back(std::to_string(streamLength));
-    }
+    explicit HttpResponse(uint code) : responseCode(code) {}
 };
 
 Socket &operator<<(Socket &socket, const HttpResponse &response);
-
-ostream &operator<<(ostream &os, const HttpResponse &response);
 
 #endif //TESTSUIT_HTTPRESPONSE_H

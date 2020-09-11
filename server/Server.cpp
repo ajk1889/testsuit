@@ -1,6 +1,6 @@
 #include "Server.h"
-#include "../implementations/networking/http_response/HttpResponse.h"
 #include "../implementations/Process.h"
+#include "../implementations/networking/http_response/StringResponse.h"
 #include <filesystem>
 
 using json = nlohmann::json;
@@ -36,13 +36,13 @@ void Server::handleClient(const SocketPtr &socketPtr) {
         Process process = socketPtr->server->params.urlMap.find(request.path)->second;
         char data[1024];
         data[process.run(json(request).dump().c_str())->read(data, 1023)] = '\0';
-        HttpResponse response(ResponseCode::OK, data);
+        StringResponse response(ResponseCode::OK, data);
         *socketPtr << response;
     } catch (std::runtime_error &e) {
         std::ostringstream data("<H1>Internal server error</H1>");
         data << "<H3>Description</H3>";
         data << e.what();
-        HttpResponse response(ResponseCode::InternalServerError, data.str());
+        StringResponse response(ResponseCode::InternalServerError, data.str());
         *socketPtr << response;
     }
     socketPtr->close();
