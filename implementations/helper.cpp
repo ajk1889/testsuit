@@ -1,5 +1,5 @@
 #include <iostream>
-#include "networking/Socket.h"
+#include "StreamDescriptor.h"
 #include "helpers.h"
 #include "ArrayJoiner.h"
 #include "boost/algorithm/string.hpp"
@@ -7,7 +7,7 @@
 string currentWorkingDir() {
     char cCurrentPath[FILENAME_MAX];
     if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
-        throw std::runtime_error("ERROR writing to socket");
+        throw std::runtime_error("Couldn't get current working directory");
     return cCurrentPath;
 }
 
@@ -62,41 +62,65 @@ int find(const char *hayStack, const string &key, const int hayStackLen, const s
     return -1;
 }
 
-string readUntilMatch(Socket &socket, const string &match, const ULong maxLen) {
-    const auto lenMatch = match.length();
-    if (lenMatch == 0)
-        throw std::runtime_error("Parameter `match` should not be blank");
-    char buffer[BUFFER_SIZE + 1];
-    buffer[BUFFER_SIZE] = '\0';
-    decltype(socket.read(buffer, BUFFER_SIZE)) bytesRead;
-    string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
-    string data;
-    while (data.length() < maxLen &&
-           (bytesRead = socket.read(buffer, min(BUFFER_SIZE, maxLen - data.length()))) > -1) {
-        auto terminationPoint = find(buffer, match, bytesRead, lastFew);
-        if (terminationPoint == -1) {
-            data.append(buffer, bytesRead);
-            fill(buffer, lastFew, bytesRead);
-        } else {
-            data.append(buffer, terminationPoint);
-            socket.unread(buffer + terminationPoint, bytesRead - terminationPoint);
-            break;
-        }
-    }
-    return std::move(data);
+string readUntilMatch(StreamDescriptor & descriptor,
+const string &match,
+const ULong maxLen
+) {
+const auto lenMatch = match.length();
+if (lenMatch == 0)
+throw std::runtime_error("Parameter `match` should not be blank");
+char buffer[BUFFER_SIZE + 1];
+buffer[BUFFER_SIZE] = '\0';
+decltype(descriptor.read(buffer, BUFFER_SIZE)) bytesRead;
+string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
+string data;
+while (data.
+
+length()
+
+<
+maxLen &&
+(bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, maxLen - data.length()))
+) > -1) {
+auto terminationPoint = find(buffer, match, bytesRead, lastFew);
+if (terminationPoint == -1) {
+data.
+append(buffer, bytesRead
+);
+fill(buffer, lastFew, bytesRead
+);
+} else {
+data.
+append(buffer, terminationPoint
+);
+descriptor.
+unread(buffer
++ terminationPoint, bytesRead - terminationPoint);
+break;
+}
+}
+return
+std::move(data);
 }
 
-string readExact(Socket &socket, long long nBytes) {
-    string str;
-    str.reserve(nBytes);
-    char buffer[BUFFER_SIZE + 1]{};
-    decltype(socket.read(buffer, min(BUFFER_SIZE, nBytes))) bytesRead;
-    while (nBytes > 0 && (bytesRead = socket.read(buffer, min(BUFFER_SIZE, nBytes))) > -1) {
-        buffer[bytesRead] = '\0';
-        str.append(buffer);
-        nBytes -= bytesRead;
-    }
-    return str;
+string readExact(StreamDescriptor & descriptor, long long
+nBytes) {
+string str;
+str.
+reserve(nBytes);
+char buffer[BUFFER_SIZE + 1]{};
+decltype(descriptor.read(buffer, min(BUFFER_SIZE, nBytes))) bytesRead;
+while (nBytes > 0 && (
+bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, nBytes))
+) > -1) {
+buffer[bytesRead] = '\0';
+str.
+append(buffer);
+nBytes -=
+bytesRead;
+}
+return
+str;
 }
 
 void print(const string &tag, char *str, size_t lastIndex) {

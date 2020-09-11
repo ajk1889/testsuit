@@ -59,11 +59,11 @@ string urlDecode(string &escaped, size_t length = 0);
 
 string urlDecode(const string &escaped, size_t length = 0);
 
-class Socket;
+class StreamDescriptor;
 
-string readUntilMatch(Socket &socket, const string &match, ULong maxLen = 8 * KB);
+string readUntilMatch(StreamDescriptor &descriptor, const string &match, ULong maxLen = 8 * KB);
 
-string readExact(Socket &socket, long long nBytes);
+string readExact(StreamDescriptor &descriptor, long long nBytes);
 
 int find(const char *hayStack, const string &key, const int hayStackLen, const string &lastFew);
 

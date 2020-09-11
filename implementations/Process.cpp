@@ -1,15 +1,15 @@
 #include "Process.h"
 
-shared_ptr<Socket> Process::run(const char *input) {
+shared_ptr<StreamDescriptor> Process::run(const char *input) {
     if (pipe(aStdinPipe) < 0) {
         perror("allocating pipe for child input redirect");
-        return shared_ptr<Socket>();
+        return shared_ptr<StreamDescriptor>();
     }
     if (pipe(aStdoutPipe) < 0) {
         close(aStdinPipe[PIPE_READ]);
         close(aStdinPipe[PIPE_WRITE]);
         perror("allocating pipe for child output redirect");
-        return shared_ptr<Socket>();
+        return shared_ptr<StreamDescriptor>();
     }
 
     int nChild = fork();
@@ -30,7 +30,7 @@ shared_ptr<Socket> Process::run(const char *input) {
         close(aStdoutPipe[PIPE_WRITE]);
         if (nullptr != input)
             write(aStdinPipe[PIPE_WRITE], input, strlen(input));
-        return make_shared<Socket>(aStdoutPipe[PIPE_READ], nullptr);
+        return make_shared<StreamDescriptor>(aStdoutPipe[PIPE_READ]);
     } else {
         perror("Could not fork");
         close(aStdinPipe[PIPE_READ]);
@@ -38,15 +38,15 @@ shared_ptr<Socket> Process::run(const char *input) {
         close(aStdoutPipe[PIPE_READ]);
         close(aStdoutPipe[PIPE_WRITE]);
     }
-    return shared_ptr<Socket>();
+    return shared_ptr<StreamDescriptor>();
 }
 
 void Process::test() {
     Process process = {"python3", "-c", "print(int(input())**237)"};
     char data[1024];
     data[0] = '\0';
-    auto socket = process.run("1820\n");
-    if (socket) data[socket->read(data, 1023)] = '\0';
-    else std::cout << "Null socket" << std::endl;
+    auto descriptor = process.run("1820\n");
+    if (descriptor) data[descriptor->read(data, 1023)] = '\0';
+    else std::cout << "Null descriptor" << std::endl;
     std::cout << data << std::endl;
 }

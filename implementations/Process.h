@@ -4,13 +4,14 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "networking/Socket.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <unistd.h>
 #include <cerrno>
 #include <cstring>
+#include <memory>
+#include "StreamDescriptor.h"
 
 #define PIPE_READ 0
 #define PIPE_WRITE 1
@@ -44,7 +45,7 @@ public:
         init();
     }
 
-    shared_ptr<Socket> run(const char *input);
+    shared_ptr<StreamDescriptor> run(const char *input);
 
     static void test();
 

@@ -38,6 +38,8 @@ add_executable(
         implementations/networking/http_response/StringResponse.h
         implementations/networking/http_response/FileResponse.cpp
         implementations/networking/http_response/FileResponse.h
+        implementations/StreamDescriptor.cpp
+        implementations/StreamDescriptor.h
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})
