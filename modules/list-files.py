@@ -36,9 +36,9 @@ elif os.path.isdir(path):
     print(response)
 else:
     if "Range" in data["HEADERS"]:
-        range = data["HEADERS"]["Range"]
-        range = range[range.index('=') + 1:]
-        if ',' in range:
+        contentRange = data["HEADERS"]["Range"]
+        contentRange = contentRange[contentRange.index('=') + 1:]
+        if ',' in contentRange:
             response = "<h3>Multi-range is not supported</h3>"
             print(json.dumps({
                 "responseCode": 406,
@@ -49,15 +49,15 @@ else:
             print()
             print(response)
         else:
-            range = range.split('-')
+            contentRange = contentRange.split('-')
             print(json.dumps({
                 "responseCode": 206,
                 "headers": {
                     "Content-Type": ["application/octet-stream"],
                     "Content-Disposition": ['attachment; filename="{name}"'.format(name=path.split('/')[-1])]
                 },
-                "offset": range[0],
-                "limit": range[1],
+                "offset": contentRange[0],
+                "limit": contentRange[1],
                 "data": path
             }))
             print()
