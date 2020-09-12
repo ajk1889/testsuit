@@ -24,7 +24,7 @@ elif os.path.isdir(path):
     <body>'''
     files = os.listdir(path)
     for f in files:
-        response += f"<a href='{urllib.parse.quote(path + '/' + f)}'>{escape(f)}</a><br/>"
+        response += f"<a href='{urllib.parse.quote(path + '/' + f)}'>{escape(f)}</a><br/>\n"
     response += '</body></html>'
     print(json.dumps({
         "responseCode": 200,
@@ -54,7 +54,7 @@ else:
                 "responseCode": 206,
                 "headers": {
                     "Content-Type": ["application/octet-stream"],
-                    "Content-Disposition": ['attachment; filename="{name}"'.format(name=path.split('/')[-1])]
+                    "Content-Disposition": [f'attachment; filename="{path.split("/")[-1]}"']
                 },
                 "offset": contentRange[0],
                 "limit": contentRange[1],
@@ -66,7 +66,7 @@ else:
             "responseCode": 200,
             "headers": {
                 "Content-Type": ["application/octet-stream"],
-                "Content-Disposition": ['attachment; filename="{name}"'.format(name=path.split('/')[-1])]
+                "Content-Disposition": [f'attachment; filename="{path.split("/")[-1]}"']
             },
             "data": path
         }))
