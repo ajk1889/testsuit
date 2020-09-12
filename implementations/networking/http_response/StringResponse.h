@@ -13,6 +13,8 @@ public:
     string responseString;
 
     StringResponse(uint responseCode, const string &data);
+
+    Socket &writeTo(Socket &socket) override;
 };
 
 Socket &operator<<(Socket &socket, const StringResponse &response);

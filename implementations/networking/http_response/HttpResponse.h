@@ -22,9 +22,12 @@ struct HttpResponse {
     string httpVersion = "1.1";
     uint responseCode = 200;
 
-    explicit HttpResponse(uint code) : responseCode(code) {}
-};
+    explicit HttpResponse(uint code) : responseCode(code), HEADERS() {}
 
-Socket &operator<<(Socket &socket, const HttpResponse &response);
+    explicit HttpResponse(uint code, map<string, vector<string>> headers)
+            : responseCode(code), HEADERS(std::move(headers)) {}
+
+    virtual Socket &writeTo(Socket &socket) = 0;
+};
 
 #endif //TESTSUIT_HTTPRESPONSE_H

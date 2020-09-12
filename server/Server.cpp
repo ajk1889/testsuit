@@ -1,6 +1,7 @@
 #include "Server.h"
 #include "../implementations/Process.h"
 #include "../implementations/networking/http_response/StringResponse.h"
+#include "../implementations/networking/http_response/DescriptorResponse.h"
 #include <filesystem>
 
 using json = nlohmann::json;
@@ -30,20 +31,37 @@ void Server::test() {
     client.join();
 }
 
+shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
+    char data[1024];
+    data[descriptor.read(data, 1023)] = '\0';
+    return make_shared<StringResponse>(200, data);
+//    auto metaData = readUntilMatch(descriptor, "\n\n", 8*KB);
+//    if(metaData.rfind("\n\n") == string::npos) {
+//        return DescriptorResponse(200, descriptor);
+//    }
+}
+
 void Server::handleClient(const SocketPtr &socketPtr) {
     try {
         auto request = HttpRequest::from(socketPtr);
-        Process process = socketPtr->server->params.urlMap.find(request.path)->second;
-        char data[1024];
-        data[process.run(json(request).dump().c_str())->read(data, 1023)] = '\0';
-        StringResponse response(ResponseCode::OK, data);
-        *socketPtr << response;
+        auto urlMap = socketPtr->server->params.urlMap;
+        auto command = urlMap.find(request.path);
+        if (command == urlMap.cend())
+            command = urlMap.find("default");
+        Process process = command->second;
+        auto input = json(request).dump() + "\n";
+        parseProcessResponse(*process.run(input.c_str()))->writeTo(*socketPtr);
     } catch (std::runtime_error &e) {
         std::ostringstream data("<H1>Internal server error</H1>");
         data << "<H3>Description</H3>";
         data << e.what();
         StringResponse response(ResponseCode::InternalServerError, data.str());
-        *socketPtr << response;
+        response.writeTo(*socketPtr);
+    } catch (...) {
+        std::ostringstream data("<H1>Internal server error</H1>");
+        data << "<H3>Unknown exception</H3>";
+        StringResponse response(ResponseCode::InternalServerError, data.str());
+        response.writeTo(*socketPtr);
     }
     socketPtr->close();
 }
