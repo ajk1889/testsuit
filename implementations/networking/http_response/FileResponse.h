@@ -7,18 +7,31 @@
 
 
 #include "HttpResponse.h"
+#include <fstream>
+
+using std::ifstream;
+using std::to_string;
 
 class FileResponse : public HttpResponse {
-    const string path;
-    const uint_least64_t size;
+    ifstream stream;
+    uint_least64_t begin, end;
 public:
     FileResponse(
             uint responseCode,
-            string filePath,
+            const string &filePath,
             const decltype(HEADERS) &additionalHeaders,
-            const uint_least64_t length
-    ) : HttpResponse(responseCode, additionalHeaders), path(std::move(filePath)), size(length) {
-        if (size != 0) HEADERS["Content-Length"].push_back(std::to_string(size));
+            const uint_least64_t offset,
+            const uint_least64_t limit) :
+            HttpResponse(responseCode, additionalHeaders),
+            stream(filePath, std::ifstream::ate | std::ifstream::binary),
+            begin(offset), end(limit) {
+        auto fileSize = stream.tellg();
+        if (end == 0)
+            end = static_cast<uint_least64_t>(fileSize) - 1ULL;
+        HEADERS["Content-Length"].push_back(to_string(end - begin + 1));
+        HEADERS["Content-Range"].push_back(
+                "bytes " + to_string(begin) + "-" + to_string(end) + "/" + to_string(fileSize));
+        stream.seekg(begin);
     }
 
     Socket &writeTo(Socket &socket) override;

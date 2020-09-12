@@ -44,13 +44,14 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
                     metaDataJson.value("responseCode", 200),
                     descriptor,
                     metaDataJson.value("headers", emptyHeader),
-                    metaDataJson.value("length", 0));
+                    metaDataJson.value("length", 0ULL));
         } else {
             return make_shared<FileResponse>(
                     metaDataJson.value("responseCode", 200),
                     metaDataJson["data"],
                     metaDataJson.value("headers", emptyHeader),
-                    metaDataJson.value("length", 0));
+                    metaDataJson.value("offset", 0ULL),
+                    metaDataJson.value("limit", 0ULL));
         }
     } catch (json::parse_error e) {
         std::cerr << "Error while parsing: " << rawMetaData << "\n"
