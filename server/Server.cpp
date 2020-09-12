@@ -4,6 +4,7 @@
 #include "../implementations/networking/http_response/DescriptorResponse.h"
 #include <filesystem>
 #include "boost/algorithm/string.hpp"
+#include "../implementations/networking/http_response/FileResponse.h"
 
 using json = nlohmann::json;
 
@@ -33,10 +34,29 @@ void Server::test() {
 }
 
 shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
-    auto metaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
-    if (metaData.rfind("\n\n") == string::npos)
+    auto rawMetaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
+    boost::trim(rawMetaData);
+    map<string, vector<string>> emptyHeader;
+    try {
+        auto metaDataJson = json::parse(rawMetaData);
+        if (metaDataJson["data"] == "inline") {
+            return make_shared<DescriptorResponse>(
+                    metaDataJson.value("responseCode", 200),
+                    descriptor,
+                    metaDataJson.value("headers", emptyHeader),
+                    metaDataJson.value("length", 0));
+        } else {
+            return make_shared<FileResponse>(
+                    metaDataJson.value("responseCode", 200),
+                    metaDataJson["data"],
+                    metaDataJson.value("headers", emptyHeader),
+                    metaDataJson.value("length", 0));
+        }
+    } catch (json::parse_error e) {
+        std::cerr << "Error while parsing: " << rawMetaData << "\n"
+                  << "what: " << e.what() << std::endl;
         return make_shared<DescriptorResponse>(200, descriptor);
-    boost::trim(metaData);
+    }
 }
 
 void Server::handleClient(const SocketPtr &socketPtr) {

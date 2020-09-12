@@ -3,3 +3,7 @@
 //
 
 #include "FileResponse.h"
+
+Socket &FileResponse::writeTo(Socket &socket) {
+    return socket;
+}
