@@ -13,6 +13,7 @@ class DescriptorResponse : public HttpResponse {
 public:
     DescriptorResponse(uint responseCode, const StreamDescriptor descriptor)
             : HttpResponse(responseCode), descriptor(descriptor) {}
+    Socket &writeTo(Socket &socket) override;
 };
 
 

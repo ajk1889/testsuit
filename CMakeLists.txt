@@ -32,7 +32,6 @@ add_executable(
         implementations/Constants.cpp
         implementations/Process.cpp
         implementations/Process.h
-        lib/json.hpp
         implementations/networking/http_response/StringResponse.cpp
         implementations/networking/http_response/StringResponse.h
         implementations/networking/http_response/FileResponse.cpp

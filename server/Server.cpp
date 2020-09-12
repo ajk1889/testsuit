@@ -3,6 +3,7 @@
 #include "../implementations/networking/http_response/StringResponse.h"
 #include "../implementations/networking/http_response/DescriptorResponse.h"
 #include <filesystem>
+#include "boost/algorithm/string.hpp"
 
 using json = nlohmann::json;
 
@@ -32,13 +33,10 @@ void Server::test() {
 }
 
 shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
-    char data[1024];
-    data[descriptor.read(data, 1023)] = '\0';
-    return make_shared<StringResponse>(200, data);
-//    auto metaData = readUntilMatch(descriptor, "\n\n", 8*KB);
-//    if(metaData.rfind("\n\n") == string::npos) {
-//        return DescriptorResponse(200, descriptor);
-//    }
+    auto metaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
+    if (metaData.rfind("\n\n") == string::npos)
+        return make_shared<DescriptorResponse>(200, descriptor);
+    boost::trim(metaData);
 }
 
 void Server::handleClient(const SocketPtr &socketPtr) {

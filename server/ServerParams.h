@@ -7,7 +7,7 @@
 #include <limits>
 #include <filesystem>
 #include <fstream>
-#include "../lib/json.hpp"
+#include "json/json.hpp"
 #include "../implementations/helpers.h"
 #include "../implementations/constants.h"
 

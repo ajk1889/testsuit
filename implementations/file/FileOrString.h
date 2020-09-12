@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 #include <utility>
-#include "../../lib/json.hpp"
+#include "json/json.hpp"
 #include "../networking/Socket.h"
 #include "../networking/http/ContentDisposition.h"
 

@@ -12,7 +12,7 @@
 #include "Socket.h"
 #include "../constants.h"
 #include "../file/FileOrString.h"
-#include "../../lib/json.hpp"
+#include "json/json.hpp"
 #include <curl/curl.h>
 #include <curl/easy.h>
 

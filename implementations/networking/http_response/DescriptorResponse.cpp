@@ -3,3 +3,7 @@
 //
 
 #include "DescriptorResponse.h"
+
+Socket &DescriptorResponse::writeTo(Socket &socket) {
+    return socket;
+}
