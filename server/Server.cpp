@@ -65,29 +65,32 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
 }
 
 void Server::handleClient(const SocketPtr &socketPtr) {
-    try {
-        auto request = HttpRequest::from(socketPtr);
-        print("Request:", request.requestType, request.path, "GET:", json(request.GET), "POST:", json(request.POST));
-        auto urlMap = socketPtr->server->params.urlMap;
-        auto command = urlMap.find(request.path);
-        if (command == urlMap.cend())
-            command = urlMap.find("default");
-        Process process = command->second;
-        auto input = json(request).dump() + "\n";
-        auto output = process.run(input.c_str());
-        parseProcessResponse(*output)->writeTo(*socketPtr);
-    } catch (std::runtime_error &e) {
-        std::ostringstream data("<H1>Internal server error</H1>");
-        data << "<H3>Description</H3>";
-        data << e.what();
-        StringResponse response(ResponseCode::InternalServerError, data.str());
-        response.writeTo(*socketPtr);
-    } catch (...) {
-        StringResponse response(ResponseCode::InternalServerError,
-                                "<H1>Internal server error</H1><H3>Unknown exception</H3>");
-        response.writeTo(*socketPtr);
-    }
-    socketPtr->close();
+    thread([=] {
+        try {
+            auto request = HttpRequest::from(socketPtr);
+            print("Request:", request.requestType, request.path,
+                  "GET:", json(request.GET), "POST:", json(request.POST));
+            auto urlMap = socketPtr->server->params.urlMap;
+            auto command = urlMap.find(request.path);
+            if (command == urlMap.cend())
+                command = urlMap.find("default");
+            Process process = command->second;
+            auto input = json(request).dump() + "\n";
+            auto output = process.run(input.c_str());
+            parseProcessResponse(*output)->writeTo(*socketPtr);
+        } catch (std::runtime_error &e) {
+            std::ostringstream data("<H1>Internal server error</H1>");
+            data << "<H3>Description</H3>";
+            data << e.what();
+            StringResponse response(ResponseCode::InternalServerError, data.str());
+            response.writeTo(*socketPtr);
+        } catch (...) {
+            StringResponse response(ResponseCode::InternalServerError,
+                                    "<H1>Internal server error</H1><H3>Unknown exception</H3>");
+            response.writeTo(*socketPtr);
+        }
+        socketPtr->close();
+    }).detach();
 }
 
 void Server::start() {
