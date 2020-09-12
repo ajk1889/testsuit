@@ -42,7 +42,7 @@ public:
 
     static HttpRequest from(const shared_ptr<Socket> &client);
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(HttpRequest, HEADERS, GET, POST, httpVersion, path, requestType);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(HttpRequest, requestType, path, GET, POST, HEADERS, httpVersion);
 };
 
 

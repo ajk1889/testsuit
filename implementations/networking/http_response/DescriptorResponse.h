@@ -1,7 +1,3 @@
-//
-// Created by ajk on 11/09/20.
-//
-
 #ifndef TESTSUIT_DESCRIPTORRESPONSE_H
 #define TESTSUIT_DESCRIPTORRESPONSE_H
 
@@ -17,10 +13,12 @@ public:
 
     DescriptorResponse(
             uint responseCode,
-            const StreamDescriptor descriptor,
-            const decltype(HEADERS) additionalHeaders,
+            StreamDescriptor descriptor,
+            const decltype(HEADERS) &additionalHeaders,
             const uint_least64_t length
-    ) : HttpResponse(responseCode), descriptor(descriptor), length(length) {}
+    ) : HttpResponse(responseCode, additionalHeaders), descriptor(std::move(descriptor)), length(length) {
+        if (length != 0) HEADERS["Content-Length"].push_back(std::to_string(length));
+    }
 
     Socket &writeTo(Socket &socket) override;
 };

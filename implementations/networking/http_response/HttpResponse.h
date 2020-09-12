@@ -18,16 +18,29 @@ using std::ostream;
 using std::istringstream;
 
 struct HttpResponse {
-    map<string, vector<string>> HEADERS;
+    map<string, vector<string>> HEADERS = {
+            {"Date",   {currentDateTime()}},
+            {"Server", {SERVER_NAME}}
+    };
     string httpVersion = "1.1";
     uint responseCode = 200;
 
     explicit HttpResponse(uint code) : responseCode(code), HEADERS() {}
 
-    explicit HttpResponse(uint code, map<string, vector<string>> headers)
-            : responseCode(code), HEADERS(std::move(headers)) {}
+    explicit HttpResponse(uint code, const map<string, vector<string>> &additionalHeaders) : responseCode(code) {
+        for (auto &pair: additionalHeaders) HEADERS[pair.first] = pair.second;
+    }
 
-    virtual Socket &writeTo(Socket &socket) = 0;
+    virtual Socket &writeTo(Socket &socket) {
+        socket.write("HTTP/" + httpVersion + " ");
+        socket.write(std::to_string(responseCode));
+        socket.write(" " + ResponseCode::text.find(responseCode)->second + "\r\n");
+        for (const auto &pair : HEADERS)
+            for (const auto &value: pair.second)
+                socket.write(pair.first + ": " + value + "\r\n");
+        socket.write("\r\n");
+        return socket;
+    }
 };
 
 #endif //TESTSUIT_HTTPRESPONSE_H
