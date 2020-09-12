@@ -9,6 +9,7 @@
 #include <set>
 #include <iostream>
 #include <memory>
+#include <atomic>
 
 using std::thread;
 using std::shared_ptr;
@@ -26,7 +27,7 @@ class Server {
     thread clientAcceptor;
 public:
     ServerParams params;
-    bool isRunning = true;
+    std::atomic<bool> isRunning = true;
 
     Server() = default;
 
@@ -40,7 +41,6 @@ public:
 
     void stop() {
         isRunning = false;
-        serverSocket->close();
     }
 };
 

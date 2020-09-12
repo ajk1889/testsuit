@@ -10,10 +10,8 @@ using json = nlohmann::json;
 
 void startServer() {
     ServerSocket server;
-    std::filesystem::path uploadsDir(server.server->params.tempDir);
-    if (!std::filesystem::exists(uploadsDir) && !std::filesystem::create_directory(uploadsDir))
-        throw std::runtime_error("Unable to create uploads directory");
-    auto client = server.accept();
+    shared_ptr<Socket> client;
+    while (!client) client = server.accept({1, 0});
     int number;
     std::cout << client->read(number) << std::endl;
     client->write(-81273);
@@ -95,8 +93,14 @@ void Server::handleClient(const SocketPtr &socketPtr) {
 
 void Server::start() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    clientAcceptor = thread([&] {
-        while (isRunning) handleClient(serverSocket->accept());
+    std::filesystem::path uploadsDir(params.tempDir);
+    if (!std::filesystem::exists(uploadsDir) && !std::filesystem::create_directory(uploadsDir))
+        throw std::runtime_error("Unable to create uploads directory");
+    clientAcceptor = thread([=] {
+        while (isRunning) {
+            auto client = serverSocket->accept({1, 0});
+            if (client) handleClient(client);
+        }
     });
     clientAcceptor.detach();
 }

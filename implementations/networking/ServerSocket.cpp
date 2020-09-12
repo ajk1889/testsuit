@@ -14,11 +14,16 @@ ServerSocket::ServerSocket(const Server *server, short portNo, uint maxParallelC
     listen(serverSocketFd, maxParallelConns);
 }
 
-std::shared_ptr<Socket> ServerSocket::accept() const {
-    sockaddr_in clientAddress{};
-    socklen_t size = sizeof(clientAddress);
-    auto socketFd = ::accept(serverSocketFd, (sockaddr *) &clientAddress, &size);
-    if (socketFd < 0)
-        throw std::runtime_error("ERROR while accepting");
-    return std::make_shared<Socket>(socketFd, this->server);
+std::shared_ptr<Socket> ServerSocket::accept(timeval timeOut) const {
+    fd_set readFds, writeFds;
+    FD_SET(serverSocketFd, &readFds);
+    FD_SET(serverSocketFd, &writeFds);
+    auto result = select(serverSocketFd + 1, &readFds, nullptr, nullptr, &timeOut);
+    if (result == 1) {
+        sockaddr_in clientAddress{};
+        socklen_t size = sizeof(clientAddress);
+        auto socketFd = ::accept(serverSocketFd, (sockaddr *) &clientAddress, &size);
+        if (socketFd < 0) return std::shared_ptr<Socket>();
+        return std::make_shared<Socket>(socketFd, this->server);
+    } else return std::shared_ptr<Socket>();
 }

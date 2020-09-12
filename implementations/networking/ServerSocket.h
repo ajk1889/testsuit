@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <strings.h>
 #include <memory>
+#include <poll.h>
 #include "Socket.h"
 
 class Server;
@@ -21,7 +22,7 @@ public:
 
     explicit ServerSocket(const Server *server = nullptr, short portNo = 1234, uint maxParallelConnections = 10);
 
-    [[nodiscard]] std::shared_ptr<Socket> accept() const;
+    std::shared_ptr<Socket> accept(timeval timeOut) const;
 
     void close() const { ::close(serverSocketFd); }
 
