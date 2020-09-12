@@ -25,7 +25,7 @@ struct ServerParams {
     u_short port = 1234;
     string tempDir = std::filesystem::temp_directory_path().string();
     bool loggingAllowed = true;
-    string urlMapFile = "/home/ajk/Desktop/urlMap.json";
+    string urlMapFile = "/home/ajk/CLionProjects/testsuit/urlMap.json";
     map<string, vector<string>> urlMap;
 
     map<string, string> additionalKwargs;

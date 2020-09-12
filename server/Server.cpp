@@ -96,8 +96,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
 void Server::start() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
     clientAcceptor = thread([&] {
-        while (isRunning)
-            handleClient(serverSocket->accept());
+        while (isRunning) handleClient(serverSocket->accept());
     });
     clientAcceptor.detach();
 }
