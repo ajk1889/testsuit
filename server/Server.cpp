@@ -51,11 +51,11 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
                     metaDataJson.value("offset", 0ULL),
                     metaDataJson.value("limit", 0ULL));
         }
-    } catch (json::parse_error e) {
+    } catch (json::parse_error &e) {
         std::cerr << "Error while parsing: " << rawMetaData << "\n"
                   << "what: " << e.what() << std::endl;
         return make_shared<DescriptorResponse>(200, descriptor);
-    } catch (json::type_error e) {
+    } catch (json::type_error &e) {
         std::cerr << "Error while parsing: " << rawMetaData << "\n"
                   << "what: " << e.what() << std::endl;
         return make_shared<DescriptorResponse>(200, descriptor);

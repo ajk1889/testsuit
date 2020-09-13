@@ -34,39 +34,49 @@ def echo(code, html):
     print(html)
 
 
-data = json.loads(input().strip())
-path = data["path"]
-if path[-1] == '/': path = path[:-1]
+try:
+    data = json.loads(input().strip())
+    path = data["path"]
+    if path[-1] == '/':
+        path = path[:-1]
 
-if not os.path.exists(path):
-    echo(404, "<h1>File not found</h1>")
-    exit(0)
-
-if os.path.isdir(path):
-    echo(200, get_files_list(path))
-    exit(0)
-
-response = {
-    "responseCode": 206,
-    "headers": {
-        "Content-Type": ["application/octet-stream"],
-        "Content-Disposition": [f'attachment; filename="{path.split("/")[-1]}"']
-    },
-    "data": path
-}
-if "Range" in data["HEADERS"]:
-    contentRange = data["HEADERS"]["Range"]
-    contentRange = contentRange[contentRange.index('=') + 1:]
-    if ',' in contentRange:
-        echo(406, "<h3>Multi-range is not supported</h3>")
+    if not os.path.exists(path):
+        echo(404, "<h1>File not found</h1>")
         exit(0)
-    contentRange = contentRange.split('-')
-    response["offset"]: contentRange[0]
-    response["limit"]: contentRange[1]
-    response["responseCode"] = 206
-    print(json.dumps(response))
-    print()
-else:
-    response["responseCode"] = 200
-    print(json.dumps(response))
-    print()
+
+    if os.path.isdir(path):
+        echo(200, get_files_list(path))
+        exit(0)
+
+    mimeType = "application/octet-stream"
+    if path.split('.')[-1] == 'html':
+        mimeType = 'text/html'
+
+    response = {
+        "responseCode": 206,
+        "headers": {
+            "Content-Type": [mimeType],
+            "Content-Disposition": [f'attachment; filename="{path.split("/")[-1]}"']
+        },
+        "data": path
+    }
+    if mimeType != "application/octet-stream":
+        response["headers"].pop("Content-Disposition")
+    if "Range" in data["HEADERS"]:
+        contentRange = data["HEADERS"]["Range"]
+        contentRange = contentRange[contentRange.index('=') + 1:]
+        if ',' in contentRange:
+            echo(406, "<h3>Multi-range is not supported</h3>")
+            exit(0)
+        contentRange = contentRange.split('-')
+        response["offset"]: contentRange[0]
+        response["limit"]: contentRange[1]
+        response["responseCode"] = 206
+        print(json.dumps(response))
+        print()
+    else:
+        response["responseCode"] = 200
+        print(json.dumps(response))
+        print()
+except Exception as e:
+    echo(500, str(e))
