@@ -21,7 +21,7 @@ using json = nlohmann::json;
 
 struct ServerParams {
     uint32_t pingMs = 0;
-    uint32_t maxDownloadSpeed = 100;
+    uint32_t maxDownloadSpeed = UINT32_MAX;
     uint32_t maxUploadSpeed = UINT32_MAX;
     uint32_t parallelConnections = 10;
     u_short port = 1234;
