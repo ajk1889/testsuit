@@ -122,7 +122,7 @@ void Server::execute(const string &command) {
     } else if (separatorPos != string::npos) {
         try {
             auto parameter = command.substr(0, separatorPos);
-            auto value = command.substr(separatorPos);
+            auto value = command.substr(separatorPos + 1);
             if (parameter == "maxdspeed") {
                 params.maxDownloadSpeed = std::stol(value);
                 print("Max download speed set to", params.maxDownloadSpeed);

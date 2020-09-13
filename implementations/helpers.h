@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 #include "constants.h"
 
 #define GetCurrentDir getcwd
@@ -104,5 +105,5 @@ void parseUrlEncodedPairs(const string &rawString, Mappable &outMap) {
 
 void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap);
 
-bool startsWith(const char *search, const char *key);
+auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now());
 #endif //TESTSUIT_HELPERS_H

@@ -141,3 +141,7 @@ bool startsWith(const char *search, const char *key) {
     while ((keyLen--) > 0) if (key[keyLen] != search[keyLen]) return false;
     return true;
 }
+
+auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now()) {
+    return std::chrono::high_resolution_clock::now();
+}

@@ -21,7 +21,7 @@ using json = nlohmann::json;
 
 struct ServerParams {
     uint32_t pingMs = 0;
-    uint32_t maxDownloadSpeed = UINT32_MAX;
+    uint32_t maxDownloadSpeed = 100;
     uint32_t maxUploadSpeed = UINT32_MAX;
     uint32_t parallelConnections = 10;
     u_short port = 1234;
@@ -95,7 +95,7 @@ struct ServerParams {
             else if (strstr(argv[i], "--loggingAllowed=") != nullptr)
                 loggingAllowed = atoi(index(argv[i], '=') + 1);
             else if (strstr(argv[i], "--urlMapFile=") != nullptr)
-                initializeUrlMap(index(argv[i], '=') + 1);
+                urlMapFile = index(argv[i], '=') + 1;
             else if (strstr(argv[i], "--tempDir=") != nullptr)
                 tempDir = index(argv[i], '=') + 1;
             else if (strstr(argv[i], "=") != nullptr)
@@ -104,6 +104,7 @@ struct ServerParams {
         }
         if (tempDir.empty())
             tempDir = std::filesystem::temp_directory_path().string() + "/testsuit";
+        initializeUrlMap(urlMapFile);
         std::cout << json(*this) << std::endl;
     }
 };
