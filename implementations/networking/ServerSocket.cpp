@@ -9,10 +9,10 @@ ServerSocket::ServerSocket(const Server *server, short portNo, uint maxParallelC
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(port);
+    int reusePort = 1;
+    setsockopt(serverSocketFd, SOL_SOCKET, SO_REUSEPORT, &reusePort, sizeof(reusePort));
     if (bind(serverSocketFd, (sockaddr *) &address, sizeof(address)) < 0)
         throw std::runtime_error("ERROR on binding");
-    int reusePort = 1;
-    setsockopt(serverSocketFd, SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
     listen(serverSocketFd, maxParallelConns);
 }
 
