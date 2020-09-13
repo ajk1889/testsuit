@@ -80,8 +80,8 @@ void print(A a, B ...b) {
     print(b...);
 }
 
-template<typename MapValue>
-void parseUrlEncodedPairs(const string &rawString, map<string, MapValue> &outMap) {
+template<typename Mappable>
+void parseUrlEncodedPairs(const string &rawString, Mappable &outMap) {
     int start = 0, separator, end;
     while (true) {
         end = rawString.find('&', start);

@@ -25,6 +25,8 @@ struct ContentDisposition {
         const auto fileEndPos = disposition.find('"', fileStartPos);
         fileName = disposition.substr(fileStartPos, fileEndPos - fileStartPos);
     }
+
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(ContentDisposition, type, fileName, name);
 };
 
 #endif //TESTSUIT_CONTENTDISPOSITION_H

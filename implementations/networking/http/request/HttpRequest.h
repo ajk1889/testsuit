@@ -30,7 +30,7 @@ class HttpRequest {
 public:
     map<string, vector<string>> HEADERS;
     map<string, string> GET;
-    map<string, FileOrString> POST;
+    json POST;
     string httpVersion;
     string path;
     string requestType;

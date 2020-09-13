@@ -67,7 +67,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
         try {
             auto request = HttpRequest::from(socketPtr);
             print("Request:", request.requestType, request.path,
-                  "GET:", json(request.GET), "POST:", json(request.POST));
+                  "GET:", json(request.GET), "POST:", request.POST);
             auto urlMap = socketPtr->server->params.urlMap;
             auto command = urlMap.find(request.path);
             if (command == urlMap.cend())

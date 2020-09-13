@@ -22,8 +22,6 @@ public:
 
     FileOrString() = default;
 
-    FileOrString(string rawString) : data(std::move(rawString)) {}
-
     static FileOrString readFrom(Socket &socket, string &boundary);
 
     static FileOrString readFrom(Socket &socket, uint_least64_t nBytes);

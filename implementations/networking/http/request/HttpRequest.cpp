@@ -7,7 +7,7 @@ void ignoreStreamUntil(Socket &socket, const string &boundary) {
         end = readUntilMatch(socket, boundary, 1 * KB);
 }
 
-void parseMultiPartFormData(const HttpRequest &request, const string &boundary, map<string, FileOrString> &outMap) {
+void parseMultiPartFormData(const HttpRequest &request, const string &boundary, json &outMap) {
     auto &socket = *request.socket;
     ignoreStreamUntil(socket, "--" + boundary); // ignore until beginning boundary
     ignoreStreamUntil(socket, "\r\n"); // ignore until boundary's whitespaces
@@ -20,9 +20,14 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
         auto result = parsedItemHeader.find(ContentDisposition::KEY);
         if (result != parsedItemHeader.cend()) {
             const ContentDisposition disposition = result->second[0];
+            if (outMap.find(disposition.name) == outMap.end())
+                outMap[disposition.name] = {};
+            auto &thisItem = outMap[disposition.name];
             if (disposition.type == ContentDisposition::TYPE_FORM_DATA) {
-                auto value = FileOrString::readFrom(socket, realBoundary);
-                outMap[disposition.name] = value;
+                thisItem.push_back({
+                                           {"headers", parsedItemHeader},
+                                           {"data",    FileOrString::readFrom(socket, realBoundary)}
+                                   });
                 char next2bytes[2];
                 socket.read(next2bytes);
                 if (next2bytes[0] == '-' && next2bytes[1] == '-')
@@ -63,7 +68,7 @@ void extractRequestDataConditionally(HttpRequest &req) {
             if (contentLengthIter == req.HEADERS.cend()) return;
             auto contentLength = std::stoll(contentLengthIter->second[0]);
             if (contentLength == 0) return;
-            req.POST["rawData"] = FileOrString::readFrom(*req.socket, contentLength);
+            req.POST = FileOrString::readFrom(*req.socket, contentLength);
         }
     }
 }
