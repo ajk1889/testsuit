@@ -23,7 +23,7 @@ struct ServerParams {
     uint32_t maxUploadSpeed = UINT32_MAX;
     uint32_t parallelConnections = 10;
     u_short port = 1234;
-    string tempDir = std::filesystem::temp_directory_path().string();
+    string tempDir;
     bool loggingAllowed = true;
     string urlMapFile = "/home/ajk/CLionProjects/testsuit/urlMap.json";
     map<string, vector<string>> urlMap;
@@ -73,6 +73,8 @@ struct ServerParams {
                 additionalKwargs[string(argv[i], index(argv[i], '='))] = index(argv[i], '=') + 1;
             else additionalKwargs[argv[i]];
         }
+        if (tempDir.empty())
+            tempDir = std::filesystem::temp_directory_path().string() + "/testsuit";
         initializeUrlMap(urlMapFile);
         std::cout << json(*this) << std::endl;
     }
