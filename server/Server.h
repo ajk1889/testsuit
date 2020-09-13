@@ -4,7 +4,7 @@
 #include "../implementations/networking/ServerSocket.h"
 #include "../implementations/networking/Socket.h"
 #include "../server/ServerParams.h"
-#include "../implementations/networking/HttpRequest.h"
+#include "../implementations/networking/http/request/HttpRequest.h"
 #include <thread>
 #include <set>
 #include <iostream>
@@ -41,6 +41,9 @@ public:
 
     void stop() {
         isRunning = false;
+        using std::chrono_literals::operator ""ms;
+        std::this_thread::sleep_for(2ms);
+        // waiting for socket to close
     }
 };
 

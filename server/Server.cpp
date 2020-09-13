@@ -11,7 +11,7 @@ using json = nlohmann::json;
 void startServer() {
     ServerSocket server;
     shared_ptr<Socket> client;
-    while (!client) client = server.accept({1, 0});
+    while (!client) client = server.accept({0, 1000});
     int number;
     std::cout << client->read(number) << std::endl;
     client->write(-81273);
@@ -98,7 +98,7 @@ void Server::start() {
         throw std::runtime_error("Unable to create uploads directory");
     clientAcceptor = thread([=] {
         while (isRunning) {
-            auto client = serverSocket->accept({1, 0});
+            auto client = serverSocket->accept({0, 1000});
             if (client) handleClient(client);
         }
     });
