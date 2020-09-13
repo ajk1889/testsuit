@@ -14,7 +14,7 @@
 #include <cstring>
 #include "../helpers.h"
 #include "../constants.h"
-#include "../StreamDescriptor.h"
+#include "../file/StreamDescriptor.h"
 
 using std::string;
 

@@ -8,7 +8,7 @@
 #include <cstring>
 #include <cmath>
 #include <memory>
-#include "../../../ArrayJoiner.h"
+#include "../../../utils/ArrayJoiner.h"
 #include "../../Socket.h"
 #include "../../../constants.h"
 #include "../../../file/FileOrString.h"

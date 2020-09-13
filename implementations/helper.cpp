@@ -1,7 +1,7 @@
 #include <iostream>
-#include "StreamDescriptor.h"
+#include "file/StreamDescriptor.h"
 #include "helpers.h"
-#include "ArrayJoiner.h"
+#include "utils/ArrayJoiner.h"
 #include "boost/algorithm/string.hpp"
 
 string currentWorkingDir() {

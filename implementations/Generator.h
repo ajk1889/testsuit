@@ -1,6 +1,6 @@
 #ifndef TESTSUIT_GENERATOR_H
 #define TESTSUIT_GENERATOR_H
-#include "Pair.h"
+#include "utils/Pair.h"
 #include <memory>
 #include <cmath>
 #include <iostream>

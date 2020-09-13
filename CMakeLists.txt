@@ -16,7 +16,7 @@ add_executable(
         server/Server.cpp server/Server.h
         implementations/Generator.cpp
         implementations/Generator.h
-        implementations/Pair.h
+        implementations/utils/Pair.h
         implementations/networking/ServerSocket.cpp
         implementations/networking/ServerSocket.h
         implementations/networking/Socket.cpp
@@ -25,19 +25,19 @@ add_executable(
         implementations/constants.h
         implementations/helpers.h
         implementations/helper.cpp
-        implementations/ArrayJoiner.h
+        implementations/utils/ArrayJoiner.h
         implementations/file/FileOrString.h
         implementations/networking/http/ContentDisposition.h
         implementations/file/FileOrString.cpp
         implementations/Constants.cpp
-        implementations/Process.cpp
-        implementations/Process.h
+        implementations/utils/Process.cpp
+        implementations/utils/Process.h
         implementations/networking/http/response/StringResponse.cpp
         implementations/networking/http/response/StringResponse.h
         implementations/networking/http/response/FileResponse.cpp
         implementations/networking/http/response/FileResponse.h
-        implementations/StreamDescriptor.cpp
-        implementations/StreamDescriptor.h
+        implementations/file/StreamDescriptor.cpp
+        implementations/file/StreamDescriptor.h
         implementations/networking/http/response/DescriptorResponse.cpp
         implementations/networking/http/response/DescriptorResponse.h
 )
