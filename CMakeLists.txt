@@ -10,7 +10,7 @@ include_directories(${CURL_INCLUDE_DIR})
 
 add_executable(
         testsuit main.cpp
-        implementations/networking/http_response/HttpResponse.h
+        implementations/networking/http/response/HttpResponse.h
         implementations/networking/HttpRequest.cpp
         implementations/networking/HttpRequest.h
         server/Server.cpp server/Server.h
@@ -32,14 +32,14 @@ add_executable(
         implementations/Constants.cpp
         implementations/Process.cpp
         implementations/Process.h
-        implementations/networking/http_response/StringResponse.cpp
-        implementations/networking/http_response/StringResponse.h
-        implementations/networking/http_response/FileResponse.cpp
-        implementations/networking/http_response/FileResponse.h
+        implementations/networking/http/response/StringResponse.cpp
+        implementations/networking/http/response/StringResponse.h
+        implementations/networking/http/response/FileResponse.cpp
+        implementations/networking/http/response/FileResponse.h
         implementations/StreamDescriptor.cpp
         implementations/StreamDescriptor.h
-        implementations/networking/http_response/DescriptorResponse.cpp
-        implementations/networking/http_response/DescriptorResponse.h
+        implementations/networking/http/response/DescriptorResponse.cpp
+        implementations/networking/http/response/DescriptorResponse.h
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})

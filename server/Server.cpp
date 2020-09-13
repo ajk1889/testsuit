@@ -1,10 +1,10 @@
 #include "Server.h"
 #include "../implementations/Process.h"
-#include "../implementations/networking/http_response/StringResponse.h"
-#include "../implementations/networking/http_response/DescriptorResponse.h"
+#include "../implementations/networking/http/response/StringResponse.h"
+#include "../implementations/networking/http/response/DescriptorResponse.h"
 #include <filesystem>
 #include "boost/algorithm/string.hpp"
-#include "../implementations/networking/http_response/FileResponse.h"
+#include "../implementations/networking/http/response/FileResponse.h"
 
 using json = nlohmann::json;
 

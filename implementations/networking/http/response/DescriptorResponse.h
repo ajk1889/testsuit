@@ -13,10 +13,10 @@ public:
 
     DescriptorResponse(
             uint responseCode,
-            StreamDescriptor descriptor,
+            StreamDescriptor &descriptor,
             const decltype(HEADERS) &additionalHeaders,
             const uint_least64_t length
-    ) : HttpResponse(responseCode, additionalHeaders), descriptor(std::move(descriptor)), length(length) {
+    ) : HttpResponse(responseCode, additionalHeaders), descriptor(descriptor), length(length) {
         if (length != 0) HEADERS["Content-Length"].push_back(std::to_string(length));
     }
 
