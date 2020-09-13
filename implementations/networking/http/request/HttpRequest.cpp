@@ -1,6 +1,5 @@
 #include "HttpRequest.h"
 #include "boost/algorithm/string.hpp"
-#include "http/ContentDisposition.h"
 
 void ignoreStreamUntil(Socket &socket, const string &boundary) {
     auto end = readUntilMatch(socket, boundary, 1 * KB);

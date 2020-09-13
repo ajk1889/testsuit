@@ -11,8 +11,8 @@ include_directories(${CURL_INCLUDE_DIR})
 add_executable(
         testsuit main.cpp
         implementations/networking/http/response/HttpResponse.h
-        implementations/networking/HttpRequest.cpp
-        implementations/networking/HttpRequest.h
+        implementations/networking/http/request/HttpRequest.cpp
+        implementations/networking/http/request/HttpRequest.h
         server/Server.cpp server/Server.h
         implementations/Generator.cpp
         implementations/Generator.h

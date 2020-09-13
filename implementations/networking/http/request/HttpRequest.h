@@ -8,10 +8,10 @@
 #include <cstring>
 #include <cmath>
 #include <memory>
-#include "../ArrayJoiner.h"
-#include "Socket.h"
-#include "../constants.h"
-#include "../file/FileOrString.h"
+#include "../../../ArrayJoiner.h"
+#include "../../Socket.h"
+#include "../../../constants.h"
+#include "../../../file/FileOrString.h"
 #include "json/json.hpp"
 #include <curl/curl.h>
 #include <curl/easy.h>
