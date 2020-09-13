@@ -89,7 +89,7 @@ string readUntilMatch(StreamDescriptor &descriptor, const string &match, const U
 string readExact(StreamDescriptor &descriptor, long long nBytes) {
     string str;
     str.reserve(nBytes);
-    char buffer[BUFFER_SIZE + 1]{};
+    char buffer[BUFFER_SIZE + 1];
     decltype(descriptor.read(buffer, min(BUFFER_SIZE, nBytes))) bytesRead;
     while (nBytes > 0 && (bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, nBytes))) > -1) {
         buffer[bytesRead] = '\0';

@@ -26,6 +26,8 @@ public:
 
     static FileOrString readFrom(Socket &socket, string &boundary);
 
+    static FileOrString readFrom(Socket &socket, uint_least64_t nBytes);
+
     static string getRandomString(uint len);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(FileOrString, data, isFile);

@@ -42,16 +42,12 @@ void extractRequestDataConditionally(HttpRequest &req) {
         if (contentType == "application/x-www-form-urlencoded") {
             auto contentLengthIter = req.HEADERS.find("Content-Length");
             if (contentLengthIter == req.HEADERS.cend()) return;
-            try {
-                auto contentLength = std::stoll(contentLengthIter->second[0]);
-                if (contentLength == 0) return;
-                if (contentLength >= 2 * MB)
-                    throw std::runtime_error("POST should be below 2 MB for application/x-www-form-urlencoded data");
-                string postData = readExact(*req.socket, contentLength);
-                parseUrlEncodedPairs(postData, req.POST);
-            } catch (...) {
-                throw std::runtime_error("Invalid content length value " + contentLengthIter->second[0]);
-            }
+            auto contentLength = std::stoll(contentLengthIter->second[0]);
+            if (contentLength == 0) return;
+            if (contentLength >= 2 * MB)
+                throw std::runtime_error("POST should be below 2 MB for application/x-www-form-urlencoded data");
+            string postData = readExact(*req.socket, contentLength);
+            parseUrlEncodedPairs(postData, req.POST);
         } else if (contentType.find("multipart/form-data;") != string::npos) {
             constexpr auto lenSearchKey = 11; // len('; boundary=')
             auto boundaryStart = contentType.find("; boundary=");
@@ -63,6 +59,12 @@ void extractRequestDataConditionally(HttpRequest &req) {
                 boundary = boundary.substr(1, boundary.length() - 1);
             else boost::trim(boundary);
             parseMultiPartFormData(req, boundary, req.POST);
+        } else {
+            auto contentLengthIter = req.HEADERS.find("Content-Length");
+            if (contentLengthIter == req.HEADERS.cend()) return;
+            auto contentLength = std::stoll(contentLengthIter->second[0]);
+            if (contentLength == 0) return;
+            req.POST["rawData"] = FileOrString::readFrom(*req.socket, contentLength);
         }
     }
 }

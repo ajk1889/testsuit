@@ -30,3 +30,23 @@ string FileOrString::getRandomString(uint len) {
         randStr.push_back(chars[random() % charsLen]);
     return randStr;
 }
+
+FileOrString FileOrString::readFrom(Socket &socket, uint_least64_t nBytes) {
+    FileOrString fileOrString;
+    auto &data = fileOrString.data;
+    if (nBytes < BYTES_TO_STORE_IN_MEMORY) {
+        data.append(readExact(socket, nBytes));
+        return std::move(fileOrString);
+    }
+    data = socket.server->params.tempDir + "/" + getRandomString(10);
+    std::ofstream op(data);
+    char buffer[BUFFER_SIZE];
+    ssize_t bytesRead;
+    while (nBytes > 0 && (bytesRead = socket.read(buffer, min(BUFFER_SIZE, nBytes))) > -1) {
+        op.write(buffer, bytesRead);
+        nBytes -= bytesRead;
+    }
+    op.close();
+    fileOrString.isFile = true;
+    return std::move(fileOrString);
+}
