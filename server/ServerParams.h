@@ -39,35 +39,44 @@ struct ServerParams {
             additionalKwargs
     )
 
-    map<string, string> allowedCommands = {
+    map<string, string> allowedParams = {
             {"maxdspeed", "Maximum download speed, in kb/s"},
             {"maxuspeed", "Maximum upload speed, in kb/s"},
-            {"maxconn",   "Maximum parallel connections"},
             {"logging",   "Allow request logging"},
+            {"temp-dir",  "Folder to which temporary files should be written"},
+            {"ping",      "The time (in ms) for which server should idle wait after receiving a request"},
             {"urlmap",    "absolute path to the URL Mapping file to use"}
     };
 
     void initializeUrlMap(string urlMapFilePath) {
-        ifstream is(urlMapFilePath, std::ifstream::ate);
-        const auto fileSize = is.tellg();
-        if (fileSize > 1 * MB) {
-            std::cerr << "url map file exceeds 1MB, abort" << std::endl;
-            exit(1);
-        }
-        is.seekg(0, ifstream::beg);
-        json data;
-        is >> data;
-        is.close();
-        urlMap = data.get<map<string, vector<string>>>();
-        for (auto &pair: urlMap) {
-            auto extraArgsCmd = pair.second;
-            extraArgsCmd.push_back("--list-params");
-            auto response = readUntilMatch(*Process(extraArgsCmd).run("\n"), "\n\n");
-            boost::trim(response);
-            if (response.empty()) continue;
-            json commands = json::parse(response);
-            for (auto it = commands.cbegin(); it != commands.cend(); it++)
-                allowedCommands[it.key()] = it.value();
+        try {
+            ifstream is(urlMapFilePath, std::ifstream::ate);
+            const auto fileSize = is.tellg();
+            if (fileSize > 1 * MB) {
+                std::cerr << "url map file exceeds 1MB, abort" << std::endl;
+                exit(1);
+            }
+            is.seekg(0, ifstream::beg);
+            json data;
+            is >> data;
+            is.close();
+            auto newUrlMap = data.get<map<string, vector<string>>>();
+            decltype(allowedParams) extraCommands;
+            for (const auto &pair: newUrlMap) {
+                auto extraArgsCmd = pair.second;
+                extraArgsCmd.push_back("--list-params");
+                auto response = readUntilMatch(*Process(extraArgsCmd).run("\n"), "\n\n");
+                boost::trim(response);
+                if (response.empty()) continue;
+                json commands = json::parse(response);
+                for (auto it = commands.cbegin(); it != commands.cend(); it++)
+                    extraCommands[it.key()] = it.value();
+            }
+            urlMap = std::move(newUrlMap);
+            urlMapFile = std::move(urlMapFilePath);
+            allowedParams.insert(extraCommands.cbegin(), extraCommands.cend());
+        } catch (...) {
+            print("Unknown error while setting url map, no changes made");
         }
     }
 
@@ -86,7 +95,7 @@ struct ServerParams {
             else if (strstr(argv[i], "--loggingAllowed=") != nullptr)
                 loggingAllowed = atoi(index(argv[i], '=') + 1);
             else if (strstr(argv[i], "--urlMapFile=") != nullptr)
-                urlMapFile = index(argv[i], '=') + 1;
+                initializeUrlMap(index(argv[i], '=') + 1);
             else if (strstr(argv[i], "--tempDir=") != nullptr)
                 tempDir = index(argv[i], '=') + 1;
             else if (strstr(argv[i], "=") != nullptr)
@@ -95,7 +104,6 @@ struct ServerParams {
         }
         if (tempDir.empty())
             tempDir = std::filesystem::temp_directory_path().string() + "/testsuit";
-        initializeUrlMap(urlMapFile);
         std::cout << json(*this) << std::endl;
     }
 };

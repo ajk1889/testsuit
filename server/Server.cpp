@@ -105,18 +105,49 @@ void Server::start() {
     clientAcceptor.detach();
 }
 
+void printUnknownCommandError(const string &command, const map<string, string> &allowedParams) {
+    print("Invalid command", command);
+    print("\nALLOWED COMMANDS");
+    print("stop: ", "Stop server");
+    print("remap: ", "Reloads the URL Map file");
+    print("\nALLOWED PARAMETERS", "(Usage: `parameter=value`)");
+    for (const auto &param : allowedParams)
+        print(param.first, ":", param.second);
+}
+
 void Server::execute(const string &command) {
+    auto separatorPos = command.find('=');
     if (command == "remap") {
         params.initializeUrlMap(params.urlMapFile);
-    } else if (command.find('=') != string::npos) {
-
-    } else {
-        print("Invalid command", command);
-        print("\nALLOWED COMMANDS");
-        print("stop: ", "Stop server");
-        print("remap: ", "Reloads the URL Map file");
-        print("\nALLOWED PARAMETERS", "(Usage: `parameter=value`)");
-        for (const auto &allowedCommand : params.allowedCommands)
-            print(allowedCommand.first, ":", allowedCommand.second);
-    }
+    } else if (separatorPos != string::npos) {
+        try {
+            auto parameter = command.substr(0, separatorPos);
+            auto value = command.substr(separatorPos);
+            if (parameter == "maxdspeed") {
+                params.maxDownloadSpeed = std::stol(value);
+                print("Max download speed set to", params.maxDownloadSpeed);
+            } else if (parameter == "maxuspeed") {
+                params.maxUploadSpeed = std::stol(value);
+                print("Max upload speed set to", params.maxUploadSpeed);
+            } else if (parameter == "logging") {
+                params.loggingAllowed = std::stoi(value);
+                print("Logging Allowed:", params.loggingAllowed);
+            } else if (parameter == "ping") {
+                params.pingMs = std::stol(value);
+                print("Ping changed to:", params.pingMs, "milli-seconds");
+            } else if (parameter == "temp-dir") {
+                params.tempDir = value;
+                print("Temp dir changed to:", params.tempDir);
+            } else if (parameter == "urlmap") {
+                params.initializeUrlMap(value);
+                print("URL map re-initialized from", params.urlMapFile);
+            } else {
+                if (params.allowedParams.find(parameter) != params.allowedParams.cend())
+                    params.additionalKwargs[parameter] = value;
+                else printUnknownCommandError(command, params.allowedParams);
+            }
+        } catch (...) {
+            print("Unknown error while setting argument", command);
+        }
+    } else printUnknownCommandError(command, params.allowedParams);
 }
