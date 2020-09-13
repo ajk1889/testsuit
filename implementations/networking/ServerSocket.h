@@ -7,6 +7,7 @@
 #include <strings.h>
 #include <memory>
 #include <poll.h>
+#include <thread>
 #include "Socket.h"
 
 class Server;
@@ -22,11 +23,17 @@ public:
 
     explicit ServerSocket(const Server *server = nullptr, short portNo = 1234, uint maxParallelConnections = 10);
 
-    std::shared_ptr<Socket> accept(timeval timeOut) const;
+    [[nodiscard]] std::shared_ptr<Socket> accept(timeval timeOut) const;
 
-    void close() const { ::close(serverSocketFd); }
+    void close() const {
+        using std::chrono_literals::operator ""ms;
+        std::this_thread::sleep_for(2ms);
+        ::close(serverSocketFd);
+    }
 
-    ~ServerSocket() { close(); }
+    ~ServerSocket() {
+        close();
+    }
 };
 
 

@@ -11,6 +11,8 @@ ServerSocket::ServerSocket(const Server *server, short portNo, uint maxParallelC
     address.sin_port = htons(port);
     if (bind(serverSocketFd, (sockaddr *) &address, sizeof(address)) < 0)
         throw std::runtime_error("ERROR on binding");
+    int reusePort = 1;
+    setsockopt(serverSocketFd, SOL_SOCKET, SO_REUSEADDR, &reusePort, sizeof(reusePort));
     listen(serverSocketFd, maxParallelConns);
 }
 

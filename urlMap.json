@@ -2,5 +2,10 @@
   "default": [
     "python3",
     "/home/ajk/CLionProjects/testsuit/modules/list-files.py"
+  ],
+  "/reflect": [
+    "python3",
+    "-c",
+    "print('{\"data\": \"inline\"}\\n\\n'+input())"
   ]
 }
