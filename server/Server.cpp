@@ -104,3 +104,19 @@ void Server::start() {
     });
     clientAcceptor.detach();
 }
+
+void Server::execute(const string &command) {
+    if (command == "remap") {
+        params.initializeUrlMap(params.urlMapFile);
+    } else if (command.find('=') != string::npos) {
+
+    } else {
+        print("Invalid command", command);
+        print("\nALLOWED COMMANDS");
+        print("stop: ", "Stop server");
+        print("remap: ", "Reloads the URL Map file");
+        print("\nALLOWED PARAMETERS", "(Usage: `parameter=value`)");
+        for (const auto &allowedCommand : params.allowedCommands)
+            print(allowedCommand.first, ":", allowedCommand.second);
+    }
+}

@@ -6,6 +6,6 @@
   "/reflect": [
     "python3",
     "-c",
-    "print('{\"data\": \"inline\"}\\n\\n'+input())"
+    "import sys\nif(len(sys.argv)==1): print('{\"data\":\"inline\"}\\n\\n'+input())\nelse: print('\\n')\nexit(0)"
   ]
 }

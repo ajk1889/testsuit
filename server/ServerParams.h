@@ -7,9 +7,11 @@
 #include <limits>
 #include <filesystem>
 #include <fstream>
+#include <boost/algorithm/string/trim.hpp>
 #include "json/json.hpp"
 #include "../implementations/helpers.h"
 #include "../implementations/constants.h"
+#include "../implementations/utils/Process.h"
 
 using std::set;
 using std::ostream;
@@ -26,8 +28,8 @@ struct ServerParams {
     string tempDir;
     bool loggingAllowed = true;
     string urlMapFile = "/home/ajk/CLionProjects/testsuit/urlMap.json";
-    map<string, vector<string>> urlMap;
 
+    map<string, vector<string>> urlMap;
     map<string, string> additionalKwargs;
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
@@ -36,6 +38,14 @@ struct ServerParams {
             tempDir, loggingAllowed, urlMapFile,
             additionalKwargs
     )
+
+    map<string, string> allowedCommands = {
+            {"maxdspeed", "Maximum download speed, in kb/s"},
+            {"maxuspeed", "Maximum upload speed, in kb/s"},
+            {"maxconn",   "Maximum parallel connections"},
+            {"logging",   "Allow request logging"},
+            {"urlmap",    "absolute path to the URL Mapping file to use"}
+    };
 
     void initializeUrlMap(string urlMapFilePath) {
         ifstream is(urlMapFilePath, std::ifstream::ate);
@@ -49,6 +59,16 @@ struct ServerParams {
         is >> data;
         is.close();
         urlMap = data.get<map<string, vector<string>>>();
+        for (auto &pair: urlMap) {
+            auto extraArgsCmd = pair.second;
+            extraArgsCmd.push_back("--list-params");
+            auto response = readUntilMatch(*Process(extraArgsCmd).run("\n"), "\n\n");
+            boost::trim(response);
+            if (response.empty()) continue;
+            json commands = json::parse(response);
+            for (auto it = commands.cbegin(); it != commands.cend(); it++)
+                allowedCommands[it.key()] = it.value();
+        }
     }
 
     void initializeFrom(int argc, char *argv[]) {

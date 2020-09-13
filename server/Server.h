@@ -45,6 +45,8 @@ public:
         std::this_thread::sleep_for(2ms);
         // waiting for socket to close
     }
+
+    void execute(const string &command);
 };
 
 

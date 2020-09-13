@@ -1,7 +1,14 @@
 import json
 import os
+import sys
 import urllib.parse
 from html import escape
+
+# Returning command line parameters this module will accept.
+if len(sys.argv) > 1 and sys.argv[1] == "--list-params":
+    print(json.dumps({"base-path": "Absolute path to the base shared directory"}))
+    print()
+    exit(0)
 
 
 def get_files_list(folder):
