@@ -4,7 +4,7 @@ A highly configurable HTTP Test server built on C++
 This server runs custom OS commands (Defined in `urlMap.json` file) when it receives an HTTP request and returns the result to the client.
 
 Upon Receiving an HTTP Request that matches path defined in the URL mapping file, the OS command will be executed and a JSON data of the following format will be written to its stdin.
-### Request format
+### OS Command stdin input format
 Formatted for readability, actual data will be minified.
 ```
 {
@@ -53,7 +53,7 @@ Formatted for readability, actual data will be minified.
   }
   ```
 
-### Expected response format
+### Expected OS Command stdout output format
 The executing OS command is expectued to output a JSON of following format to stdout.
 ```
 {
@@ -64,5 +64,6 @@ The executing OS command is expectued to output a JSON of following format to st
 }
 ```
 Followed by 2 next line character (`\n`) and the data to be delivered to client. OS commands are free to write the content to any required file and share the file to the client by setting `"data": "/absolute/path/to/file"`
+
 explanation for all keys will be added later.
 
