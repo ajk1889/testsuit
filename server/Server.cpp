@@ -73,8 +73,9 @@ void Server::handleClient(const SocketPtr &socketPtr) {
             if (command == urlMap.cend())
                 command = urlMap.find("default");
             Process process = command->second;
-            auto input = json(request).dump() + "\n";
-            auto output = process.run(input.c_str());
+            auto input = json(request);
+            input["applicationParams"] = socketPtr->server->params;
+            auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);
         } catch (std::runtime_error &e) {
             std::ostringstream data("<H1>Internal server error</H1>");
