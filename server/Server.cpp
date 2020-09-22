@@ -78,15 +78,24 @@ void Server::handleClient(const SocketPtr &socketPtr) {
             auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);
         } catch (std::runtime_error &e) {
-            std::ostringstream data("<H1>Internal server error</H1>");
-            data << "<H3>Description</H3>";
-            data << e.what();
-            StringResponse response(ResponseCode::InternalServerError, data.str());
-            response.writeTo(*socketPtr);
+            std::cerr << "Unknown error " << e.what() << std::endl;
+            try {
+                std::ostringstream data("<H1>Internal server error</H1>");
+                data << "<H3>Description</H3>";
+                data << e.what();
+                StringResponse response(ResponseCode::InternalServerError, data.str());
+                response.writeTo(*socketPtr);
+            } catch (...) {
+                std::cerr << "Exception while handling previous exception" << std::endl;
+            }
         } catch (...) {
-            StringResponse response(ResponseCode::InternalServerError,
-                                    "<H1>Internal server error</H1><H3>Unknown exception</H3>");
-            response.writeTo(*socketPtr);
+            try {
+                StringResponse response(ResponseCode::InternalServerError,
+                                        "<H1>Internal server error</H1><H3>Unknown exception</H3>");
+                response.writeTo(*socketPtr);
+            } catch (...) {
+                std::cerr << "Unknown error" << std::endl;
+            }
         }
         socketPtr->close();
     }).detach();

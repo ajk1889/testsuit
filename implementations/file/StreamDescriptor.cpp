@@ -15,11 +15,13 @@ ssize_t StreamDescriptor::read(char *buffer, const uint N) {
 
 void StreamDescriptor::write(const char *buffer, const uint N) const {
     if (N == 0) return;
-    auto result = ::write(descriptor, buffer, N);
-    while (result < N) {
+    auto result = 0;
+    uint totalBytesRead = 0;
+    while (totalBytesRead < N) {
+        result = ::send(descriptor, buffer + result, N - result, MSG_NOSIGNAL);
         if (result < 0)
             throw std::runtime_error("ERROR writing to socket");
-        result += ::write(descriptor, buffer + result, N - result);
+        totalBytesRead += result;
     }
 }
 
