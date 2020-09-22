@@ -34,6 +34,7 @@ void Server::test() {
 shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
     auto rawMetaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
     boost::trim(rawMetaData);
+    print("output: ", rawMetaData);
     map<string, vector<string>> emptyHeader;
     try {
         auto metaDataJson = json::parse(rawMetaData);
@@ -66,8 +67,6 @@ void Server::handleClient(const SocketPtr &socketPtr) {
     thread([=] {
         try {
             auto request = HttpRequest::from(socketPtr);
-            print("Request:", request.requestType, request.path,
-                  "GET:", json(request.GET), "POST:", request.POST);
             auto urlMap = socketPtr->server->params.urlMap;
             auto command = urlMap.find(request.path);
             if (command == urlMap.cend())
@@ -75,6 +74,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
             Process process = command->second;
             auto input = json(request);
             input["applicationParams"] = socketPtr->server->params;
+            print("input: ", input);
             auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);
         } catch (std::runtime_error &e) {

@@ -70,7 +70,7 @@ try:
     if mimeType != "application/octet-stream":
         response["headers"].pop("Content-Disposition")
     if "Range" in data["HEADERS"]:
-        contentRange = data["HEADERS"]["Range"]
+        contentRange = data["HEADERS"]["Range"][0]
         contentRange = contentRange[contentRange.index('=') + 1:]
         if ',' in contentRange:
             echo(406, "<h3>Multi-range is not supported</h3>")
