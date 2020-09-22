@@ -76,8 +76,14 @@ try:
             echo(406, "<h3>Multi-range is not supported</h3>")
             exit(0)
         contentRange = contentRange.split('-')
-        response["offset"]: contentRange[0]
-        response["limit"]: contentRange[1]
+        try:
+            response["offset"] = int(contentRange[0])
+        except:
+            pass
+        try:
+            response["limit"] = int(contentRange[1])
+        except:
+            pass
         response["responseCode"] = 206
         print(json.dumps(response))
         print()
