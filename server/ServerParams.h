@@ -84,15 +84,15 @@ struct ServerParams {
         for (int i = 1; i < argc; ++i) {
             if (strstr(argv[i], "--pingMs=") != nullptr)
                 pingMs = atoi(index(argv[i], '=') + 1);
-            else if (strstr(argv[i], "--maxDownloadSpeed=") != nullptr)
+            else if (strstr(argv[i], "--maxdspeed=") != nullptr)
                 maxDownloadSpeed = atoi(index(argv[i], '=') + 1);
-            else if (strstr(argv[i], "--maxUploadSpeed=") != nullptr)
+            else if (strstr(argv[i], "--maxuspeed=") != nullptr)
                 maxUploadSpeed = atoi(index(argv[i], '=') + 1);
             else if (strstr(argv[i], "--port=") != nullptr)
                 port = atoi(index(argv[i], '=') + 1);
             else if (strstr(argv[i], "--parallelConnections=") != nullptr)
                 parallelConnections = atoi(index(argv[i], '=') + 1);
-            else if (strstr(argv[i], "--loggingAllowed=") != nullptr)
+            else if (strstr(argv[i], "--logging=") != nullptr)
                 loggingAllowed = atoi(index(argv[i], '=') + 1);
             else if (strstr(argv[i], "--urlMapFile=") != nullptr)
                 urlMapFile = index(argv[i], '=') + 1;
