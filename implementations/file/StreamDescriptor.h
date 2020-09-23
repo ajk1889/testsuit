@@ -21,12 +21,7 @@ public:
 
     template<unsigned int N>
     void write(const char (&buffer)[N]) const {
-        auto result = ::write(descriptor, buffer, N - 1);
-        while (result < N - 1) {
-            if (result < 0)
-                throw std::runtime_error("ERROR writing to socket");
-            result += ::write(descriptor, buffer + result, N - result - 1);
-        }
+        write(buffer, N);
     }
 
     template<typename T>
@@ -48,13 +43,7 @@ public:
     template<typename T>
     T &read(T &to) {
         auto toPtr = reinterpret_cast<char *>(&to);
-        constexpr auto N = sizeof(T);
-        auto result = read(toPtr, N);
-        while (result < N) {
-            if (result < 0)
-                throw std::runtime_error("ERROR reading from socket");
-            result += read(toPtr + result, N - result);
-        }
+        read(toPtr, sizeof(T));
         return to;
     }
 
@@ -63,6 +52,10 @@ public:
     ssize_t read(char *buffer, uint N);
 
     void close() const { ::close(descriptor); }
+
+    ~StreamDescriptor() {
+        close();
+    }
 };
 
 
