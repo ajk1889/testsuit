@@ -67,13 +67,13 @@ void Server::handleClient(const SocketPtr &socketPtr) {
     thread([=] {
         try {
             auto request = HttpRequest::from(socketPtr);
-            auto urlMap = socketPtr->server->params.urlMap;
+            auto urlMap = params.urlMap;
             auto command = urlMap.find(request.path);
             if (command == urlMap.cend())
                 command = urlMap.find("default");
             Process process = command->second;
             auto input = json(request);
-            input["applicationParams"] = socketPtr->server->params;
+            input["applicationParams"] = params;
             print("input: ", input);
             auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);

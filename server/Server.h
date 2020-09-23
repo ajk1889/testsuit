@@ -26,14 +26,9 @@ class Server {
     shared_ptr<ServerSocket> serverSocket;
     thread clientAcceptor;
 public:
-    ServerParams params;
     std::atomic<bool> isRunning = true;
 
     Server() = default;
-
-    Server(int argc, char *argv[]) {
-        params.initializeFrom(argc, argv);
-    }
 
     static void test();
 

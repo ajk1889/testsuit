@@ -6,7 +6,7 @@ FileOrString FileOrString::readFrom(Socket &socket, string &boundary) {
     auto &data = fileOrString.data;
     data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
     if (data.rfind(boundary) == string::npos) {
-        string filePath = socket.server->params.tempDir + "/" + getRandomString(10);
+        string filePath = params.tempDir + "/" + getRandomString(10);
         std::ofstream op(filePath);
         while (data.rfind(boundary) == string::npos) {
             op.write(data.c_str(), data.length());
@@ -38,7 +38,7 @@ FileOrString FileOrString::readFrom(Socket &socket, uint_least64_t nBytes) {
         data.append(readExact(socket, nBytes));
         return std::move(fileOrString);
     }
-    data = socket.server->params.tempDir + "/" + getRandomString(10);
+    data = params.tempDir + "/" + getRandomString(10);
     std::ofstream op(data);
     char buffer[BUFFER_SIZE];
     ssize_t bytesRead;

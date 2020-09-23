@@ -78,11 +78,11 @@ try:
         contentRange = contentRange.split('-')
         try:
             response["offset"] = int(contentRange[0])
-        except:
+        except ValueError:
             pass
         try:
             response["limit"] = int(contentRange[1])
-        except:
+        except ValueError:
             pass
         response["responseCode"] = 206
         print(json.dumps(response))

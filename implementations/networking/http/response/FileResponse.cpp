@@ -11,7 +11,7 @@ Socket &FileResponse::writeTo(Socket &socket) {
     auto thisTimeSectionEndTime = preciseNow() + timeDiff;
     auto thisSectionReadCount = 0;
     while (totalBytesRead < length && stream.read(buffer, min(BUFFER_SIZE, length - totalBytesRead))) {
-        auto readLimitPerTimeSection = socket.server->params.maxDownloadSpeed * 1024 / (1000 / 33);
+        auto readLimitPerTimeSection = params.maxDownloadSpeed * 1024 / (1000 / 33);
         auto bytesRead = stream.gcount();
         auto now = preciseNow();
         if (thisTimeSectionEndTime < now) {

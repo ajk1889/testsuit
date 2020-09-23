@@ -1,8 +1,8 @@
 #include <iostream>
 #include "server/Server.h"
 
-void runServer(int argc, char *argv[]) {
-    Server server(argc, argv);
+void runServer() {
+    Server server;
     server.start();
     string command;
     while (true) {
@@ -15,6 +15,7 @@ void runServer(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-    runServer(argc, argv);
+    params.initializeFrom(argc, argv);
+    runServer();
     return 0;
 }
