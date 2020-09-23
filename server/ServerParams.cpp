@@ -16,7 +16,7 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
         decltype(allowedParams) extraCommands;
         for (const auto &pair: newUrlMap) {
             auto extraArgsCmd = pair.second;
-            extraArgsCmd.push_back("--list-params");
+            extraArgsCmd.emplace_back("--list-params");
             auto response = readUntilMatch(*Process(extraArgsCmd).run("\n"), "\n\n");
             boost::trim(response);
             if (response.empty()) continue;
