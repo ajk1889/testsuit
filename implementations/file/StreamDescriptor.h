@@ -16,6 +16,9 @@ class StreamDescriptor {
     constexpr static auto MAX_UNREAD_BYTES_COUNT = 8 * KB;
     char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
     uint unreadBytesCount = 0;
+
+    mutable decltype(preciseNow()) thisTimeSectionEndTime;
+    mutable int32_t thisSectionWriteCount;
 public:
     StreamDescriptor(int fd) : descriptor(fd) {}
 

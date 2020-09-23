@@ -18,8 +18,15 @@ using std::ostream;
 using std::string;
 using std::ifstream;
 using json = nlohmann::json;
+using std::chrono_literals::operator ""ms;
 
-struct ServerParams {
+class ServerParams {
+    friend class StreamDescriptor;
+
+    decltype(33ms) timeDiff = 33ms;
+    int32_t writeBytesPerTimeDiff = 100;
+
+public:
     uint32_t pingMs = 0;
     uint32_t maxDownloadSpeed = UINT32_MAX;
     uint32_t maxUploadSpeed = UINT32_MAX;

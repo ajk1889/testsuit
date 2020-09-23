@@ -32,20 +32,22 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
     }
 }
 
+using std::stol;
 void ServerParams::initializeFrom(int argc, char **argv) {
     for (int i = 1; i < argc; ++i) {
         if (strstr(argv[i], "--pingMs=") != nullptr)
-            pingMs = atoi(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--maxdspeed=") != nullptr)
-            maxDownloadSpeed = atoi(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--maxuspeed=") != nullptr)
-            maxUploadSpeed = atoi(index(argv[i], '=') + 1);
+            pingMs = stol(index(argv[i], '=') + 1);
+        else if (strstr(argv[i], "--maxdspeed=") != nullptr) {
+            maxDownloadSpeed = stol(index(argv[i], '=') + 1);
+            writeBytesPerTimeDiff = 1024 * maxDownloadSpeed * 33 / 1000;
+        } else if (strstr(argv[i], "--maxuspeed=") != nullptr)
+            maxUploadSpeed = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--port=") != nullptr)
-            port = atoi(index(argv[i], '=') + 1);
+            port = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--parallelConnections=") != nullptr)
-            parallelConnections = atoi(index(argv[i], '=') + 1);
+            parallelConnections = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--logging=") != nullptr)
-            loggingAllowed = atoi(index(argv[i], '=') + 1);
+            loggingAllowed = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--urlMapFile=") != nullptr)
             urlMapFile = index(argv[i], '=') + 1;
         else if (strstr(argv[i], "--tempDir=") != nullptr)

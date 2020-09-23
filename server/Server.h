@@ -41,7 +41,7 @@ public:
         // waiting for socket to close
     }
 
-    void execute(const string &command);
+    static void execute(const string &command);
 };
 
 

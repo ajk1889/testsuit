@@ -1,4 +1,6 @@
+#include <thread>
 #include "StreamDescriptor.h"
+#include "../../server/ServerParams.h"
 
 ssize_t StreamDescriptor::read(char *buffer, const uint N) {
     if (N && unreadBytesCount) {
@@ -13,7 +15,7 @@ ssize_t StreamDescriptor::read(char *buffer, const uint N) {
     } else return 0;
 }
 
-void StreamDescriptor::write(const char *buffer, const uint N) const {
+inline void writeBase(int descriptor, const char *buffer, const uint N) {
     if (N == 0) return;
     auto result = 0;
     uint totalBytesRead = 0;
@@ -22,6 +24,22 @@ void StreamDescriptor::write(const char *buffer, const uint N) const {
         if (result < 0)
             throw std::runtime_error("ERROR writing to socket");
         totalBytesRead += result;
+    }
+}
+
+void StreamDescriptor::write(const char *buffer, const uint N) const {
+    auto bytesWritten = 0U;
+    while (bytesWritten < N) {
+        auto bytesToWrite = min(params.writeBytesPerTimeDiff - thisSectionWriteCount, N);
+        writeBase(descriptor, buffer, bytesToWrite);
+        bytesWritten += bytesToWrite;
+        thisSectionWriteCount += bytesToWrite;
+        auto now = preciseNow();
+        if (thisSectionWriteCount >= params.writeBytesPerTimeDiff || thisTimeSectionEndTime > now) {
+            std::this_thread::sleep_for(thisTimeSectionEndTime - now);
+            thisTimeSectionEndTime = now + params.timeDiff;
+            thisSectionWriteCount = 0;
+        }
     }
 }
 
