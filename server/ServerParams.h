@@ -21,23 +21,33 @@ using json = nlohmann::json;
 using std::chrono_literals::operator ""ms;
 
 class ServerParams {
-    friend class StreamDescriptor;
-
-    decltype(33ms) timeDiff = 33ms;
-    int32_t writeBytesPerTimeDiff = 100;
-
-public:
-    uint32_t pingMs = 0;
     uint32_t maxDownloadSpeed = UINT32_MAX;
     uint32_t maxUploadSpeed = UINT32_MAX;
+    constexpr static auto TIME_DIFF_MS = 33;
+public:
+    uint32_t pingMs = 0;
     uint32_t parallelConnections = 10;
     u_short port = 1234;
     string tempDir;
     bool loggingAllowed = true;
     string urlMapFile = "/home/ajk/CLionProjects/testsuit/urlMap.json";
 
+    constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
+    int32_t writeBytesPerTimeDiff;
+
     map<string, vector<string>> urlMap;
     map<string, string> additionalKwargs;
+
+    uint32_t getMaxDownloadSpeed() { return maxDownloadSpeed; };
+
+    void setMaxDownloadSpeed(uint32_t speed) {
+        maxDownloadSpeed = speed;
+        writeBytesPerTimeDiff = 1024 * maxDownloadSpeed * TIME_DIFF_MS / 1000;
+    };
+
+    uint32_t getMaxUploadSpeed() { return maxUploadSpeed; }
+
+    void setMaxUploadSpeed(uint32_t speed) { maxUploadSpeed = speed; }
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
             ServerParams, pingMs, maxDownloadSpeed,

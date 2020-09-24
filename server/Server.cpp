@@ -134,11 +134,11 @@ void Server::execute(const string &command) {
             auto parameter = command.substr(0, separatorPos);
             auto value = command.substr(separatorPos + 1);
             if (parameter == "maxdspeed") {
-                params.maxDownloadSpeed = std::stol(value);
-                print("Max download speed set to", params.maxDownloadSpeed);
+                params.setMaxDownloadSpeed(std::stol(value));
+                print("Max download speed set to", params.getMaxDownloadSpeed());
             } else if (parameter == "maxuspeed") {
-                params.maxUploadSpeed = std::stol(value);
-                print("Max upload speed set to", params.maxUploadSpeed);
+                params.setMaxDownloadSpeed(std::stol(value));
+                print("Max upload speed set to", params.getMaxDownloadSpeed());
             } else if (parameter == "logging") {
                 params.loggingAllowed = std::stoi(value);
                 print("Logging Allowed:", params.loggingAllowed);

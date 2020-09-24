@@ -35,10 +35,14 @@ void StreamDescriptor::write(const char *buffer, const uint N) const {
         bytesWritten += bytesToWrite;
         thisSectionWriteCount += bytesToWrite;
         auto now = preciseNow();
-        if (thisSectionWriteCount >= params.writeBytesPerTimeDiff || thisTimeSectionEndTime > now) {
+        if (thisSectionWriteCount >= params.writeBytesPerTimeDiff || now >= thisTimeSectionEndTime) {
             std::this_thread::sleep_for(thisTimeSectionEndTime - now);
-            thisTimeSectionEndTime = now + params.timeDiff;
-            thisSectionWriteCount = 0;
+            if (thisSectionWriteCount >= 2 * params.writeBytesPerTimeDiff)
+                thisSectionWriteCount = 0;
+            else thisSectionWriteCount = params.writeBytesPerTimeDiff - thisSectionWriteCount;
+            if (now >= thisTimeSectionEndTime + params.timeDiff)
+                thisTimeSectionEndTime = now + params.timeDiff;
+            else thisTimeSectionEndTime += params.timeDiff;
         }
     }
 }

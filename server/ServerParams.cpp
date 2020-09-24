@@ -37,10 +37,9 @@ void ServerParams::initializeFrom(int argc, char **argv) {
     for (int i = 1; i < argc; ++i) {
         if (strstr(argv[i], "--pingMs=") != nullptr)
             pingMs = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--maxdspeed=") != nullptr) {
-            maxDownloadSpeed = stol(index(argv[i], '=') + 1);
-            writeBytesPerTimeDiff = 1024 * maxDownloadSpeed * 33 / 1000;
-        } else if (strstr(argv[i], "--maxuspeed=") != nullptr)
+        else if (strstr(argv[i], "--maxdspeed=") != nullptr)
+            setMaxDownloadSpeed(stol(index(argv[i], '=') + 1));
+        else if (strstr(argv[i], "--maxuspeed=") != nullptr)
             maxUploadSpeed = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--port=") != nullptr)
             port = stol(index(argv[i], '=') + 1);
