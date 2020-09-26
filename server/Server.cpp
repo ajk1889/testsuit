@@ -137,8 +137,8 @@ void Server::execute(const string &command) {
                 params.setMaxDownloadSpeed(std::stol(value));
                 print("Max download speed set to", params.getMaxDownloadSpeed());
             } else if (parameter == "maxuspeed") {
-                params.setMaxDownloadSpeed(std::stol(value));
-                print("Max upload speed set to", params.getMaxDownloadSpeed());
+                params.setMaxUploadSpeed(std::stol(value));
+                print("Max upload speed set to", params.getMaxUploadSpeed());
             } else if (parameter == "logging") {
                 params.loggingAllowed = std::stoi(value);
                 print("Logging Allowed:", params.loggingAllowed);

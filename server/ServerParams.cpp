@@ -40,7 +40,7 @@ void ServerParams::initializeFrom(int argc, char **argv) {
         else if (strstr(argv[i], "--maxdspeed=") != nullptr)
             setMaxDownloadSpeed(stol(index(argv[i], '=') + 1));
         else if (strstr(argv[i], "--maxuspeed=") != nullptr)
-            maxUploadSpeed = stol(index(argv[i], '=') + 1);
+            setMaxUploadSpeed(stol(index(argv[i], '=') + 1));
         else if (strstr(argv[i], "--port=") != nullptr)
             port = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--parallelConnections=") != nullptr)

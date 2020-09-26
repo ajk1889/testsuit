@@ -17,8 +17,10 @@ class StreamDescriptor {
     char unreadBytes[MAX_UNREAD_BYTES_COUNT]{};
     uint unreadBytesCount = 0;
 
-    mutable decltype(preciseNow()) thisTimeSectionEndTime;
+    mutable decltype(preciseNow()) thisWriteTimeSectionEndTime;
+    mutable decltype(preciseNow()) thisReadTimeSectionEndTime;
     mutable int32_t thisSectionWriteCount;
+    mutable int32_t thisSectionReadCount;
 public:
     StreamDescriptor(int fd) : descriptor(fd) {}
 

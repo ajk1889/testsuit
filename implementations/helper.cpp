@@ -72,12 +72,14 @@ string readUntilMatch(StreamDescriptor &descriptor, const string &match, const U
     string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
     string data;
     while (data.length() < maxLen &&
-           (bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, maxLen - data.length()))) > -1) {
+           (bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, maxLen - data.length()))) > 0) {
         auto terminationPoint = find(buffer, match, bytesRead, lastFew);
         if (terminationPoint == -1) {
+//            printChar("match1", buffer, bytesRead);
             data.append(buffer, bytesRead);
             fill(buffer, lastFew, bytesRead);
         } else {
+//            printChar("match2", buffer, terminationPoint);
             data.append(buffer, terminationPoint);
             descriptor.unread(buffer + terminationPoint, bytesRead - terminationPoint);
             break;
@@ -144,4 +146,11 @@ bool startsWith(const char *search, const char *key) {
 
 auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now()) {
     return std::chrono::high_resolution_clock::now();
+}
+
+void printChar(const string &tag, char *arr, uint32_t len) {
+    char backup = arr[len];
+    arr[len] = '\0';
+    std::cout << tag << ": |" << arr << "|\ncount:" << len << std::endl;
+    arr[len] = backup;
 }

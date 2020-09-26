@@ -35,7 +35,10 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
                 else socket.unread(next2bytes, 2);
                 readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
             } else throw std::runtime_error("Unsupported content type");
-        } else throw std::runtime_error("Item without Content-Disposition");
+        } else {
+            std::cerr << rawItemHeader << std::endl;
+            throw std::runtime_error("Item without Content-Disposition");
+        }
     }
 }
 

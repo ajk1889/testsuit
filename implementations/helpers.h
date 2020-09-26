@@ -70,6 +70,8 @@ int find(const char *hayStack, const string &key, const int hayStackLen, const s
 
 void print(const string &tag, char *str, size_t lastIndex);
 
+void printChar(const string &tag, char *arr, uint32_t len);
+
 template<typename A>
 void print(A a) {
     std::cout << a << std::endl;

@@ -34,6 +34,7 @@ public:
 
     constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
     int32_t writeBytesPerTimeDiff;
+    int32_t readBytesPerTimeDiff;
 
     map<string, vector<string>> urlMap;
     map<string, string> additionalKwargs;
@@ -42,12 +43,15 @@ public:
 
     void setMaxDownloadSpeed(uint32_t speed) {
         maxDownloadSpeed = speed;
-        writeBytesPerTimeDiff = 1024 * maxDownloadSpeed * TIME_DIFF_MS / 1000;
+        writeBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
     };
 
     uint32_t getMaxUploadSpeed() { return maxUploadSpeed; }
 
-    void setMaxUploadSpeed(uint32_t speed) { maxUploadSpeed = speed; }
+    void setMaxUploadSpeed(uint32_t speed) {
+        maxUploadSpeed = speed;
+        readBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
+    }
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
             ServerParams, pingMs, maxDownloadSpeed,

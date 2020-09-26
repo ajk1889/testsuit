@@ -6,6 +6,6 @@
   "/reflect": [
     "python3",
     "-c",
-    "import sys\nif(len(sys.argv)==1): print('{\"data\":\"inline\"}\\n\\n'+input())\nelse: print('\\n')\nexit(0)"
+    "import sys, json\nif(len(sys.argv)==1): \n    inp=input()\n    print(json.dumps({\"data\":\"inline\",\"length\": len(inp), \"headers\": {\"Content-Type\": [\"application/json\"]}})+'\\n\\n'+inp)\nelse: print('\\n')\nexit(0)"
   ]
 }
