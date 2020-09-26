@@ -26,7 +26,7 @@ public:
 
     template<unsigned int N>
     void write(const char (&buffer)[N]) const {
-        write(buffer, N);
+        write(buffer, N - 1);
     }
 
     template<typename T>
@@ -42,7 +42,7 @@ public:
 
     template<unsigned int N>
     ssize_t read(char (&buffer)[N]) const {
-        return read(buffer, N);
+        return read(buffer, N - 1);
     }
 
     template<typename T>

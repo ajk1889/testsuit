@@ -36,10 +36,8 @@ struct HttpResponse {
         socket.write(std::to_string(responseCode));
         socket.write(" " + ResponseCode::text.find(responseCode)->second + "\r\n");
         for (const auto &pair : HEADERS)
-            for (const auto &value: pair.second) {
-                print(pair.first, value);
+            for (const auto &value: pair.second)
                 socket.write(pair.first + ": " + value + "\r\n");
-            }
         socket.write("\r\n");
         return socket;
     }
