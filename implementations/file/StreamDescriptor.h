@@ -58,6 +58,10 @@ public:
 
     void close() const { ::close(descriptor); }
 
+    void delayRead(ssize_t bytesRead) const;
+
+    void delayWrite(ssize_t bytesWritten) const;
+
     ~StreamDescriptor() {
         close();
     }
