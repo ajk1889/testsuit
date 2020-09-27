@@ -30,10 +30,10 @@ ssize_t StreamDescriptor::read(char *buffer, const uint N) {
 
 inline void writeBase(int descriptor, const char *buffer, const uint N) {
     if (N == 0) return;
-    auto result = 0;
+    ssize_t result;
     uint totalBytesRead = 0;
     while (totalBytesRead < N) {
-        result = ::send(descriptor, buffer + result, N - result, MSG_NOSIGNAL);
+        result = ::send(descriptor, buffer + totalBytesRead, N - totalBytesRead, MSG_NOSIGNAL);
         if (result < 0)
             throw std::runtime_error("ERROR writing to socket");
         totalBytesRead += result;
@@ -43,8 +43,8 @@ inline void writeBase(int descriptor, const char *buffer, const uint N) {
 void StreamDescriptor::write(const char *buffer, const uint N) const {
     auto bytesWritten = 0U;
     while (bytesWritten < N) {
-        auto bytesToWrite = min(max(1, params.writeBytesPerTimeDiff - thisSectionWriteCount), N);
-        writeBase(descriptor, buffer, bytesToWrite);
+        auto bytesToWrite = min(max(1, params.writeBytesPerTimeDiff - thisSectionWriteCount), N - bytesWritten);
+        writeBase(descriptor, buffer + bytesWritten, bytesToWrite);
         bytesWritten += bytesToWrite;
         thisSectionWriteCount += bytesToWrite;
         auto now = preciseNow();

@@ -148,9 +148,9 @@ auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now()) {
     return std::chrono::high_resolution_clock::now();
 }
 
-void printChar(const string &tag, char *arr, uint32_t len) {
-    char backup = arr[len];
-    arr[len] = '\0';
-    std::cout << tag << ": |" << arr << "|\ncount:" << len << std::endl;
-    arr[len] = backup;
+void printChar(const string &tag, const char *arr, uint32_t len) {
+    std::cout << tag << ": |";
+    for (decltype(len) i = 0U; i < len; i++)
+        std::cout << arr[i];
+    std::cout << "|\ncount:" << len << std::endl;
 }

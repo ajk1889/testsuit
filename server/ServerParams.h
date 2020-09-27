@@ -39,14 +39,14 @@ public:
     map<string, vector<string>> urlMap;
     map<string, string> additionalKwargs;
 
-    uint32_t getMaxDownloadSpeed() { return maxDownloadSpeed; };
+    [[nodiscard]] uint32_t getMaxDownloadSpeed() const { return maxDownloadSpeed; };
 
     void setMaxDownloadSpeed(uint32_t speed) {
         maxDownloadSpeed = speed;
         writeBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
     };
 
-    uint32_t getMaxUploadSpeed() { return maxUploadSpeed; }
+    [[nodiscard]] uint32_t getMaxUploadSpeed() const { return maxUploadSpeed; }
 
     void setMaxUploadSpeed(uint32_t speed) {
         maxUploadSpeed = speed;
