@@ -30,12 +30,12 @@ void *getCurl();
 string currentDateTime();
 
 template<typename A, typename B>
-inline auto min(const A a, const B b) -> decltype(a < b ? a : b) {
+inline auto min(const A &a, const B &b) -> decltype(a < b ? a : b) {
     return a < b ? a : b;
 }
 
 template<typename A, typename B>
-inline auto max(const A a, const B b) -> decltype(a > b ? a : b) {
+inline auto max(const A &a, const B &b) -> decltype(a > b ? a : b) {
     return a > b ? a : b;
 }
 
