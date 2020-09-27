@@ -28,8 +28,15 @@ shared_ptr<StreamDescriptor> Process::run(const char *input) {
         // parent continues here
         close(aStdinPipe[PIPE_READ]);
         close(aStdoutPipe[PIPE_WRITE]);
-        if (nullptr != input)
-            write(aStdinPipe[PIPE_WRITE], input, strlen(input));
+        if (nullptr != input) {
+            auto len = strlen(input);
+            decltype(len) written = 0;
+            auto result = write(aStdinPipe[PIPE_WRITE], input, len);
+            while (result > 0 && written < len) {
+                written += result;
+                result = write(aStdinPipe[PIPE_WRITE], input + written, len - written);
+            }
+        }
         return make_shared<StreamDescriptor>(aStdoutPipe[PIPE_READ]);
     } else {
         perror("Could not fork");
