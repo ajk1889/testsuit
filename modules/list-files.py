@@ -17,7 +17,7 @@ def get_files_list(folder):
         else:
             sub_files.append(f)
     relative_path = os.path.relpath(folder, base_path)
-    relative_path = "" if relative_path == "." else "/" + relative_path
+    relative_path = "" if relative_path == "." else relative_path
 
     sub_folders.sort()
     for f in sub_folders:

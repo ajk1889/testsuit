@@ -14,9 +14,8 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
         vector<UrlMapObject> newUrlMap;
         decltype(allowedParams) extraCommands;
         for (const auto &item: data.items()) {
-            auto mapObj = item.value().get<UrlMapObject>();
-            newUrlMap.emplace_back(mapObj);
-            for (const auto &allowedArg: mapObj.allowedArgs)
+            newUrlMap.emplace_back(item.value());
+            for (const auto &allowedArg: newUrlMap.back().allowedArgs)
                 extraCommands[allowedArg.arg] = allowedArg.description;
         }
         urlMap = std::move(newUrlMap);
