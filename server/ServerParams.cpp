@@ -29,6 +29,8 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
 
 using std::stol;
 void ServerParams::initializeFrom(int argc, char **argv) {
+    setMaxDownloadSpeed(UINT32_MAX);
+    setMaxUploadSpeed(UINT32_MAX);
     for (int i = 1; i < argc; ++i) {
         if (strstr(argv[i], "--pingMs=") != nullptr)
             pingMs = stol(index(argv[i], '=') + 1);

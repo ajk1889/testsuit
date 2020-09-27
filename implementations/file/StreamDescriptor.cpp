@@ -56,7 +56,7 @@ void StreamDescriptor::unread(char *extraReadBytes, uint N) {
 void StreamDescriptor::resetRead(const decltype(preciseNow()) &now) const {
     if (thisSectionReadCount >= 2 * params.readBytesPerTimeDiff)
         thisSectionReadCount = 0;
-    else thisSectionReadCount = params.readBytesPerTimeDiff - thisSectionReadCount;
+    else thisSectionReadCount = thisSectionReadCount - params.readBytesPerTimeDiff;
     if (now >= thisReadTimeSectionEndTime + ServerParams::timeDiff)
         thisReadTimeSectionEndTime = now + ServerParams::timeDiff;
     else thisReadTimeSectionEndTime += ServerParams::timeDiff;
@@ -65,7 +65,7 @@ void StreamDescriptor::resetRead(const decltype(preciseNow()) &now) const {
 void StreamDescriptor::resetWrite(const decltype(preciseNow()) &now) const {
     if (thisSectionWriteCount >= 2 * params.writeBytesPerTimeDiff)
         thisSectionWriteCount = 0;
-    else thisSectionWriteCount = params.writeBytesPerTimeDiff - thisSectionWriteCount;
+    else thisSectionWriteCount = thisSectionWriteCount - params.writeBytesPerTimeDiff;
     if (now >= thisWriteTimeSectionEndTime + ServerParams::timeDiff)
         thisWriteTimeSectionEndTime = now + ServerParams::timeDiff;
     else thisWriteTimeSectionEndTime += ServerParams::timeDiff;

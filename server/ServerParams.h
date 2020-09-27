@@ -22,8 +22,8 @@ using json = nlohmann::json;
 using std::chrono_literals::operator ""ms;
 
 class ServerParams {
-    uint32_t maxDownloadSpeed = UINT32_MAX;
-    uint32_t maxUploadSpeed = UINT32_MAX;
+    uint32_t maxDownloadSpeed;
+    uint32_t maxUploadSpeed;
     constexpr static auto TIME_DIFF_MS = 33;
 public:
     uint32_t pingMs = 0;
