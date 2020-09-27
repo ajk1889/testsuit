@@ -41,6 +41,7 @@ add_executable(
         implementations/networking/http/response/DescriptorResponse.cpp
         implementations/networking/http/response/DescriptorResponse.h
         server/ServerParams.cpp
+        implementations/utils/UrlMapObject.h
 )
 
 target_link_libraries(testsuit ${CURL_LIBRARIES})

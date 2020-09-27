@@ -66,13 +66,10 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
 
 const vector<string> &getCommandForPath(const string &path) {
     auto &urlMap = params.urlMap;
-    auto command = urlMap.find(path);
-    if (command == urlMap.cend()) {
-        for (const auto &pair: urlMap)
-            if (std::regex_match(path, std::regex(pair.first)))
-                return pair.second;
-        return urlMap.find("default")->second;
-    } else return command->second;
+    for (auto &pair: urlMap)
+        if (std::regex_match(path, pair.getPathRegex()))
+            return pair.command;
+    return urlMap[0].command;
 }
 
 void Server::handleClient(const SocketPtr &socketPtr) {

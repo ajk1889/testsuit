@@ -12,6 +12,7 @@
 #include "../implementations/helpers.h"
 #include "../implementations/constants.h"
 #include "../implementations/utils/Process.h"
+#include "../implementations/utils/UrlMapObject.h"
 
 using std::set;
 using std::ostream;
@@ -36,7 +37,7 @@ public:
     int32_t writeBytesPerTimeDiff;
     int32_t readBytesPerTimeDiff;
 
-    map<string, vector<string>> urlMap;
+    vector<UrlMapObject> urlMap;
     map<string, string> additionalKwargs;
 
     [[nodiscard]] uint32_t getMaxDownloadSpeed() const { return maxDownloadSpeed; };

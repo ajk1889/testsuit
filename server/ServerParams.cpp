@@ -11,16 +11,13 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
         json data;
         is >> data;
         is.close();
-        auto newUrlMap = map<string, vector<string>>();
+        vector<UrlMapObject> newUrlMap;
         decltype(allowedParams) extraCommands;
         for (const auto &item: data.items()) {
-            auto &urlPath = item.key();
-            auto &value = item.value();
-            newUrlMap[urlPath] = value["command"].get<vector<string>>();
-            auto args = value.find("allowedArgs");
-            if (args == value.end()) continue;
-            for (const auto &allowedArg: args->items())
-                extraCommands[allowedArg.value()["arg"]] = allowedArg.value()["description"];
+            auto mapObj = item.value().get<UrlMapObject>();
+            newUrlMap.emplace_back(mapObj);
+            for (const auto &allowedArg: mapObj.allowedArgs)
+                extraCommands[allowedArg.arg] = allowedArg.description;
         }
         urlMap = std::move(newUrlMap);
         urlMapFile = std::move(urlMapFilePath);
