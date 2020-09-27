@@ -4,6 +4,7 @@ import urllib.parse
 from html import escape
 
 base_path = os.getcwd()
+base_url = "/files"
 
 
 def get_files_list(folder):
@@ -20,13 +21,15 @@ def get_files_list(folder):
 
     sub_folders.sort()
     for f in sub_folders:
-        html += f'<a href="{urllib.parse.quote(relative_path + "/" + f)}" style="color:red">{escape(f)}</a><br/>\n'
+        link = urllib.parse.quote(os.path.join(base_url, relative_path, f))
+        html += f'<a href="{link}" style="color:red">{escape(f)}</a><br/>\n'
     if sub_folders:
         html += "<br/>\n"
 
     sub_files.sort()
     for f in sub_files:
-        html += f'<a href="{urllib.parse.quote(relative_path + "/" + f)}" style="color:black">{escape(f)}</a><br/>\n'
+        link = urllib.parse.quote(os.path.join(base_url, relative_path, f))
+        html += f'<a href="{link}" style="color:black">{escape(f)}</a><br/>\n'
     html += '</body></html>'
     return html
 
@@ -46,7 +49,7 @@ try:
     data = json.loads(input().strip())
     if "base-path" in data["applicationParams"]["additionalKwargs"]:
         base_path = data["applicationParams"]["additionalKwargs"]["base-path"]
-    path = data["path"]
+    path = data["path"][len(base_url):]
     while path and path[0] == '/':
         path = path[1:]
     path = os.path.join(base_path, path)

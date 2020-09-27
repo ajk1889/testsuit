@@ -1,5 +1,5 @@
 {
-  "default": {
+  "^/files/.*": {
     "allowedArgs": [
       {
         "arg": "base-path",
@@ -11,12 +11,19 @@
       "/home/ajk/CLionProjects/testsuit/modules/list-files.py"
     ]
   },
-  "/reflect": {
+  "^/reflect/?": {
     "allowedArgs": [],
     "command": [
       "python3",
       "-c",
       "import json\ninp=input()\nprint(json.dumps({\"data\":\"inline\",\"length\": len(inp), \"headers\": {\"Content-Type\": [\"application/json\"]}})+'\\n\\n'+inp)"
+    ]
+  },
+  "default": {
+    "allowedArgs": [],
+    "command": [
+      "echo",
+      "'{\"responseCode\": 404, \"headers\": {\"Content-Type\": [\"text/html\"]}, \"length\": 23, \"data\": \"inline\"}\n\n<h1>File not found</h1>'"
     ]
   }
 }

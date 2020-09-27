@@ -3,6 +3,7 @@
 #include "../implementations/networking/http/response/StringResponse.h"
 #include "../implementations/networking/http/response/DescriptorResponse.h"
 #include <filesystem>
+#include <regex>
 #include "boost/algorithm/string.hpp"
 #include "../implementations/networking/http/response/FileResponse.h"
 
@@ -63,15 +64,22 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
     }
 }
 
+const vector<string> &getCommandForPath(const string &path) {
+    auto &urlMap = params.urlMap;
+    auto command = urlMap.find(path);
+    if (command == urlMap.cend()) {
+        for (const auto &pair: urlMap)
+            if (std::regex_match(path, std::regex(pair.first)))
+                return pair.second;
+        return urlMap.find("default")->second;
+    } else return command->second;
+}
+
 void Server::handleClient(const SocketPtr &socketPtr) {
     thread([=] {
         try {
             auto request = HttpRequest::from(socketPtr);
-            auto urlMap = params.urlMap;
-            auto command = urlMap.find(request.path);
-            if (command == urlMap.cend())
-                command = urlMap.find("default");
-            Process process = command->second;
+            Process process = getCommandForPath(request.path);
             auto input = json(request);
             input["applicationParams"] = params;
             print("input: ", input);
