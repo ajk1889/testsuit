@@ -13,7 +13,6 @@ ssize_t StreamDescriptor::read(char *buffer, const uint N) {
     } else if (N) {
         auto bytesToRead = min(max(1, params.readBytesPerTimeDiff - thisSectionReadCount), N);
         auto n = ::read(descriptor, buffer, bytesToRead);
-//        printChar("core", buffer, n);
         thisSectionReadCount += n;
         auto now = preciseNow();
         if (thisSectionReadCount >= params.readBytesPerTimeDiff || now >= thisReadTimeSectionEndTime) {

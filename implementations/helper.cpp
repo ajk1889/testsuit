@@ -75,11 +75,9 @@ string readUntilMatch(StreamDescriptor &descriptor, const string &match, const U
            (bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, maxLen - data.length()))) > 0) {
         auto terminationPoint = find(buffer, match, bytesRead, lastFew);
         if (terminationPoint == -1) {
-//            printChar("match1", buffer, bytesRead);
             data.append(buffer, bytesRead);
             fill(buffer, lastFew, bytesRead);
         } else {
-//            printChar("match2", buffer, terminationPoint);
             data.append(buffer, terminationPoint);
             descriptor.unread(buffer + terminationPoint, bytesRead - terminationPoint);
             break;
