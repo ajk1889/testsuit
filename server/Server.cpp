@@ -160,9 +160,10 @@ void Server::execute(const string &command) {
                 params.initializeUrlMap(value);
                 print("URL map re-initialized from", params.urlMapFile);
             } else {
-                if (params.allowedParams.find(parameter) != params.allowedParams.cend())
+                if (params.allowedParams.find(parameter) != params.allowedParams.cend()) {
                     params.additionalKwargs[parameter] = value;
-                else printUnknownCommandError(command, params.allowedParams);
+                    print(parameter, "is set to", value);
+                } else printUnknownCommandError(command, params.allowedParams);
             }
         } catch (...) {
             print("Unknown error while setting argument", command);

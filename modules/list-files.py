@@ -49,6 +49,10 @@ try:
     data = json.loads(input().strip())
     if "base-path" in data["applicationParams"]["additionalKwargs"]:
         base_path = data["applicationParams"]["additionalKwargs"]["base-path"]
+        if base_path[0] == "'" or base_path[0] == '"':
+            base_path = base_path[1:]
+        if base_path[-1] == "'" or base_path[-1] == '"':
+            base_path = base_path[:-1]
     path = data["path"][len(base_url):]
     while path and path[0] == '/':
         path = path[1:]
