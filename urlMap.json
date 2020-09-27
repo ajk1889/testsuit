@@ -23,7 +23,7 @@
     "allowedArgs": [],
     "command": [
       "echo",
-      "'{\"responseCode\": 404, \"headers\": {\"Content-Type\": [\"text/html\"]}, \"length\": 23, \"data\": \"inline\"}\n\n<h1>File not found</h1>'"
+      "{\"responseCode\": 404, \"headers\": {\"Content-Type\": [\"text/html\"]}, \"length\": 23, \"data\": \"inline\"}\n\n<h1>File not found</h1>"
     ]
   }
 }
