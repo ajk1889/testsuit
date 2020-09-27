@@ -116,8 +116,10 @@ void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> 
         separatorPos = headerKeyValues.find(':', startPos);
         if (separatorPos == string::npos) break;
         endPos = headerKeyValues.find('\r', separatorPos);
-        if (endPos == string::npos)
-            throw std::runtime_error("Invalid headers\n" + headerKeyValues);
+        if (endPos == string::npos) {
+            std::cerr << "Invalid headers: " << headerKeyValues << std::endl;
+            throw std::runtime_error("Invalid headers");
+        }
         auto key = headerKeyValues.substr(startPos, separatorPos - startPos);
         separatorPos += 2;
         auto value = headerKeyValues.substr(separatorPos, endPos - separatorPos);

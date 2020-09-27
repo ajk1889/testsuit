@@ -34,7 +34,10 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
                     break; // no more form data
                 else socket.unread(next2bytes, 2);
                 readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
-            } else throw std::runtime_error("Unsupported content type");
+            } else {
+                std::cerr << rawItemHeader << std::endl;
+                throw std::runtime_error("Unsupported content type");
+            }
         } else {
             std::cerr << rawItemHeader << std::endl;
             throw std::runtime_error("Item without Content-Disposition");
@@ -58,8 +61,10 @@ void extractRequestDataConditionally(HttpRequest &req) {
         } else if (contentType.find("multipart/form-data;") != string::npos) {
             constexpr auto lenSearchKey = 11; // len('; boundary=')
             auto boundaryStart = contentType.find("; boundary=");
-            if (boundaryStart == string::npos)
+            if (boundaryStart == string::npos) {
+                std::cerr << contentType << std::endl;
                 throw std::runtime_error("Invalid boundary for multipart/form-data " + contentType);
+            }
             boundaryStart += lenSearchKey;
             auto boundary = contentType.substr(boundaryStart);
             if (boundary[0] == '"')
@@ -84,17 +89,23 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
 
     // finding HTTP Method
     size_t leftFlagPos = 0, rightFlagPos = rawHeaders.find(' ');
-    if (rightFlagPos < 3 || rightFlagPos > 6)
-        throw std::runtime_error("Invalid request method\n" + rawHeaders);
+    if (rightFlagPos < 3 || rightFlagPos > 6) {
+        std::cerr << "Invalid request method: " << rawHeaders << std::endl;
+        throw std::runtime_error("Invalid request method");
+    }
     req.requestType = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
     leftFlagPos = rightFlagPos + 1;
 
     // finding request path
-    if (leftFlagPos >= headersLen)
-        throw std::runtime_error("Invalid headers\n" + rawHeaders);
+    if (leftFlagPos >= headersLen) {
+        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        throw std::runtime_error("Invalid headers");
+    }
     rightFlagPos = rawHeaders.find(' ', leftFlagPos);
-    if (rightFlagPos == string::npos)
-        throw std::runtime_error("Invalid headers\n" + rawHeaders);
+    if (rightFlagPos == string::npos) {
+        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        throw std::runtime_error("Invalid headers");
+    }
     req.path = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
     auto queryStartIndex = req.path.find('?');
     if (queryStartIndex != string::npos) {
@@ -104,17 +115,23 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     leftFlagPos = rightFlagPos + 1;
 
     // finding HTTP protocol version
-    if (leftFlagPos >= headersLen)
-        throw std::runtime_error("Invalid headers\n" + rawHeaders);
+    if (leftFlagPos >= headersLen) {
+        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        throw std::runtime_error("Invalid headers");
+    }
     rightFlagPos = rawHeaders.find('\r', leftFlagPos);
-    if (rightFlagPos == string::npos)
-        throw std::runtime_error("Invalid headers\n" + rawHeaders);
+    if (rightFlagPos == string::npos) {
+        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        throw std::runtime_error("Invalid headers");
+    }
     req.httpVersion = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
 
     // setting HTTP-Headers
     leftFlagPos = rightFlagPos + 2;
-    if (leftFlagPos >= headersLen)
-        throw std::runtime_error("Incomplete headers\n" + rawHeaders);
+    if (leftFlagPos >= headersLen) {
+        std::cerr << "Incomplete headers: " << rawHeaders << std::endl;
+        throw std::runtime_error("Incomplete headers");
+    }
     parseHttpHeader(rawHeaders.substr(leftFlagPos), req.HEADERS);
 
     extractRequestDataConditionally(req);

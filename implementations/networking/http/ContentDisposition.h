@@ -15,8 +15,10 @@ struct ContentDisposition {
 
     ContentDisposition(const string &disposition) {
         const auto separatorPos = disposition.find(';');
-        if (separatorPos == string::npos)
+        if (separatorPos == string::npos) {
+            std::cerr << "Invalid Content-Disposition: " << disposition << std::endl;
             throw std::runtime_error("Invalid Content-Disposition " + disposition);
+        }
         type = disposition.substr(0, separatorPos);
         const auto nameStartPos = disposition.find("name=\"", separatorPos) + 6;
         const auto nameEndPos = disposition.find('"', nameStartPos);
