@@ -1,6 +1,6 @@
 [
   {
-    "path": "^/files/.*",
+    "path": "^/files/?.*",
     "allowedArgs": [
       {
         "arg": "base-path",
