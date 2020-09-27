@@ -60,7 +60,11 @@ public:
 
     void delayRead(ssize_t bytesRead) const;
 
+    void resetRead(const decltype(preciseNow()) &now) const;
+
     void delayWrite(ssize_t bytesWritten) const;
+
+    void resetWrite(const decltype(preciseNow()) &now) const;
 
     ~StreamDescriptor() {
         close();

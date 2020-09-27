@@ -13,7 +13,7 @@ ssize_t StreamDescriptor::read(char *buffer, const uint N) {
     } else if (N) {
         auto bytesToRead = min(max(1, params.readBytesPerTimeDiff - thisSectionReadCount), N);
         auto n = ::read(descriptor, buffer, bytesToRead);
-//        delayRead(n);
+        delayRead(n);
         return n;
     } else return 0;
 }
@@ -31,12 +31,12 @@ inline void writeBase(int descriptor, const char *buffer, const uint N) {
 }
 
 void StreamDescriptor::write(const char *buffer, const uint N) const {
-    auto bytesWritten = 0U;
-    while (bytesWritten < N) {
-        auto bytesToWrite = min(max(1, params.writeBytesPerTimeDiff - thisSectionWriteCount), N - bytesWritten);
-        writeBase(descriptor, buffer + bytesWritten, bytesToWrite);
-        bytesWritten += bytesToWrite;
-//        delayWrite(bytesToWrite);
+    auto totalBytesWritten = 0U;
+    while (totalBytesWritten < N) {
+        auto bytesToWrite = min(max(1, params.writeBytesPerTimeDiff - thisSectionWriteCount), N - totalBytesWritten);
+        writeBase(descriptor, buffer + totalBytesWritten, bytesToWrite);
+        totalBytesWritten += bytesToWrite;
+        delayWrite(bytesToWrite);
     }
 }
 
@@ -53,6 +53,23 @@ void StreamDescriptor::unread(char *extraReadBytes, uint N) {
     }
 }
 
+void StreamDescriptor::resetRead(const decltype(preciseNow()) &now) const {
+    if (thisSectionReadCount >= 2 * params.readBytesPerTimeDiff)
+        thisSectionReadCount = 0;
+    else thisSectionReadCount = params.readBytesPerTimeDiff - thisSectionReadCount;
+    if (now >= thisReadTimeSectionEndTime + ServerParams::timeDiff)
+        thisReadTimeSectionEndTime = now + ServerParams::timeDiff;
+    else thisReadTimeSectionEndTime += ServerParams::timeDiff;
+}
+
+void StreamDescriptor::resetWrite(const decltype(preciseNow()) &now) const {
+    if (thisSectionWriteCount >= 2 * params.writeBytesPerTimeDiff)
+        thisSectionWriteCount = 0;
+    else thisSectionWriteCount = params.writeBytesPerTimeDiff - thisSectionWriteCount;
+    if (now >= thisWriteTimeSectionEndTime + ServerParams::timeDiff)
+        thisWriteTimeSectionEndTime = now + ServerParams::timeDiff;
+    else thisWriteTimeSectionEndTime += ServerParams::timeDiff;
+}
 
 void StreamDescriptor::delayRead(ssize_t bytesRead) const {
     thisSectionReadCount += bytesRead;
@@ -60,21 +77,9 @@ void StreamDescriptor::delayRead(ssize_t bytesRead) const {
     if (thisSectionReadCount >= params.readBytesPerTimeDiff) {
         if (now < thisReadTimeSectionEndTime)
             std::this_thread::sleep_for(thisReadTimeSectionEndTime - now);
-        if (thisSectionReadCount >= 2 * params.readBytesPerTimeDiff)
-            thisSectionReadCount = 0;
-        else thisSectionReadCount = params.readBytesPerTimeDiff - thisSectionReadCount;
-        if (now >= thisReadTimeSectionEndTime + ServerParams::timeDiff)
-            thisReadTimeSectionEndTime = now + ServerParams::timeDiff;
-        else thisReadTimeSectionEndTime += ServerParams::timeDiff;
+        resetRead(now);
     }
-    if (now >= thisReadTimeSectionEndTime) {
-        if (thisSectionReadCount >= 2 * params.readBytesPerTimeDiff)
-            thisSectionReadCount = 0;
-        else thisSectionReadCount = params.readBytesPerTimeDiff - thisSectionReadCount;
-        if (now >= thisReadTimeSectionEndTime + ServerParams::timeDiff)
-            thisReadTimeSectionEndTime = now + ServerParams::timeDiff;
-        else thisReadTimeSectionEndTime += ServerParams::timeDiff;
-    }
+    if (now >= thisReadTimeSectionEndTime) resetRead(now);
 }
 
 void StreamDescriptor::delayWrite(ssize_t bytesWritten) const {
@@ -83,19 +88,7 @@ void StreamDescriptor::delayWrite(ssize_t bytesWritten) const {
     if (thisSectionWriteCount >= params.writeBytesPerTimeDiff) {
         if (now < thisWriteTimeSectionEndTime)
             std::this_thread::sleep_for(thisWriteTimeSectionEndTime - now);
-        if (thisSectionWriteCount >= 2 * params.writeBytesPerTimeDiff)
-            thisSectionWriteCount = 0;
-        else thisSectionWriteCount = params.writeBytesPerTimeDiff - thisSectionWriteCount;
-        if (now >= thisWriteTimeSectionEndTime + ServerParams::timeDiff)
-            thisWriteTimeSectionEndTime = now + ServerParams::timeDiff;
-        else thisWriteTimeSectionEndTime += ServerParams::timeDiff;
+        resetWrite(now);
     }
-    if (now >= thisWriteTimeSectionEndTime) {
-        if (thisSectionWriteCount >= 2 * params.writeBytesPerTimeDiff)
-            thisSectionWriteCount = 0;
-        else thisSectionWriteCount = params.writeBytesPerTimeDiff - thisSectionWriteCount;
-        if (now >= thisWriteTimeSectionEndTime + ServerParams::timeDiff)
-            thisWriteTimeSectionEndTime = now + ServerParams::timeDiff;
-        else thisWriteTimeSectionEndTime += ServerParams::timeDiff;
-    }
+    if (now >= thisWriteTimeSectionEndTime) resetWrite(now);
 }
