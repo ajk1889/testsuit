@@ -1,11 +1,22 @@
 {
-  "default": [
-    "python3",
-    "/home/ajk/CLionProjects/testsuit/modules/list-files.py"
-  ],
-  "/reflect": [
-    "python3",
-    "-c",
-    "import sys, json\nif(len(sys.argv)==1): \n    inp=input()\n    print(json.dumps({\"data\":\"inline\",\"length\": len(inp), \"headers\": {\"Content-Type\": [\"application/json\"]}})+'\\n\\n'+inp)\nelse: print('\\n')\nexit(0)"
-  ]
+  "default": {
+    "allowedArgs": [
+      {
+        "arg": "base-path",
+        "description": "Absolute path to the base shared directory"
+      }
+    ],
+    "command": [
+      "python3",
+      "/home/ajk/CLionProjects/testsuit/modules/list-files.py"
+    ]
+  },
+  "/reflect": {
+    "allowedArgs": [],
+    "command": [
+      "python3",
+      "-c",
+      "import json\ninp=input()\nprint(json.dumps({\"data\":\"inline\",\"length\": len(inp), \"headers\": {\"Content-Type\": [\"application/json\"]}})+'\\n\\n'+inp)"
+    ]
+  }
 }

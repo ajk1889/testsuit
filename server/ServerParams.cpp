@@ -4,25 +4,24 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
     try {
         ifstream is(urlMapFilePath, std::ifstream::ate);
         const auto fileSize = is.tellg();
-        if (fileSize > 1 * MB) {
-            std::cerr << "url map file exceeds 1MB, abort" << std::endl;
+        if (fileSize > 2 * MB) {
+            std::cerr << "url map file exceeds 2 MB, abort" << std::endl;
             exit(1);
         }
         is.seekg(0, ifstream::beg);
         json data;
         is >> data;
         is.close();
-        auto newUrlMap = data.get<map<string, vector<string>>>();
+        auto newUrlMap = map<string, vector<string>>();
         decltype(allowedParams) extraCommands;
-        for (const auto &pair: newUrlMap) {
-            auto extraArgsCmd = pair.second;
-            extraArgsCmd.emplace_back("--list-params");
-            auto response = readUntilMatch(*Process(extraArgsCmd).run("\n"), "\n\n");
-            boost::trim(response);
-            if (response.empty()) continue;
-            json commands = json::parse(response);
-            for (auto it = commands.cbegin(); it != commands.cend(); it++)
-                extraCommands[it.key()] = it.value();
+        for (const auto &item: data.items()) {
+            auto &urlPath = item.key();
+            auto &value = item.value();
+            newUrlMap[urlPath] = value["command"].get<vector<string>>();
+            auto args = value.find("allowedArgs");
+            if (args == value.end()) continue;
+            for (const auto &allowedArg: args->items())
+                extraCommands[allowedArg.value()["arg"]] = allowedArg.value()["description"];
         }
         urlMap = std::move(newUrlMap);
         urlMapFile = std::move(urlMapFilePath);
