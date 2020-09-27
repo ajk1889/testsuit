@@ -30,7 +30,7 @@ public:
     u_short port = 1234;
     string tempDir;
     bool loggingAllowed = true;
-    string urlMapFile = "/home/ajk/CLionProjects/testsuit/urlMap.json";
+    string urlMapFile = currentWorkingDir() + "/urlMap.json";
 
     constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
     int32_t writeBytesPerTimeDiff;

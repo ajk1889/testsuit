@@ -3,11 +3,10 @@
 void ServerParams::initializeUrlMap(string urlMapFilePath) {
     try {
         ifstream is(urlMapFilePath, std::ifstream::ate);
+        if (!is) throw std::runtime_error("url map file not readable");
         const auto fileSize = is.tellg();
-        if (fileSize > 2 * MB) {
-            std::cerr << "url map file exceeds 2 MB, abort" << std::endl;
-            exit(1);
-        }
+        if (fileSize > 2 * MB)
+            throw std::runtime_error("url map file exceeds 2 MB, abort");
         is.seekg(0, ifstream::beg);
         json data;
         is >> data;
@@ -27,7 +26,7 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
         urlMapFile = std::move(urlMapFilePath);
         allowedParams.insert(extraCommands.cbegin(), extraCommands.cend());
     } catch (...) {
-        print("Unknown error while setting url map, no changes made");
+        std::cerr << "Unknown error while setting url map, no changes made" << std::endl;
     }
 }
 

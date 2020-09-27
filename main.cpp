@@ -10,7 +10,7 @@ void runServer() {
         if (command == "stop") {
             server.stop();
             break;
-        } else server.execute(command);
+        } else Server::execute(command);
     }
 }
 

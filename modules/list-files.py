@@ -1,31 +1,32 @@
 import json
 import os
-import sys
 import urllib.parse
 from html import escape
 
-# Returning command line parameters this module will accept.
-if len(sys.argv) > 1 and sys.argv[1] == "--list-params":
-    print(json.dumps({"base-path": "Absolute path to the base shared directory"}))
-    print()
-    exit(0)
+base_path = os.getcwd()
 
 
 def get_files_list(folder):
     html = f"""<html><head><title>{folder.split('/')[-1]}</title><head><body style="font-size:20px">\n"""
-    sub_files = os.listdir(folder)
+    sub_files = []
     sub_folders = []
-    for f in sub_files:
-        if os.path.isdir(folder + '/' + f):
+    for f in os.listdir(folder):
+        if os.path.isdir(os.path.join(folder, f)):
             sub_folders.append(f)
-            sub_files.remove(f)
+        else:
+            sub_files.append(f)
+    relative_path = os.path.relpath(folder, base_path)
+    relative_path = "" if relative_path == "." else "/" + relative_path
+
     sub_folders.sort()
-    sub_files.sort()
     for f in sub_folders:
-        html += f'<a href="{urllib.parse.quote(folder + "/" + f)}" style="color:red">{escape(f)}</a><br/>\n'
-    if sub_folders: html += "<br/>\n"
+        html += f'<a href="{urllib.parse.quote(relative_path + "/" + f)}" style="color:red">{escape(f)}</a><br/>\n'
+    if sub_folders:
+        html += "<br/>\n"
+
+    sub_files.sort()
     for f in sub_files:
-        html += f'<a href="{urllib.parse.quote(folder + "/" + f)}" style="color:black">{escape(f)}</a><br/>\n'
+        html += f'<a href="{urllib.parse.quote(relative_path + "/" + f)}" style="color:black">{escape(f)}</a><br/>\n'
     html += '</body></html>'
     return html
 
@@ -43,9 +44,12 @@ def echo(code, html):
 
 try:
     data = json.loads(input().strip())
+    if "base-path" in data["applicationParams"]["additionalKwargs"]:
+        base_path = data["applicationParams"]["additionalKwargs"]["base-path"]
     path = data["path"]
-    if path[-1] == '/':
-        path = path[:-1]
+    while path and path[0] == '/':
+        path = path[1:]
+    path = os.path.join(base_path, path)
 
     if not os.path.exists(path):
         echo(404, "<h1>File not found</h1>")
