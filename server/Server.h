@@ -39,6 +39,7 @@ public:
         using std::chrono_literals::operator ""ms;
         std::this_thread::sleep_for(2ms);
         // waiting for socket to close
+        curl_easy_cleanup(getCurl());
     }
 
     static void execute(const string &command);
