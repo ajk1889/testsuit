@@ -9,7 +9,7 @@
     ],
     "command": [
       "python3",
-      "/home/ajk/CLionProjects/testsuit/modules/list-files.py"
+      "modules/list-files.py"
     ]
   },
   {
@@ -19,6 +19,14 @@
       "python3",
       "-c",
       "import json\ninp=input()\nprint(json.dumps({\"data\":\"inline\",\"length\": len(inp), \"headers\": {\"Content-Type\": [\"application/json\"]}})+'\\n\\n'+inp)"
+    ]
+  },
+  {
+    "path": "^/upload/?",
+    "allowedArgs": [],
+    "command": [
+      "python3",
+      "modules/upload.py"
     ]
   },
   {
