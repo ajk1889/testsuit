@@ -4,7 +4,7 @@
 #include <iostream>
 
 void visualize() {
-    char memory[51];
+    char memory[51]{};
     memory[50] = '\0';
     for (int i = 0; i < 5; ++i) {
         Generator::get(i * 50, (i + 1) * 50, memory);

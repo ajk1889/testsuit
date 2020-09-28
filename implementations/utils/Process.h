@@ -30,7 +30,7 @@ private:
 
     void init() {
         const auto N = this->command.size();
-        args = new char const *[N + 1];
+        args = new char const *[N + 1]{};
         for (int i = 0; i < N; ++i)
             args[i] = this->command[i].c_str();
         args[N] = nullptr;

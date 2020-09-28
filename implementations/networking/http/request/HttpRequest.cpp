@@ -28,7 +28,7 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
                                            {"headers", parsedItemHeader},
                                            {"data",    FileOrString::readFrom(socket, realBoundary)}
                                    });
-                char next2bytes[2];
+                char next2bytes[2]{};
                 socket.read(next2bytes);
                 if (next2bytes[0] == '-' && next2bytes[1] == '-')
                     break; // no more form data

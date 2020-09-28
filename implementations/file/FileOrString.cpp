@@ -40,7 +40,7 @@ FileOrString FileOrString::readFrom(Socket &socket, uint_least64_t nBytes) {
     }
     data = params.tempDir + "/" + getRandomString(10);
     std::ofstream op(data);
-    char buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE + 1]{};
     ssize_t bytesRead;
     while (nBytes > 0 && (bytesRead = socket.read(buffer, min(BUFFER_SIZE, nBytes))) > -1) {
         op.write(buffer, bytesRead);

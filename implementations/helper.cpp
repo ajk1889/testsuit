@@ -5,7 +5,7 @@
 #include "boost/algorithm/string.hpp"
 
 string currentWorkingDir() {
-    char cCurrentPath[FILENAME_MAX];
+    char cCurrentPath[FILENAME_MAX]{};
     if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
         throw std::runtime_error("Couldn't get current working directory");
     return cCurrentPath;
@@ -66,7 +66,7 @@ string readUntilMatch(StreamDescriptor &descriptor, const string &match, const U
     const auto lenMatch = match.length();
     if (lenMatch == 0)
         throw std::runtime_error("Parameter `match` should not be blank");
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[BUFFER_SIZE + 1]{};
     buffer[BUFFER_SIZE] = '\0';
     decltype(descriptor.read(buffer, BUFFER_SIZE)) bytesRead;
     string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
@@ -89,7 +89,7 @@ string readUntilMatch(StreamDescriptor &descriptor, const string &match, const U
 string readExact(StreamDescriptor &descriptor, long long nBytes) {
     string str;
     str.reserve(nBytes);
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[BUFFER_SIZE + 1]{};
     decltype(descriptor.read(buffer, min(BUFFER_SIZE, nBytes))) bytesRead;
     while (nBytes > 0 && (bytesRead = descriptor.read(buffer, min(BUFFER_SIZE, nBytes))) > -1) {
         buffer[bytesRead] = '\0';
@@ -132,7 +132,7 @@ void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> 
 string currentDateTime() {
     time_t now = time(nullptr);
     tm *gmt = gmtime(&now);
-    char buf[35];
+    char buf[35]{};
     strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", gmt);
     return buf;
 }

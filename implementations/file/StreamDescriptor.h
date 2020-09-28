@@ -19,8 +19,8 @@ class StreamDescriptor {
 
     mutable decltype(preciseNow()) thisWriteTimeSectionEndTime;
     mutable decltype(preciseNow()) thisReadTimeSectionEndTime;
-    mutable int32_t thisSectionWriteCount;
-    mutable int32_t thisSectionReadCount;
+    mutable int32_t thisSectionWriteCount = 0;
+    mutable int32_t thisSectionReadCount = 0;
 public:
     StreamDescriptor(int fd) : descriptor(fd) {}
 

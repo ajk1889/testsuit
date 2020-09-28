@@ -3,7 +3,7 @@
 
 Socket &FileResponse::writeTo(Socket &socket) {
     HttpResponse::writeTo(socket);
-    char buffer[BUFFER_SIZE + 1];
+    char buffer[BUFFER_SIZE + 1]{};
     uint_least64_t totalBytesRead = 0;
     auto length = end - begin + 1;
     while (totalBytesRead < length && stream.read(buffer, min(BUFFER_SIZE, length - totalBytesRead))) {

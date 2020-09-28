@@ -50,7 +50,7 @@ shared_ptr<StreamDescriptor> Process::run(const char *input) {
 
 void Process::test() {
     Process process = {"python3", "-c", "print(int(input())**237)"};
-    char data[1024];
+    char data[1024]{};
     data[0] = '\0';
     auto descriptor = process.run("1820\n");
     if (descriptor) data[descriptor->read(data, 1023)] = '\0';
