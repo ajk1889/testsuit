@@ -22,7 +22,7 @@ public:
 
     FileOrString() = default;
 
-    static FileOrString readFrom(Socket &socket, string &boundary);
+    static FileOrString readFrom(Socket &socket, const string &boundary);
 
     static FileOrString readFrom(Socket &socket, uint_least64_t nBytes);
 

@@ -1,7 +1,8 @@
 #include "FileOrString.h"
 #include "../../server/Server.h"
 
-FileOrString FileOrString::readFrom(Socket &socket, string &boundary) {
+// TODO: Use stream reading technique here
+FileOrString FileOrString::readFrom(Socket &socket, const string &boundary) {
     FileOrString fileOrString;
     auto &data = fileOrString.data;
     data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
