@@ -52,7 +52,7 @@ public:
         return to;
     }
 
-    void unread(char *extraReadBytes, uint N);
+    void unread(const char *extraReadBytes, uint N);
 
     ssize_t read(char *buffer, uint N);
 

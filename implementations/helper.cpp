@@ -36,7 +36,7 @@ string urlDecode(const string &escaped, size_t length) {
     return urlDecode(copied, length);
 }
 
-inline void fill(const char (&source)[BUFFER_SIZE + 1], string &destination, int bytesRead) {
+inline void fill(const char (&source)[BUFFER_SIZE], string &destination, int bytesRead) {
     auto destinationLen = destination.length();
     if (destinationLen > bytesRead)
         memmove((void *) destination.c_str(), destination.c_str() + bytesRead, (destinationLen - bytesRead));
@@ -66,8 +66,7 @@ string readUntilMatch(StreamDescriptor &descriptor, const string &match, const U
     const auto lenMatch = match.length();
     if (lenMatch == 0)
         throw std::runtime_error("Parameter `match` should not be blank");
-    char buffer[BUFFER_SIZE + 1]{};
-    buffer[BUFFER_SIZE] = '\0';
+    char buffer[BUFFER_SIZE]{};
     decltype(descriptor.read(buffer, BUFFER_SIZE)) bytesRead;
     string lastFew(lenMatch - 1, match[lenMatch - 1] - 1); // holds `lenMatch-1 bytes` which is != match[:-1]
     string data;

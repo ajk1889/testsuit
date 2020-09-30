@@ -40,7 +40,7 @@ void StreamDescriptor::write(const char *buffer, const uint N) const {
     }
 }
 
-void StreamDescriptor::unread(char *extraReadBytes, uint N) {
+void StreamDescriptor::unread(const char *extraReadBytes, uint N) {
     if (unreadBytesCount == 0) {
         unreadBytesCount = min(N, MAX_UNREAD_BYTES_COUNT);
         memcpy(unreadBytes, extraReadBytes, unreadBytesCount);

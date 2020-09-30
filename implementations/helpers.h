@@ -108,4 +108,7 @@ void parseUrlEncodedPairs(const string &rawString, Mappable &outMap) {
 void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap);
 
 auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now());
+
+void fill(const char (&source)[BUFFER_SIZE], string &destination, int bytesRead);
+
 #endif //TESTSUIT_HELPERS_H
