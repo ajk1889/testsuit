@@ -1,20 +1,31 @@
 #include "FileOrString.h"
 #include "../../server/Server.h"
 
-// TODO: Use stream reading technique here
 FileOrString FileOrString::readFrom(Socket &socket, const string &boundary) {
     FileOrString fileOrString;
     auto &data = fileOrString.data;
     data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
     if (data.rfind(boundary) == string::npos) {
+        const auto boundaryLen = boundary.length();
         string filePath = params.tempDir + "/" + getRandomString(10);
         std::ofstream op(filePath);
-        while (data.rfind(boundary) == string::npos) {
-            op.write(data.c_str(), data.length());
-            data.clear();
-            data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
+        op.write(data.c_str(), data.length());
+        string lastFew(data, data.length() - (boundaryLen - 1));
+        data.clear();
+
+        char buffer[BUFFER_SIZE];
+        ssize_t bytesRead;
+        while ((bytesRead = socket.read(buffer, BUFFER_SIZE)) > 0) {
+            auto terminationPoint = find(buffer, boundary, bytesRead, lastFew);
+            if (terminationPoint == -1) {
+                op.write(buffer, bytesRead);
+                fill(buffer, lastFew, bytesRead);
+            } else {
+                op.write(buffer, terminationPoint);
+                socket.unread(buffer + terminationPoint, bytesRead - terminationPoint);
+                break;
+            }
         }
-        op.write(data.c_str(), data.length() - boundary.length());
         op.close();
         data = std::move(filePath);
         fileOrString.isFile = true;
