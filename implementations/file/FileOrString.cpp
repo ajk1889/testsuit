@@ -7,25 +7,31 @@ FileOrString FileOrString::readFrom(Socket &socket, const string &boundary) {
     data.append(readUntilMatch(socket, boundary, BYTES_TO_STORE_IN_MEMORY));
     if (data.rfind(boundary) == string::npos) {
         const auto boundaryLen = boundary.length();
+        string lastFew(data, data.length() - (boundaryLen - 1));
+
         string filePath = params.tempDir + "/" + getRandomString(10);
         std::ofstream op(filePath);
-        op.write(data.c_str(), data.length());
-        string lastFew(data, data.length() - (boundaryLen - 1));
-        data.clear();
-
         char buffer[BUFFER_SIZE];
         ssize_t bytesRead;
         while ((bytesRead = socket.read(buffer, BUFFER_SIZE)) > 0) {
             auto terminationPoint = find(buffer, boundary, bytesRead, lastFew);
             if (terminationPoint == -1) {
-                op.write(buffer, bytesRead);
+                data.append(buffer, bytesRead);
                 fill(buffer, lastFew, bytesRead);
             } else {
-                op.write(buffer, terminationPoint);
+                data.append(buffer, terminationPoint);
                 socket.unread(buffer + terminationPoint, bytesRead - terminationPoint);
                 break;
             }
+            auto dataLen = data.length();
+            if (dataLen > boundaryLen) {
+                op.write(data.c_str(), dataLen - boundaryLen);
+                data = data.substr(dataLen - boundaryLen);
+            }
         }
+        auto dataLen = data.length();
+        if (dataLen > boundaryLen)
+            op.write(data.c_str(), dataLen - boundaryLen);
         op.close();
         data = std::move(filePath);
         fileOrString.isFile = true;
