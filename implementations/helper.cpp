@@ -36,7 +36,7 @@ string urlDecode(const string &escaped, size_t length) {
     return urlDecode(copied, length);
 }
 
-inline void fill(const char (&source)[BUFFER_SIZE], string &destination, int bytesRead) {
+void fill(const char *source, string &destination, int bytesRead) {
     auto destinationLen = destination.length();
     if (destinationLen > bytesRead)
         memmove((void *) destination.c_str(), destination.c_str() + bytesRead, (destinationLen - bytesRead));

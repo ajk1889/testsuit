@@ -109,6 +109,6 @@ void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> 
 
 auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now());
 
-void fill(const char (&source)[BUFFER_SIZE], string &destination, int bytesRead);
+void fill(const char *source, string &destination, int bytesRead);
 
 #endif //TESTSUIT_HELPERS_H
