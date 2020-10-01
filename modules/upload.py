@@ -63,10 +63,13 @@ if post:
     success_msg = "<h3>Upload successful</h3>"
     if "path" in post and post["path"]:
         file_path = post["path"][0]["data"]["data"]
+        if file_path[0] == '~':
+            file_path = os.path.expanduser(file_path)
     else:
         file_path = os.getcwd()
     if "file" in post:
         save_file(post["file"][0])
+
 else:
     success_msg = ""
 response = f'''
