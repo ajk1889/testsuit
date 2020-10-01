@@ -29,32 +29,33 @@ def find_file_name(headers):
 
 
 def get_output_path(relative_path):
-    if os.path.exists(file_path) and os.path.isdir(file_path):
-        return os.path.join(file_path, relative_path)
-    elif file_path[-1] == '/':
-        os.makedirs(file_path)
-        return os.path.join(file_path, relative_path)
+    if os.path.exists(folder_path) and os.path.isdir(folder_path):
+        return os.path.join(folder_path, relative_path)
+    elif folder_path[-1] == '/':
+        os.makedirs(folder_path)
+        return os.path.join(folder_path, relative_path)
     else:
-        return file_path
+        return folder_path
 
 
 def save_file(file):
-    if file:
-        file_name = find_file_name(file["headers"])
-        if file_name == "":
-            return False
-        else:
-            file_data = file["data"]["data"]
-            if data == "":
-                return False
-            if file["data"]["isFile"]:
-                shutil.move(file_data, get_output_path(file_name))
-            else:
-                with open(get_output_path(file_name), 'wb') as op:
-                    op.write(file_data)
-            return True
+    if not file: return False
+    file_name = find_file_name(file["headers"])
+    if not file_name: return False
+    file_data = file["data"]["data"]
+    if not file_data: return False
+
+    output_path = get_output_path(file_name)
+    parent_folder = os.path.dirname(output_path)
+    if not os.path.exists(parent_folder):
+        os.makedirs(parent_folder)
+
+    if file["data"]["isFile"]:
+        shutil.move(file_data, output_path)
     else:
-        return False
+        with open(output_path, 'wb') as op:
+            op.write(file_data.encode('utf-8'))
+    return True
 
 
 data = json.loads(input().strip())
@@ -62,14 +63,18 @@ post = data["POST"]
 if post:
     success_msg = "<h3>Upload successful</h3>"
     if "path" in post and post["path"]:
-        file_path = post["path"][0]["data"]["data"]
-        if file_path[0] == '~':
-            file_path = os.path.expanduser(file_path)
+        folder_path = post["path"][0]["data"]["data"]
+        if folder_path[0] == '~':
+            folder_path = os.path.expanduser(folder_path)
     else:
-        file_path = os.getcwd()
+        folder_path = os.getcwd()
+    if "folder" in post:
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        for file_obj in post["folder"]:
+            save_file(file_obj)
     if "file" in post:
         save_file(post["file"][0])
-
 else:
     success_msg = ""
 response = f'''
