@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <chrono>
 #include "constants.h"
+#include <sys/stat.h>
 
 #define GetCurrentDir getcwd
 #endif
@@ -111,4 +112,5 @@ auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now());
 
 void fill(const char *source, string &destination, int bytesRead);
 
+bool exists(const string &path);
 #endif //TESTSUIT_HELPERS_H

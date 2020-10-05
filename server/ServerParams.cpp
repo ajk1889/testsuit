@@ -52,8 +52,7 @@ void ServerParams::initializeFrom(int argc, char **argv) {
             additionalKwargs[string(argv[i], index(argv[i], '='))] = index(argv[i], '=') + 1;
         else additionalKwargs[argv[i]];
     }
-    if (tempDir.empty())
-        tempDir = std::experimental::filesystem::temp_directory_path().string() + "/testsuit";
+    if (tempDir.empty()) tempDir = "/tmp/testsuit";
     initializeUrlMap(urlMapFile);
     std::cout << json(*this) << std::endl;
 }

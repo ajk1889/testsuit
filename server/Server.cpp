@@ -1,8 +1,6 @@
 #include "Server.h"
-#include "../implementations/utils/Process.h"
 #include "../implementations/networking/http/response/StringResponse.h"
 #include "../implementations/networking/http/response/DescriptorResponse.h"
-#include <boost/filesystem.hpp>
 #include <regex>
 #include "boost/algorithm/string.hpp"
 #include "../implementations/networking/http/response/FileResponse.h"
@@ -108,10 +106,8 @@ void Server::handleClient(const SocketPtr &socketPtr) {
 
 void Server::start() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    std::experimental::filesystem::path uploadsDir(params.tempDir);
-    if (!std::experimental::filesystem::exists(uploadsDir) &&
-        !std::experimental::filesystem::create_directory(uploadsDir))
-        throw std::runtime_error("Unable to create uploads directory");
+    if (!exists(params.tempDir))
+        system(("mkdir '" + params.tempDir + "'").c_str());
     clientAcceptor = thread([=] {
         while (isRunning) {
             auto client = serverSocket->accept({0, 1000});

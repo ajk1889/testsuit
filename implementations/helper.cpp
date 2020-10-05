@@ -153,3 +153,8 @@ void printChar(const string &tag, const char *arr, uint32_t len) {
         std::cout << arr[i];
     std::cout << "|\ncount:" << len << std::endl;
 }
+
+bool exists(const string &path) {
+    struct stat buffer;
+    return stat(path.c_str(), &buffer) == 0;
+}
