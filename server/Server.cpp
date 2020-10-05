@@ -2,7 +2,7 @@
 #include "../implementations/utils/Process.h"
 #include "../implementations/networking/http/response/StringResponse.h"
 #include "../implementations/networking/http/response/DescriptorResponse.h"
-#include <filesystem>
+#include <boost/filesystem.hpp>
 #include <regex>
 #include "boost/algorithm/string.hpp"
 #include "../implementations/networking/http/response/FileResponse.h"
@@ -36,7 +36,7 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
     auto rawMetaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
     boost::trim(rawMetaData);
     print("output: ", rawMetaData);
-    map<string, vector<string>> emptyHeader;
+    map <string, vector<string>> emptyHeader{};
     try {
         auto metaDataJson = json::parse(rawMetaData);
         if (metaDataJson["data"] == "inline") {
@@ -108,8 +108,9 @@ void Server::handleClient(const SocketPtr &socketPtr) {
 
 void Server::start() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    std::filesystem::path uploadsDir(params.tempDir);
-    if (!std::filesystem::exists(uploadsDir) && !std::filesystem::create_directory(uploadsDir))
+    std::experimental::filesystem::path uploadsDir(params.tempDir);
+    if (!std::experimental::filesystem::exists(uploadsDir) &&
+        !std::experimental::filesystem::create_directory(uploadsDir))
         throw std::runtime_error("Unable to create uploads directory");
     clientAcceptor = thread([=] {
         while (isRunning) {
