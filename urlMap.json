@@ -13,6 +13,14 @@
     ]
   },
   {
+    "path": "^/download/?.*",
+    "allowedArgs": [],
+    "command": [
+      "python3",
+      "modules/download.py"
+    ]
+  },
+  {
     "path": "^/reflect/?",
     "allowedArgs": [],
     "command": [
