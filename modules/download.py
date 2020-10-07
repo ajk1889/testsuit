@@ -30,9 +30,6 @@ def echo(code, html):
 
 def send_file(absolute_path):
     mime_type = "application/octet-stream"
-    if absolute_path.split('.')[-1] == 'html':
-        mime_type = 'text/html'
-
     response = {
         "responseCode": 206,
         "headers": {
@@ -41,8 +38,6 @@ def send_file(absolute_path):
         },
         "data": absolute_path
     }
-    if mime_type != "application/octet-stream":
-        response["headers"].pop("Content-Disposition")
     if "Range" in data["HEADERS"]:
         content_range = data["HEADERS"]["Range"][0]
         content_range = content_range[content_range.index('=') + 1:]

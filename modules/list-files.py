@@ -5,10 +5,75 @@ from html import escape
 
 base_path = os.getcwd()
 base_url = "/files"
+MAX_NAME_LEN = 30
+
+folder_row_template = '''
+<tr>
+    <td style="text-align: left;"><a href="{folder_link}" style="color:{color}">{folder_name}</a></td>
+    <td>{contents_len}</td>
+    <td><a href="{download_link}">download</a></td>
+</tr>
+'''
+
+template = '''
+<html>
+<head>
+    <title>{folder_name}</title>
+    <style>
+        td {{
+            text-align: center;
+            padding: 5px 20px;
+        }}
+        th {{
+            text-align: center;
+            padding: 5px 20px;
+        }}
+        a {{
+            font-style: normal;
+            text-decoration: none;
+        }}
+    </style>
+</head>
+<body style="font-family: sans-serif;">
+    <a href="/upload?path={folder_path}"><h3>Upload files here</h3></a>
+    <h2 style="margin-left: 30px;">Folders</h2>
+    <table style="font-size:20px;">
+        <thead>
+            <tr>
+                <th style="text-align: left;">Name</th>
+                <th>Contents</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {folder_rows}
+            {file_rows}
+        </tbody>
+    </table>
+</body>
+</html>
+'''
+
+
+def shorten(name):
+    if len(name) > MAX_NAME_LEN:
+        return name[:int(MAX_NAME_LEN / 2) - 2] + '....' + name[len(name) - int(MAX_NAME_LEN / 2) + 2:]
+    else:
+        return name
+
+
+def format_size(size):
+    prefixes = ['bytes', 'KB', 'MB', 'GB', 'TB']
+    index = 0
+    while size > 1000:
+        size /= 1024
+        index += 1
+    if index == 0:
+        return f'{size} bytes'
+    return '{size} {prefix}'.format(size='%.2f' % size, prefix=prefixes[index])
 
 
 def get_files_list(folder):
-    html = f"""<html><head><title>{folder.split('/')[-1]}</title><head><body style="font-size:20px">\n"""
     sub_files = []
     sub_folders = []
     for f in os.listdir(folder):
@@ -20,18 +85,36 @@ def get_files_list(folder):
     relative_path = "" if relative_path == "." else relative_path
 
     sub_folders.sort()
+    folder_rows = []
     for f in sub_folders:
         link = urllib.parse.quote(os.path.join(base_url, relative_path, f))
-        html += f'<a href="{link}" style="color:red">{escape(f)}</a><br/>\n'
-    if sub_folders:
-        html += "<br/>\n"
+        download_link = urllib.parse.quote(os.path.join("/download", relative_path, f))
+        folder_rows.append(folder_row_template.format(
+            folder_link=link,
+            contents_len=len(os.listdir(os.path.join(folder, f))),
+            folder_name=escape(shorten(f)),
+            download_link=download_link,
+            color='red'
+        ))
 
     sub_files.sort()
+    file_rows = []
     for f in sub_files:
         link = urllib.parse.quote(os.path.join(base_url, relative_path, f))
-        html += f'<a href="{link}" style="color:black">{escape(f)}</a><br/>\n'
-    html += '</body></html>'
-    return html
+        download_link = urllib.parse.quote(os.path.join("/download", relative_path, f))
+        file_rows.append(folder_row_template.format(
+            folder_link=link,
+            contents_len=format_size(os.stat(os.path.join(folder, f)).st_size),
+            folder_name=escape(shorten(f)),
+            download_link=download_link,
+            color='darkgreen'
+        ))
+    return template.format(
+        folder_name=os.path.dirname(folder).split('/')[-1],
+        file_rows=''.join(file_rows),
+        folder_rows=''.join(folder_rows),
+        folder_path=folder
+    )
 
 
 def echo(code, html):

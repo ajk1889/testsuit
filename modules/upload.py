@@ -77,6 +77,10 @@ if post:
         save_file(post["file"][0])
 else:
     success_msg = ""
+
+default_path = '/home/'
+if 'path' in data['GET']:
+    default_path = data['GET']['path']
 response = f'''
 <html>
     <title>Upload files</title>
@@ -84,7 +88,7 @@ response = f'''
         {success_msg}
         <form method="POST" enctype="multipart/form-data" action="/upload">
             Uploaded file store path: 
-            <input type="text" name="path" value="/home/"><br/><br/>
+            <input type="text" name="path" value="{default_path}"><br/><br/>
             File:
             <input type="file" name="file"><br/><br/>
             Folder:
