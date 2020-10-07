@@ -24,10 +24,11 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
                 outMap[disposition.name] = {};
             auto &thisItem = outMap[disposition.name];
             if (disposition.type == ContentDisposition::TYPE_FORM_DATA) {
-                thisItem.push_back({
-                                           {"headers", parsedItemHeader},
-                                           {"data",    FileOrString::readFrom(socket, realBoundary)}
-                                   });
+                json formData = {
+                        {"headers", parsedItemHeader},
+                        {"data",    FileOrString::readFrom(socket, realBoundary)}
+                };
+                thisItem.push_back(formData);
                 char next2bytes[2]{};
                 socket.read(next2bytes);
                 if (next2bytes[0] == '-' && next2bytes[1] == '-')

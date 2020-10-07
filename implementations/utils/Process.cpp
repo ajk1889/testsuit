@@ -1,3 +1,4 @@
+#include <sys/wait.h>
 #include "Process.h"
 
 shared_ptr<StreamDescriptor> Process::run(const char *input) {
@@ -26,6 +27,7 @@ shared_ptr<StreamDescriptor> Process::run(const char *input) {
         exit(execvp(command[0].c_str(), const_cast<char *const *>(args)));
     } else if (nChild > 0) {
         // parent continues here
+        signal(SIGCHLD, SIG_IGN); // ignoring child process exit signal
         close(aStdinPipe[PIPE_READ]);
         close(aStdoutPipe[PIPE_WRITE]);
         if (nullptr != input) {
