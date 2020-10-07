@@ -1,4 +1,5 @@
 import json
+import mimetypes
 import os
 import urllib.parse
 from html import escape
@@ -6,6 +7,7 @@ from html import escape
 base_path = os.getcwd()
 base_url = "/files"
 MAX_NAME_LEN = 30
+guess_mime_type = mimetypes.MimeTypes().guess_type
 
 folder_row_template = '''
 <tr>
@@ -149,19 +151,19 @@ try:
         echo(200, get_files_list(path))
         exit(0)
 
-    mimeType = "application/octet-stream"
-    if path.split('.')[-1] == 'html':
-        mimeType = 'text/html'
+    mime_type = guess_mime_type(path)[0]
+    if not mime_type:
+        mimeType = "application/octet-stream"
 
     response = {
         "responseCode": 206,
         "headers": {
-            "Content-Type": [mimeType],
+            "Content-Type": [mime_type],
             "Content-Disposition": [f'attachment; filename="{path.split("/")[-1]}"']
         },
         "data": path
     }
-    if mimeType != "application/octet-stream":
+    if mime_type != "application/octet-stream":
         response["headers"].pop("Content-Disposition")
     if "Range" in data["HEADERS"]:
         contentRange = data["HEADERS"]["Range"][0]
