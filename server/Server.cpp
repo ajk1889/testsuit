@@ -29,12 +29,10 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
                     metaDataJson.value("limit", 0ULL));
         }
     } catch (json::parse_error &e) {
-        std::cerr << "Error while parsing: " << rawMetaData << "\n"
-                  << "what: " << e.what() << std::endl;
+        printErr("Error while parsing:", rawMetaData, '\n', "what: ", e.what());
         return make_shared<DescriptorResponse>(200, descriptor);
     } catch (json::type_error &e) {
-        std::cerr << "Error while parsing: " << rawMetaData << "\n"
-                  << "what: " << e.what() << std::endl;
+        printErr("Error while parsing:", rawMetaData, '\n', "what:", e.what());
         return make_shared<DescriptorResponse>(200, descriptor);
     }
 }
@@ -60,7 +58,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
             auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);
         } catch (std::runtime_error &e) {
-            std::cerr << "Unknown error " << e.what() << std::endl;
+            printErr("Runtime Error", e.what());;
             try {
                 std::ostringstream data("<H1>Internal server error</H1>");
                 data << "<H3>Description</H3>";
@@ -68,7 +66,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
                 StringResponse response(ResponseCode::InternalServerError, data.str());
                 response.writeTo(*socketPtr);
             } catch (...) {
-                std::cerr << "Exception while handling previous exception" << std::endl;
+                printErr("Exception while handling previous exception");;
             }
         } catch (...) {
             try {
@@ -76,7 +74,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
                                         "<H1>Internal server error</H1><H3>Unknown exception</H3>");
                 response.writeTo(*socketPtr);
             } catch (...) {
-                std::cerr << "Unknown error" << std::endl;
+                printErr("Unknown error");;
             }
         }
         socketPtr->close();

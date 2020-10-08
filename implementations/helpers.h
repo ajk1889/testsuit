@@ -81,6 +81,19 @@ void print(A a, B ...b) {
     print(b...);
 }
 
+template<typename A>
+void printErr(A a) {
+    if (isLoggingDisabled()) return;
+    std::cerr << a << std::endl;
+}
+
+template<typename A, typename ...B>
+void printErr(A a, B ...b) {
+    if (isLoggingDisabled()) return;
+    std::cerr << a << ' ';
+    printErr(b...);
+}
+
 template<typename Mappable>
 void parseUrlEncodedPairs(const string &rawString, Mappable &outMap) {
     int start = 0, separator, end;

@@ -23,7 +23,7 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
         allowedParams.insert(extraCommands.cbegin(), extraCommands.cend());
         print("Url map file updated");
     } catch (...) {
-        std::cerr << "Unknown error while setting url map, no changes made" << std::endl;
+        printErr("Unknown error while setting url map, no changes made");;
     }
 }
 

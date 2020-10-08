@@ -36,11 +36,11 @@ void parseMultiPartFormData(const HttpRequest &request, const string &boundary, 
                 else socket.unread(next2bytes, 2);
                 readUntilMatch(socket, "\r\n"); // boundary's whitespaces, ignorable
             } else {
-                std::cerr << rawItemHeader << std::endl;
+                printErr("Unsupported content type", rawItemHeader);;
                 throw std::runtime_error("Unsupported content type");
             }
         } else {
-            std::cerr << rawItemHeader << std::endl;
+            printErr("Item without Content-Disposition", rawItemHeader);;
             throw std::runtime_error("Item without Content-Disposition");
         }
     }
@@ -63,7 +63,7 @@ void extractRequestDataConditionally(HttpRequest &req) {
             constexpr auto lenSearchKey = 11; // len('; boundary=')
             auto boundaryStart = contentType.find("; boundary=");
             if (boundaryStart == string::npos) {
-                std::cerr << contentType << std::endl;
+                printErr("Invalid boundary for multipart/form-data", contentType);;
                 throw std::runtime_error("Invalid boundary for multipart/form-data " + contentType);
             }
             boundaryStart += lenSearchKey;
@@ -91,7 +91,7 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     // finding HTTP Method
     size_t leftFlagPos = 0, rightFlagPos = rawHeaders.find(' ');
     if (rightFlagPos < 3 || rightFlagPos > 6) {
-        std::cerr << "Invalid request method: " << rawHeaders << std::endl;
+        printErr("Invalid request method:", rawHeaders);;
         throw std::runtime_error("Invalid request method");
     }
     req.requestType = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
@@ -99,12 +99,12 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
 
     // finding request path
     if (leftFlagPos >= headersLen) {
-        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        printErr("Invalid headers:", rawHeaders);;
         throw std::runtime_error("Invalid headers");
     }
     rightFlagPos = rawHeaders.find(' ', leftFlagPos);
     if (rightFlagPos == string::npos) {
-        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        printErr("Invalid headers:", rawHeaders);;
         throw std::runtime_error("Invalid headers");
     }
     req.path = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
@@ -117,12 +117,12 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
 
     // finding HTTP protocol version
     if (leftFlagPos >= headersLen) {
-        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        printErr("Invalid headers:", rawHeaders);;
         throw std::runtime_error("Invalid headers");
     }
     rightFlagPos = rawHeaders.find('\r', leftFlagPos);
     if (rightFlagPos == string::npos) {
-        std::cerr << "Invalid headers: " << rawHeaders << std::endl;
+        printErr("Invalid headers:", rawHeaders);;
         throw std::runtime_error("Invalid headers");
     }
     req.httpVersion = rawHeaders.substr(leftFlagPos, rightFlagPos - leftFlagPos);
@@ -130,7 +130,7 @@ HttpRequest HttpRequest::from(const shared_ptr<Socket> &client) {
     // setting HTTP-Headers
     leftFlagPos = rightFlagPos + 2;
     if (leftFlagPos >= headersLen) {
-        std::cerr << "Incomplete headers: " << rawHeaders << std::endl;
+        printErr("Incomplete headers:", rawHeaders);;
         throw std::runtime_error("Incomplete headers");
     }
     parseHttpHeader(rawHeaders.substr(leftFlagPos), req.HEADERS);
