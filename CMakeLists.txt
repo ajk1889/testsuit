@@ -14,9 +14,6 @@ add_executable(
         implementations/networking/http/request/HttpRequest.cpp
         implementations/networking/http/request/HttpRequest.h
         server/Server.cpp server/Server.h
-        implementations/Generator.cpp
-        implementations/Generator.h
-        implementations/utils/Pair.h
         implementations/networking/ServerSocket.cpp
         implementations/networking/ServerSocket.h
         implementations/networking/Socket.cpp
