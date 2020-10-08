@@ -49,13 +49,3 @@ shared_ptr<StreamDescriptor> Process::run(const char *input) {
     }
     return shared_ptr<StreamDescriptor>();
 }
-
-void Process::test() {
-    Process process = {"python3", "-c", "print(int(input())**237)"};
-    char data[1024]{};
-    data[0] = '\0';
-    auto descriptor = process.run("1820\n");
-    if (descriptor) data[descriptor->read(data, 1023)] = '\0';
-    else std::cout << "Null descriptor" << std::endl;
-    std::cout << data << std::endl;
-}

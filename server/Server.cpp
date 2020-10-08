@@ -7,29 +7,6 @@
 
 using json = nlohmann::json;
 
-void startServer() {
-    ServerSocket server;
-    shared_ptr<Socket> client;
-    while (!client) client = server.accept({0, 1000});
-    int number;
-    std::cout << client->read(number) << std::endl;
-    client->write(-81273);
-}
-
-void connectToServer() {
-    Socket socket("127.0.0.1", 1234);
-    socket.write(10000);
-    int number;
-    std::cout << socket.read(number) << std::endl;
-}
-
-void Server::test() {
-    thread server(startServer);
-    thread client(connectToServer);
-    server.join();
-    client.join();
-}
-
 shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
     auto rawMetaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
     boost::trim(rawMetaData);
@@ -73,6 +50,8 @@ const vector<string> &getCommandForPath(const string &path) {
 void Server::handleClient(const SocketPtr &socketPtr) {
     thread([=] {
         try {
+            if (params.pingMs != 0)
+                std::this_thread::sleep_for(std::chrono::milliseconds(params.pingMs));
             auto request = HttpRequest::from(socketPtr);
             Process process = getCommandForPath(request.path);
             auto input = json(request);
@@ -118,13 +97,14 @@ void Server::start() {
 }
 
 void printUnknownCommandError(const string &command, const map<string, string> &allowedParams) {
-    print("Invalid command", command);
-    print("\nALLOWED COMMANDS");
-    print("stop: ", "Stop server");
-    print("remap: ", "Reloads the URL Map file");
-    print("\nALLOWED PARAMETERS", "(Usage: `parameter=value`)");
+    std::cout << "Invalid command " << command << '\n'
+              << "\nALLOWED COMMANDS" << '\n'
+              << "stop:  " << "Stop server" << '\n'
+              << "remap:  " << "Reloads the URL Map file" << '\n'
+              << "\nALLOWED PARAMETERS " << "(Usage: `parameter=value`)" << '\n';
     for (const auto &param : allowedParams)
-        print(param.first, ":", param.second);
+        std::cout << param.first << ": " << param.second << '\n';
+    std::cout.flush();
 }
 
 void Server::execute(const string &command) {
@@ -137,30 +117,30 @@ void Server::execute(const string &command) {
             auto value = command.substr(separatorPos + 1);
             if (parameter == "maxdspeed") {
                 params.setMaxDownloadSpeed(std::stol(value));
-                print("Max download speed set to", params.getMaxDownloadSpeed());
+                std::cout << "Max download speed set to " << params.getMaxDownloadSpeed() << std::endl;
             } else if (parameter == "maxuspeed") {
                 params.setMaxUploadSpeed(std::stol(value));
-                print("Max upload speed set to", params.getMaxUploadSpeed());
+                std::cout << "Max upload speed set to " << params.getMaxUploadSpeed() << std::endl;
             } else if (parameter == "logging") {
                 params.loggingAllowed = std::stoi(value);
-                print("Logging Allowed:", params.loggingAllowed);
+                std::cout << "Logging Allowed: " << params.loggingAllowed << std::endl;
             } else if (parameter == "ping") {
                 params.pingMs = std::stol(value);
-                print("Ping changed to:", params.pingMs, "milli-seconds");
+                std::cout << "Ping changed to: " << params.pingMs << " milliseconds" << std::endl;
             } else if (parameter == "temp-dir") {
                 params.tempDir = value;
-                print("Temp dir changed to:", params.tempDir);
+                std::cout << "Temp dir changed to: " << params.tempDir << std::endl;
             } else if (parameter == "urlmap") {
                 params.initializeUrlMap(value);
-                print("URL map re-initialized from", params.urlMapFile);
+                std::cout << "URL map re-initialized from " << params.urlMapFile << std::endl;
             } else {
                 if (params.allowedParams.find(parameter) != params.allowedParams.cend()) {
                     params.additionalKwargs[parameter] = value;
-                    print(parameter, "is set to", value);
+                    std::cout << parameter << "is set to " << value << std::endl;
                 } else printUnknownCommandError(command, params.allowedParams);
             }
         } catch (...) {
-            print("Unknown error while setting argument", command);
+            std::cout << "Unknown error while setting argument " << command << std::endl;
         }
     } else printUnknownCommandError(command, params.allowedParams);
 }

@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "utils/ArrayJoiner.h"
 #include "boost/algorithm/string.hpp"
+#include "../server/ServerParams.h"
 
 string currentWorkingDir() {
     char cCurrentPath[FILENAME_MAX]{};
@@ -99,6 +100,7 @@ string readExact(StreamDescriptor &descriptor, long long nBytes) {
 }
 
 void print(const string &tag, char *str, size_t lastIndex) {
+    if (isLoggingDisabled()) return;
     if (lastIndex == 0) {
         std::cout << tag << ": ||" << std::endl;
         return;
@@ -147,7 +149,12 @@ auto preciseNow() -> decltype(std::chrono::high_resolution_clock::now()) {
     return std::chrono::high_resolution_clock::now();
 }
 
+bool isLoggingDisabled() {
+    return !params.loggingAllowed;
+}
+
 void printChar(const string &tag, const char *arr, uint32_t len) {
+    if (isLoggingDisabled()) return;
     std::cout << tag << ": |";
     for (decltype(len) i = 0U; i < len; i++)
         std::cout << arr[i];

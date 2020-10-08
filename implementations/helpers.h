@@ -6,12 +6,6 @@
 #include <map>
 #include <string>
 #include <curl/curl.h>
-
-#ifdef WINDOWS
-#include <direct.h>
-#define GetCurrentDir _getcwd
-#else
-
 #include <unistd.h>
 #include <iostream>
 #include <stdexcept>
@@ -20,7 +14,6 @@
 #include <sys/stat.h>
 
 #define GetCurrentDir getcwd
-#endif
 
 using std::string;
 using std::map;
@@ -71,15 +64,19 @@ int find(const char *hayStack, const string &key, const int hayStackLen, const s
 
 void print(const string &tag, char *str, size_t lastIndex);
 
+bool isLoggingDisabled();
+
 void printChar(const string &tag, const char *arr, uint32_t len);
 
 template<typename A>
 void print(A a) {
+    if (isLoggingDisabled()) return;
     std::cout << a << std::endl;
 }
 
 template<typename A, typename ...B>
 void print(A a, B ...b) {
+    if (isLoggingDisabled()) return;
     std::cout << a << ' ';
     print(b...);
 }
