@@ -153,7 +153,7 @@ try:
 
     mime_type = guess_mime_type(path)[0]
     if not mime_type:
-        mimeType = "application/octet-stream"
+        mime_type = "application/octet-stream"
 
     response = {
         "responseCode": 206,
