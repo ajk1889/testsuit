@@ -1,20 +1,20 @@
 # Test-suit
 A highly configurable HTTP Test server for linux built on C++.
 
-### How to use
-##### Starting Test-suit
+## How to use
+### Starting Test-suit
 - Download and extract the latest release binary from [here](https://github.com/ajk1889/testsuit/releases "Test-suit binary releases")
 - `cd` to the extracted location (or open a terminal in the extracted folder).
 - Launch testsuit by launching it directly `./testsuit`. Test-suit will run by default on port `1234`.
 
-##### Configuring Test-suit
+### Configuring Test-suit
 testsuit comes with several configuration options. testsuit accepts configuration parameters as command line arguments as well as `stdin` input.
 testsuit expects the command line/`stdin` arguments to follow this format `key=value` (example: `--maxdspeed=100`).
 Single word arguments are also supported (example: `disable-log`).<br/> 
 Here is a perfectly valid Test-suit launching command<br/>
 `./testsuit --pingMs=3000 --maxdspeed=100 base-path='/home/user/Desktop' disable-log`
 
-###### List of testsuit's `command line arguments`
+##### List of testsuit's `command line arguments`
 Key | Description | Possible values | Default value
 --- | --- | --- | ---
 --pingMs | The amount of time (in milliseconds) testsuit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) | 0 
@@ -25,7 +25,7 @@ Key | Description | Possible values | Default value
 --temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes | `/tmp/testsuit`
 disable-log | Single word argument to disable Test suit's request logging | _Not applicable_ | _Not applicable_
 
-###### List of testsuit's `stdin commands`
+##### List of testsuit's `stdin commands`
 Key | Description | Possible values
 --- | --- | ---
 pingMs | The amount of time (in milliseconds) testsuit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) 
@@ -37,7 +37,7 @@ logging | Enable/disable Test suit's request logging | 0 or 1
 remap | Single word command to reload urlMap.json file to memory | _Not applicable_
 stop | Terminates testsuit server | _Not applicable_
 
-###### Note
+##### Note
 All the command line arguments received by testsuit is forwarded to its modules along with the HTTP request's data. 
 So modules can have their own global command line arguments. For example, inbuilt module `list-files.py` accepts `base-path` as a command line argument.
 
