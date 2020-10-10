@@ -42,11 +42,11 @@ void ServerParams::initializeFrom(int argc, char **argv) {
             port = stol(index(argv[i], '=') + 1);
         else if (strstr(argv[i], "--parallelConnections=") != nullptr)
             parallelConnections = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--logging=") != nullptr)
-            loggingAllowed = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--urlMapFile=") != nullptr)
+        else if (strstr(argv[i], "disable-log") != nullptr)
+            loggingAllowed = false;
+        else if (strstr(argv[i], "--url-map=") != nullptr)
             urlMapFile = index(argv[i], '=') + 1;
-        else if (strstr(argv[i], "--tempDir=") != nullptr)
+        else if (strstr(argv[i], "--temp-dir=") != nullptr)
             tempDir = index(argv[i], '=') + 1;
         else if (strstr(argv[i], "=") != nullptr)
             additionalKwargs[string(argv[i], index(argv[i], '='))] = index(argv[i], '=') + 1;

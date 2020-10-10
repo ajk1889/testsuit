@@ -128,7 +128,7 @@ void Server::execute(const string &command) {
             } else if (parameter == "temp-dir") {
                 params.tempDir = value;
                 std::cout << "Temp dir changed to: " << params.tempDir << std::endl;
-            } else if (parameter == "urlmap") {
+            } else if (parameter == "url-map") {
                 params.initializeUrlMap(value);
                 std::cout << "URL map re-initialized from " << params.urlMapFile << std::endl;
             } else {
