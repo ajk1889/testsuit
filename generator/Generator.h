@@ -9,10 +9,6 @@
 using ULong = unsigned long long;
 
 class Generator {
-    friend void visualize();
-
-    friend void performanceTest();
-
 private:
     static Pair<ULong, int> lowerDigitChangeIndex(ULong index);
 

@@ -1,20 +1,4 @@
-#include <fstream>
 #include "Generator.h"
-#include <iostream>
-
-void write() {
-    constexpr auto bfr = 1024UL * 1024UL;
-    std::ofstream op("nums.bin", std::ios::out | std::ios::binary);
-    if (!op) throw std::runtime_error("Failed to open file");
-    Generator generator(0);
-    auto *memory = new char[bfr];
-    for (int i = 0; i < 100; ++i) {
-        generator.read(memory, bfr);
-        op.write(memory, bfr);
-    }
-    delete[] memory;
-    op.close();
-}
 
 void Generator::get(ULong start, ULong end, char *memory) {
     if (start < end) {
