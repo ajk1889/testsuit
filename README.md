@@ -2,27 +2,27 @@
 A highly configurable HTTP Test server for linux built on C++.
 
 ## How to use
-### Starting Test-suit
+### Starting Test-suit server
 - Download and extract the latest release binary from [here](https://github.com/ajk1889/testsuit/releases "Test-suit binary releases")
 - `cd` to the extracted location (or open a terminal in the extracted folder).
 - Launch Test-suit by launching it directly `./testsuit`. Test-suit will run by default on port `1234`.
 
 ### Configuring Test-suit
 Test-suit comes with several configuration options. Test-suit accepts configuration parameters as command line arguments as well as `stdin` input.
-Test-suit expects the command line/`stdin` arguments to follow this format `key=value` (example: `--maxdspeed=100`).
+Test-suit expects the `command line arguments`/`stdin commands` to follow `key=value` format (example: `--maxdspeed=100`).
 Single word arguments are also supported (example: `disable-log`).<br/> 
-Here is a perfectly valid Test-suit launching command<br/>
+Here is a perfectly valid example for a Test-suit server launching command<br/>
 `./testsuit --pingMs=3000 --maxdspeed=100 base-path='/home/user/Desktop' disable-log`
 
 ##### List of Test-suit's `command line arguments`
 Key | Description | Possible values | Default value
 --- | --- | --- | ---
---pingMs | The amount of time (in milliseconds) Test-suit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) | 0 
+--pingMs | The amount of time (in milliseconds) Test-suit should sleep after receiving an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) | 0 
 --maxdspeed | Approximate expected download speed (in KB/s) at the client's end. The actual download speed at clients end may be affected by network conditions. | Any number between 0 and 4294967296 (2^32) | 4294967296
---maxuspeed | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#descriptor-response-anomalies)_ | Any number between 0 and 4294967296 (2^32) | 4294967296
+--maxuspeed | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#problems-with-inline-response)_ | Any number between 0 and 4294967296 (2^32) | 4294967296
 --port | The port to which server should listen | 0-65536 (2^16), port should not be used by other processes | 1234
---url-map | Full path to url mapping file | A valid file path with or without quotes | `urlMap.json` in current working directory
---temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes | `/tmp/testsuit`
+--url-map | Full path to url mapping file | A valid file path with or without quotes | [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json) in current working directory
+--temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes | `/tmp/testsuit/`
 disable-log | Single word argument to disable Test suit's request logging | _Not applicable_ | _Not applicable_
 
 ##### List of Test-suit's `stdin commands`
@@ -30,7 +30,7 @@ Key | Description | Possible values
 --- | --- | ---
 pingMs | The amount of time (in milliseconds) Test-suit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) 
 maxdspeed | Approximate expected download speed (in KB/s) at the client's end. The actual download speed at clients end may be affected by network conditions. | Any number between 0 and 4294967296 (2^32)
-maxuspeed | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#descriptor-response-anomalies)_ | Any number between 0 and 4294967296 (2^32)
+maxuspeed | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#problems-with-inline-response)_ | Any number between 0 and 4294967296 (2^32)
 url-map | Full path to url mapping file | A valid file path with or without quotes
 temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes
 logging | Enable/disable Test suit's request logging | 0 or 1
@@ -39,22 +39,22 @@ stop | Terminates Test-suit server | _Not applicable_
 
 ##### Note
 All the command line arguments received by Test-suit is forwarded to its modules along with the HTTP request's data. 
-So modules can have their own global command line arguments. For example, inbuilt module `list-files.py` accepts `base-path` as a command line argument.
+So modules can have their own global command line arguments. For example, inbuilt module [list-files.py](https://github.com/ajk1889/testsuit/blob/master/modules/list-files.py) accepts `base-path` as a command line argument.
 
 ## Building modules
 ### Concept of modules in Test-suit
-Upon receiving an HTTP request, test-suit server iterates through the contents of URL mapping file (`urlMap.json`) until it finds a `regex` that matches the request path.
+Upon receiving an HTTP request, test-suit server iterates through the contents of URL mapping file ([urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json)) until it finds a `regex` that matches the request path.
 It then runs the OS command corresponding to the matched `regex` as a forked process and writes the full information about the request and Test-suit's global parameters to its `stdin`.
 The forked process's input data will be encoded as `json` ([Data format specification](#input-data-to-modules)). 
-The process is expected to write result in a format defined [here](#expected-os-command-stdout-output-format) to its `stdout`.
+The process is expected to write result in a format defined [here](#expected-response-from-modules) to its `stdout`.
 
-An OS command that accepts input from Test-suit and return a response in valid format ([defined here](#expected-os-command-stdout-output-format)) is called a module. Modules are free to ignore the response `json` written to their `stdin` if is not required for their operation.
+An OS command that accepts input from Test-suit and return a response in valid format ([defined here](#expected-response-from-modules)) is called a module. Modules are free to ignore the response `json` written to their `stdin` if is not required for their operation.
 
 This architecture allows programmers to write custom modules that execute tasks of their requirement and unloads all the low level aspects of networking to the kernel.
-Building a module for Test-suit is simple. It is discussed [here](#how-to-build-a-test-suit-module)
+Building a module for Test-suit is simple. It is discussed [here](#building-modules)
 
 **Note:** 
-- `urlMap.json` is not read every time Test-suit receives an HTTP request. Loads url-map to memory during following cases
+- [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json) is not read every time Test-suit receives an HTTP request. Loads url-map to memory during following cases
   - Test-suit initialization (when program is started)
   - `url-map` path update using `stdin command`
   - Issue of `remap` `stdin command`
@@ -62,8 +62,8 @@ Building a module for Test-suit is simple. It is discussed [here](#how-to-build-
 
 ### Input data to modules
 The data written to `stdin` of process (executed OS command) will be a single line minified `json` string.
-The string will be followed by a new line character (`\n`) so that most programs flushes their `stdin`. 
-i.e. python interpreter will wait (and store input data to buffer) until its data written to its `stdin` encounters a new line character.  
+The string will be followed by a `new line character` (`\n`) so that most programs flushes their `stdin`. 
+i.e. python interpreter will wait (and store input data to buffer) until its data written to its `stdin` encounters a `new line character` (`\n`).  
 
 Here is a sample `request data json` written to process's `stdin`. 
 _Content is formatted for readability; actual data will be minified_
@@ -226,9 +226,9 @@ A sample `text/plain` `POST` object will look like this
  ```
 
 
-### Expected responses from modules
+### Expected response from modules
 Modules are expected to print the result directly to its `stdout`. 
-The expected output is essentially a single line minified json containing metadata of the actual response, two `next line character`s (`\n`) and the actual raw response content (if any).
+The expected output is essentially a single line minified json containing metadata of the actual response, two `new line character`s (`\n`) and the actual raw response content (if any).
  
 Here is a sample response metadata `json`. (_**Note:** the `json` is formatted for readability. Actual response should be single line_)
 ```json
@@ -278,5 +278,54 @@ _**Note:** the `json` is formatted for readability. Actual response should be si
 }
 ```
 
-**Note:** When `data` is set to a file path, modules need not write anything to its `stdout` other than the metadata and 2 trailing `next line character`s (`\n`).
+**Note:** When `data` is set to a file path, modules need not write anything to its `stdout` other than the metadata and 2 trailing `new line character`s (`\n`).
 Any more data written to stdout will not be read by Test-suit. 
+
+##### Problems with inline response
+1. Test-suit uses a single interface ([StreamDescriptor](https://github.com/ajk1889/testsuit/blob/master/implementations/file/StreamDescriptor.h)) for reading and writing to streams. 
+This applies to Processes (executed OS commands) as well as network sockets.
+Since this interface is responsible for managing upload & download speed, inter-process communication is also affected by `maxuspeed` and `maxdspeed` configurations.
+So, maximum download speed for a direct `inline` response from a process will be minimum of `maxuspeed` and `maxdspeed`.<br/>
+This speed doesn't affect reading & writing files as it is done through a separate interface (`std::ifstream`).
+2. Test-suit kernel is not capable of handling `Content-Range` for `inline` response. 
+Modules will need to handle the `Range` header field themselves. 
+Modules are free to ignore it and reply with normal `Content-Length` only response. But this leads to poor user experience
+
+##### When to use `inline` mode?
+- When the response content is not an existing file and is dynamically generated<br/>
+For tasks such as direct downloading a folder by zipping it, response is dynamically generated.
+The alternative method will be to zip the folder to a temp file upon receiving a request and return a file response.
+But that approach has downsides like storage space limits and high ping time (may cause request timeouts).
+So `inline` mode is preferred in such conditions.
+- When the response data size is too small and response content is already in memory<br/>
+If the size of response data is less and content is already in memory, 
+`inline` method is preferred even if a file exists with same content.
+This is because in-memory data transaction is faster than disk IO.
+
+### Adding module to [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json)
+[urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json) is a file that maps HTTP request path to an OS command (module).
+It contains a list of `mapping object`s. Its format will be described later in this section.
+A `mapping object` may also contain the `stdin commands` that are acceptable for the module.<br/>
+This is an example `mapping object`.
+```json
+{
+  "path": "^/files/?.*",
+  "allowedArgs": [{
+    "arg": "base-path",
+    "description": "Absolute path to the base shared directory"
+  }],
+  "command": [
+    "python3",
+    "modules/list-files.py"
+  ]
+}
+```
+`path` is a `regex` which will be tested for complete case-insensitive match with the HTTP request path.
+Note that HTTP request path will not contain any GET parameters.
+
+`allowedArgs` is a list of information about `stdin command`s that are acceptable for this module. 
+Its contents are self explanatory in the given example.
+
+`command` is a list representing the OS command to execute when an HTTP request matching `path` is received.
+The first item of `command` list will be passed to [execvp](https://man7.org/linux/man-pages/man3/execvp.3p.html) as file to execute and the whole list will be passed as command line argument to the program.
+Therefore, modules should not assume first entry in their command line arguments is the executing file name.
