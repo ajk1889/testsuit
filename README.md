@@ -240,7 +240,7 @@ Here is a sample response metadata `json`. (_**Note:** the `json` is formatted f
 }
 ```
 
-##### Explanation for keys in response metadata
+#### Explanation for keys in response metadata
 - **responseCode**: A valid HTTP response code number to be sent to the client for this request.
 - **headers**: A `string` to `string[]` mapping of header values to be sent to the client. 
  This field isn't mandatory. Default values will be supplied if `headers` field is blank or non-existent
@@ -248,7 +248,7 @@ Here is a sample response metadata `json`. (_**Note:** the `json` is formatted f
 - **data**: The value should be either `inline` to indicate that the full response content will be printed directly to `stdin`
  or a valid path to a file whose content should be treated as the response content.
 
-##### Handling huge response data
+#### Handling huge response data
 For sending responses like a contents of an existing file, `data` field can be used to point the file path 
 instead setting `"data": "inline"` and writing contents directly to process's `stdout`. 
 A notable advantage of this approach is that Test-suit server itself manages `partial content` responses.
@@ -260,7 +260,7 @@ For Test-suit to manage partial data response, the process is expected to do the
 - Set `Content-Type` and `Content-Disposition` header parameters if required.
  Note that modules are **NOT** required to add `Content-Range` in the response header metadata object when using `offset` and `limit` keys.
 
-###### A sample file response metadata
+##### A sample file response metadata
 _**Note:** the `json` is formatted for readability. Actual response should be single line_
 ```json
 {
@@ -281,7 +281,7 @@ _**Note:** the `json` is formatted for readability. Actual response should be si
 **Note:** When `data` is set to a file path, modules need not write anything to its `stdout` other than the metadata and 2 trailing `new line character`s (`\n`).
 Any more data written to stdout will not be read by Test-suit. 
 
-##### Problems with inline response
+#### Problems with inline response
 1. Test-suit uses a single interface ([StreamDescriptor](https://github.com/ajk1889/testsuit/blob/master/implementations/file/StreamDescriptor.h)) for reading and writing to streams. 
 This applies to Processes (executed OS commands) as well as network sockets.
 Since this interface is responsible for managing upload & download speed, inter-process communication is also affected by `maxuspeed` and `maxdspeed` configurations.
@@ -291,7 +291,7 @@ This speed doesn't affect reading & writing files as it is done through a separa
 Modules will need to handle the `Range` header field themselves. 
 Modules are free to ignore it and reply with normal `Content-Length` only response. But this leads to poor user experience
 
-##### When to use `inline` mode?
+#### When to use `inline` mode?
 - When the response content is not an existing file and is dynamically generated<br/>
 For tasks such as direct downloading a folder by zipping it, response is dynamically generated.
 The alternative method will be to zip the folder to a temp file upon receiving a request and return a file response.
