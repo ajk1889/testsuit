@@ -45,6 +45,14 @@
     ]
   },
   {
+    "path": "^/$",
+    "allowedArgs": [],
+    "command": [
+      "echo",
+      "{\"responseCode\": 302, \"headers\": {\"Location\": [\"/files/\"]}, \"length\": 23, \"data\": \"inline\"}\n\n<h1>File not found</h1>"
+    ]
+  },
+  {
     "path": ".*",
     "allowedArgs": [],
     "command": [

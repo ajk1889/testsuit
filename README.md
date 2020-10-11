@@ -5,19 +5,19 @@ A highly configurable HTTP Test server for linux built on C++.
 ### Starting Test-suit
 - Download and extract the latest release binary from [here](https://github.com/ajk1889/testsuit/releases "Test-suit binary releases")
 - `cd` to the extracted location (or open a terminal in the extracted folder).
-- Launch testsuit by launching it directly `./testsuit`. Test-suit will run by default on port `1234`.
+- Launch Test-suit by launching it directly `./testsuit`. Test-suit will run by default on port `1234`.
 
 ### Configuring Test-suit
-testsuit comes with several configuration options. testsuit accepts configuration parameters as command line arguments as well as `stdin` input.
-testsuit expects the command line/`stdin` arguments to follow this format `key=value` (example: `--maxdspeed=100`).
+Test-suit comes with several configuration options. Test-suit accepts configuration parameters as command line arguments as well as `stdin` input.
+Test-suit expects the command line/`stdin` arguments to follow this format `key=value` (example: `--maxdspeed=100`).
 Single word arguments are also supported (example: `disable-log`).<br/> 
 Here is a perfectly valid Test-suit launching command<br/>
 `./testsuit --pingMs=3000 --maxdspeed=100 base-path='/home/user/Desktop' disable-log`
 
-##### List of testsuit's `command line arguments`
+##### List of Test-suit's `command line arguments`
 Key | Description | Possible values | Default value
 --- | --- | --- | ---
---pingMs | The amount of time (in milliseconds) testsuit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) | 0 
+--pingMs | The amount of time (in milliseconds) Test-suit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) | 0 
 --maxdspeed | Approximate expected download speed (in KB/s) at the client's end. The actual download speed at clients end may be affected by network conditions. | Any number between 0 and 4294967296 (2^32) | 4294967296
 --maxuspeed | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#descriptor-response-anomalies)_ | Any number between 0 and 4294967296 (2^32) | 4294967296
 --port | The port to which server should listen | 0-65536 (2^16), port should not be used by other processes | 1234
@@ -25,20 +25,20 @@ Key | Description | Possible values | Default value
 --temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes | `/tmp/testsuit`
 disable-log | Single word argument to disable Test suit's request logging | _Not applicable_ | _Not applicable_
 
-##### List of testsuit's `stdin commands`
+##### List of Test-suit's `stdin commands`
 Key | Description | Possible values
 --- | --- | ---
-pingMs | The amount of time (in milliseconds) testsuit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) 
+pingMs | The amount of time (in milliseconds) Test-suit should sleep after getting an HTTP request. OS command will be executed only after this sleep is completed. This simulates `ping`. | Any number between 0 and 4294967296 (2^32) 
 maxdspeed | Approximate expected download speed (in KB/s) at the client's end. The actual download speed at clients end may be affected by network conditions. | Any number between 0 and 4294967296 (2^32)
 maxuspeed | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#descriptor-response-anomalies)_ | Any number between 0 and 4294967296 (2^32)
 url-map | Full path to url mapping file | A valid file path with or without quotes
 temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes
 logging | Enable/disable Test suit's request logging | 0 or 1
 remap | Single word command to reload urlMap.json file to memory | _Not applicable_
-stop | Terminates testsuit server | _Not applicable_
+stop | Terminates Test-suit server | _Not applicable_
 
 ##### Note
-All the command line arguments received by testsuit is forwarded to its modules along with the HTTP request's data. 
+All the command line arguments received by Test-suit is forwarded to its modules along with the HTTP request's data. 
 So modules can have their own global command line arguments. For example, inbuilt module `list-files.py` accepts `base-path` as a command line argument.
 
 ## Building modules
@@ -54,7 +54,7 @@ This architecture allows programmers to write custom modules that execute tasks 
 Building a module for Test-suit is simple. It is discussed [here](#how-to-build-a-test-suit-module)
 
 **Note:** 
-- `urlMap.json` is not read every time testsuit receives an HTTP request. Loads url-map to memory during following cases
+- `urlMap.json` is not read every time Test-suit receives an HTTP request. Loads url-map to memory during following cases
   - Test-suit initialization (when program is started)
   - `url-map` path update using `stdin command`
   - Issue of `remap` `stdin command`
@@ -69,53 +69,165 @@ Here is a sample `request data json` written to process's `stdin`.
 _Content is formatted for readability; actual data will be minified_
 ```json
 {
-    "httpVersion":"HTTP/1.1",
-    "path":"/search",
-    "requestType":"POST",
-    "GET":{
-      "param1":"value1",
-      "param2":"value2",
-      "param3":"value3"
+  "httpVersion": "HTTP/1.1",
+  "path": "/search",
+  "requestType": "POST",
+  "GET": {
+    "param1": "value1",
+    "param2": "value2",
+    "param3": "value3"
+  },
+  "HEADERS": {
+    "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"],
+    "Accept-Encoding": ["gzip, deflate, br"],
+    "Accept-Language": ["en-US,en;q=0.9"],
+    "Cache-Control": ["max-age=0"],
+    "Connection": ["keep-alive"],
+    "Content-Length": ["70"],
+    "Content-Type": ["application/x-www-form-urlencoded"],
+    "Host": ["localhost:1234"],
+    "Origin": ["null"],
+    "Sec-Fetch-Dest": ["document"],
+    "Sec-Fetch-Mode": ["navigate"],
+    "Sec-Fetch-Site": ["cross-site"],
+    "Sec-Fetch-User": ["?1"],
+    "Upgrade-Insecure-Requests": ["1"],
+    "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"]
+  },
+  "POST": {
+    "key1": "sample single text string",
+    "key2": "sample multiline\r\ninput string"
+  },
+  "applicationParams": {
+    "additionalKwargs": {
+      "base-path": "/home/"
     },
-    "HEADERS":{
-      "Accept":["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"],
-      "Accept-Encoding":["gzip, deflate, br"],
-      "Accept-Language":["en-US,en;q=0.9"],
-      "Cache-Control":["max-age=0"],
-      "Connection":["keep-alive"],
-      "Content-Length":["70"],
-      "Content-Type":["application/x-www-form-urlencoded"],
-      "Host":["localhost:1234"],
-      "Origin":["null"],
-      "Sec-Fetch-Dest":["document"],
-      "Sec-Fetch-Mode":["navigate"],
-      "Sec-Fetch-Site":["cross-site"],
-      "Sec-Fetch-User":["?1"],
-      "Upgrade-Insecure-Requests":["1"],
-      "User-Agent":["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"]
-    },
-    "POST":{
-      "key1":"sample single text string",
-      "key2":"sample multiline\r\ninput string"
-    },
-    "applicationParams":{
-      "additionalKwargs":{
-        "base-path": "/home/"
-      },
-      "loggingAllowed":true,
-      "maxDownloadSpeed":4294967295,
-      "maxUploadSpeed":4294967295,
-      "parallelConnections":10,
-      "pingMs":0,
-      "port":1234,
-      "tempDir":"/tmp/testsuit",
-      "urlMapFile":"/home/ajk/CLionProjects/testsuit/urlMap.json"
-    }
+    "loggingAllowed": true,
+    "maxDownloadSpeed": 4294967295,
+    "maxUploadSpeed": 4294967295,
+    "parallelConnections": 10,
+    "pingMs": 0,
+    "port": 1234,
+    "tempDir": "/tmp/testsuit",
+    "urlMapFile": "/home/ajk/CLionProjects/testsuit/urlMap.json"
   }
-  ```
+}
+```
+> **Note:**: For easiness of communication, sub-objects are represented using dot operators and array indexing. 
+> i.e. value of `applicationParams.additionalKwargs.base-path` is `/home/` in the above example
+> similarly value of `HEADERS.Host[0]` is `localhost:1234` here.
+
+Most of the keys in the above example are self explanatory. 
+
+As already discussed, the input data will contain application parameters 
+(key and value of `command line arguments` and `stdin commands` and values for default parameters) inside `applicationsParams` object.
+Test-suit's own parameters will reside directly inside `applicationParams` and
+parameters of its installed modules can be found inside the sub-object `applicationParams.additionalKwargs`.
+
+`HEADERS` object is a `string` to `string[]` map to support multiple occurrences of same header field in the request.
+i.e. if the same header key repeats in the HTTP request, the array will contain values of both they keys in headers. 
+The order in which they appear in headers is preserved in the `json array`.
+
+As HTTP supports multiple `enctypes` for `POST` data, the type of `POST` `json object` may vary as follows.
+
+##### application/x-www-form-urlencoded
+If `Content-Type` field in HTTP request headers is `application/x-www-form-urlencoded`, the `POST` data in that request will be parsed and encoded to `json` in the following format.<br/>
+The `POST` object will be a `string` to `string` key value map, with both key and value url decoded.<br/>
+A sample `application/x-www-form-urlencoded` `POST` object will look like this
+```json
+{
+  "key1": "sample single text string",
+  "key2": "sample multiline\r\ninput string"
+}
+```
+
+##### multipart/form-data
+The post data will be parsed as `multipart/form-data` if value of `Content-Type` in HTTP headers is something like<br/>
+`multipart/form-data; boundary=----WebKitFormBoundary3gJk0Q552rEzGh3p`<br/>
+In some cases, the contents of HTTP request may be too large and therefore Test-suit may write it to a temp file and include its path in the `json` data instead of full `POST` content.
+Since each `POST` key in multi-part form data can contain its own headers, the headers will be included in `POST` `json` object as well.<br/>
+Here is a sample `multipart/form-data` `POST` object.
+```json
+{
+  "file": [{
+    "data": {
+      "data": "/tmp/testsuit/jy0868acx2",
+      "isFile": true
+    },
+    "headers": {
+      "Content-Disposition": ["form-data; name=\"file\"; filename=\"a.bin\""],
+      "Content-Type": ["application/octet-stream"]
+    }
+  }],
+  "folder": [{
+      "data": {
+        "data": "/tmp/testsuit/eve8nmoigs",
+        "isFile": true
+      },
+      "headers": {
+        "Content-Disposition": ["form-data; name=\"folder\"; filename=\"testsuit/testsuit\""],
+        "Content-Type": ["application/octet-stream"]
+      }
+    },
+    {
+      "data": {
+        "data": "[\n  {\n    \"path\": \"^/files/?.*\",\n    \"allowedArgs\": [\n      {\n        \"arg\": \"base-path\",\n        \"description\": \"Absolute path to the base shared directory\"\n      }\n    ],\n    \"command\": [\n      \"python3\",\n      \"modules/list-files.py\"\n    ]\n  },\n  {\n    \"path\": \"^/download/?.*\",\n    \"allowedArgs\": [],\n    \"command\": [\n      \"python3\",\n      \"modules/download.py\"\n    ]\n  },\n  {\n    \"path\": \"^/reflect/?\",\n    \"allowedArgs\": [],\n    \"command\": [\n      \"python3\",\n      \"-c\",\n      \"import json\\ninp=input()\\nprint(json.dumps({\\\"data\\\":\\\"inline\\\",\\\"length\\\": len(inp), \\\"headers\\\": {\\\"Content-Type\\\": [\\\"application/json\\\"]}})+'\\\\n\\\\n'+inp)\"\n    ]\n  },\n  {\n    \"path\": \"^/upload/?\",\n    \"allowedArgs\": [],\n    \"command\": [\n      \"python3\",\n      \"modules/upload.py\"\n    ]\n  },\n  {\n    \"path\": \"^/$\",\n    \"allowedArgs\": [],\n    \"command\": [\n      \"echo\",\n      \"{\\\"responseCode\\\": 302, \\\"headers\\\": {\\\"Location\\\": [\\\"/files/\\\"]}, \\\"length\\\": 23, \\\"data\\\": \\\"inline\\\"}\\n\\n<h1>File not found</h1>\"\n    ]\n  },\n  {\n    \"path\": \".*\",\n    \"allowedArgs\": [],\n    \"command\": [\n      \"echo\",\n      \"{\\\"responseCode\\\": 404, \\\"headers\\\": {\\\"Content-Type\\\": [\\\"text/html\\\"]}, \\\"length\\\": 23, \\\"data\\\": \\\"inline\\\"}\\n\\n<h1>File not found</h1>\"\n    ]\n  }\n]",
+        "isFile": false
+      },
+      "headers": {
+        "Content-Disposition": ["form-data; name=\"folder\"; filename=\"testsuit/urlMap.json\""],
+        "Content-Type": ["application/json"]
+      }
+    },
+    {
+      "data": {
+        "data": "/tmp/testsuit/z9fxqqqvjj",
+        "isFile": true
+      },
+      "headers": {
+        "Content-Disposition": ["form-data; name=\"folder\"; filename=\"testsuit/modules/upload.py\""],
+        "Content-Type": ["text/x-python"]
+      }
+    }
+  ],
+  "path": [{
+    "data": {
+      "data": "/home/ajk/Desktop/",
+      "isFile": false
+    },
+    "headers": {
+      "Content-Disposition": ["form-data; name=\"path\""]
+    }
+  }]
+}
+```
+ 
+Here `file`, `folder` and `path` are all keys in the POST data. 
+For sake of simplicity, lets call objects corresponding to those keys as `form-data objects`. 
+Every `POST` key can have more than one `form-data object`s. This lets Test-suit server support folder upload from browser. 
+Here `POST.folder` contains 3 `form-data object`s.<br/>
+###### Explanation of `form-data object`s
+Every `form-data object` contains two keys: `data` representing the actual content of that key, and `headers` representing its metadata.
+
+`data` key is guaranteed to contain two keys `data.data` and `data.isFile`. 
+- For small request contents, `data.data` itself will hold the whole content. In that case, `data.isFile` will be false. 
+- For large request contents, `data.data` hold the absolute path of the temp file to which content is written. 
+To identify that the content should be read from the file, `data.isFile` will be true in that case. 
+
+##### text/plain
+For `text/plain` the data is completely read either to the memory or to a file. 
+The `POST` `json` is same as a single `POST.key[index].data` entry in encoding for [multipart/form-data](#multipartform-data).<br/>
+A sample `text/plain` `POST` object will look like this
+ ```json
+{
+  "data": "/tmp/testsuit/z9fxqqqvjj",
+  "isFile": true
+}
+ ```
+
 
 ### Expected OS Command stdout output format
-The executing OS command is expectued to output a JSON of following format to stdout.
+The executing OS command is expected to output a JSON of following format to stdout.
 ```json
 {
   "responseCode": 200,
