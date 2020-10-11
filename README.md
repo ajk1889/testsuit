@@ -109,7 +109,7 @@ _Content is formatted for readability; actual data will be minified_
     "pingMs": 0,
     "port": 1234,
     "tempDir": "/tmp/testsuit",
-    "urlMapFile": "/home/ajk/CLionProjects/testsuit/urlMap.json"
+    "urlMapFile": "/home/user/urlMap.json"
   }
 }
 ```
@@ -192,7 +192,7 @@ Here is a sample `multipart/form-data` `POST` object.
   ],
   "path": [{
     "data": {
-      "data": "/home/ajk/Desktop/",
+      "data": "/home/user/Desktop/",
       "isFile": false
     },
     "headers": {
@@ -206,16 +206,16 @@ Here `file`, `folder` and `path` are all keys in the POST data.
 For sake of simplicity, lets call objects corresponding to those keys as `form-data objects`. 
 Every `POST` key can have more than one `form-data object`s. This lets Test-suit server support folder upload from browser. 
 Here `POST.folder` contains 3 `form-data object`s.<br/>
-###### Explanation of `form-data object`s
+###### About `form-data object`s
 Every `form-data object` contains two keys: `data` representing the actual content of that key, and `headers` representing its metadata.
 
 `data` key is guaranteed to contain two keys `data.data` and `data.isFile`. 
-- For small request contents, `data.data` itself will hold the whole content. In that case, `data.isFile` will be false. 
-- For large request contents, `data.data` hold the absolute path of the temp file to which content is written. 
-To identify that the content should be read from the file, `data.isFile` will be true in that case. 
+- For small request contents (less than 2048 bytes), `data.data` itself will hold the whole content. In that case, `data.isFile` will be false. 
+- For large request contents, `data.data` hold the absolute path of the temp file to which the content was written. 
+ To identify that the content should be read from a file, `data.isFile` will be true. 
 
 ##### text/plain
-For `text/plain` the data is completely read either to the memory or to a file. 
+For `text/plain` `POST` requests, the data is read either to the memory or to a file, similar to `multipart/form-data`. 
 The `POST` `json` is same as a single `POST.key[index].data` entry in encoding for [multipart/form-data](#multipartform-data).<br/>
 A sample `text/plain` `POST` object will look like this
  ```json
@@ -226,8 +226,11 @@ A sample `text/plain` `POST` object will look like this
  ```
 
 
-### Expected OS Command stdout output format
-The executing OS command is expected to output a JSON of following format to stdout.
+### Expected responses from modules
+Modules are expected to print the result directly to its `stdout`. 
+The expected output is essentially a single line minified json containing metadata of the actual response, two `next line character`s (`\n`) and the actual raw response content (if any).
+ 
+Here is a sample response metadata `json`. (_**Note:** the `json` is formatted for readability. Actual response should be single line_)
 ```json
 {
   "responseCode": 200,
@@ -236,7 +239,44 @@ The executing OS command is expected to output a JSON of following format to std
   "data": "inline"
 }
 ```
-Followed by 2 next line character (`\n`) and the data to be delivered to client. OS commands are free to write the content to any required file and share the file to the client by setting `"data": "/absolute/path/to/file"`
 
-explanation for all keys will be added later.
+##### Explanation for keys in response metadata
+- **responseCode**: A valid HTTP response code number to be sent to the client for this request.
+- **headers**: A `string` to `string[]` mapping of header values to be sent to the client. 
+ This field isn't mandatory. Default values will be supplied if `headers` field is blank or non-existent
+- **length**: The expected length of the response. This field is mandatory if value of `data` key is `inline`.
+- **data**: The value should be either `inline` to indicate that the full response content will be printed directly to `stdin`
+ or a valid path to a file whose content should be treated as the response content.
 
+##### Handling huge response data
+For sending responses like a contents of an existing file, `data` field can be used to point the file path 
+instead setting `"data": "inline"` and writing contents directly to process's `stdout`. 
+A notable advantage of this approach is that Test-suit server itself manages `partial content` responses.
+For Test-suit to manage partial data response, the process is expected to do the following.
+- Set `"responseCode": 206` (to adhere to HTTP standards) in metadata
+- Add an additional key `offset` indicating the byte offset from which the file should be read. The byte at position `offset` is included in response.
+- Optionally, add an additional key `limit` indicating the index of last byte to be read in the file (**inclusive**). 
+ If `limit` is not provided, or if `limit` is set to 0, the file will be read until end.
+- Set `Content-Type` and `Content-Disposition` header parameters if required.
+ Note that modules are **NOT** required to add `Content-Range` in the response header metadata object when using `offset` and `limit` keys.
+
+###### A sample file response metadata
+_**Note:** the `json` is formatted for readability. Actual response should be single line_
+```json
+{
+  "responseCode": 206,
+  "headers": {
+    "Content-Type": [
+      "application/octet-stream"
+    ],
+    "Content-Disposition": [
+      "attachment; filename=\"file.pdf\""
+    ]
+  },
+  "data": "/home/user/file.pdf",
+  "offset": 166667
+}
+```
+
+**Note:** When `data` is set to a file path, modules need not write anything to its `stdout` other than the metadata and 2 trailing `next line character`s (`\n`).
+Any more data written to stdout will not be read by Test-suit. 
