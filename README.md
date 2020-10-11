@@ -96,7 +96,7 @@ _Content is formatted for readability; actual data will be minified_
   },
   "POST": {
     "key1": "sample single text string",
-    "key2": "sample multiline\r\ninput string"
+    "key2": "sample multi-line\r\ninput string"
   },
   "applicationParams": {
     "additionalKwargs": {
@@ -137,7 +137,7 @@ A sample `application/x-www-form-urlencoded` `POST` object will look like this
 ```json
 {
   "key1": "sample single text string",
-  "key2": "sample multiline\r\ninput string"
+  "key2": "sample multi-line\r\ninput string"
 }
 ```
 
