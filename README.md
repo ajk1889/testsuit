@@ -24,6 +24,7 @@ Key | Description | Possible values | Default value
 --url-map | Full path to url mapping file | A valid file path with or without quotes | [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json) in current working directory
 --temp-dir | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes | `/tmp/testsuit/`
 disable-log | Single word argument to disable Test suit's request logging | _Not applicable_ | _Not applicable_
+disable-stdin | Single word argument to disable accepting commands from `stdin`. If this parameter is passed, [Test-suit's `stdin commands`](#list-of-test-suits-stdin-commands) will no longer work | _Not applicable_ | _Not applicable_
 
 ##### List of Test-suit's `stdin commands`
 Key | Description | Possible values
