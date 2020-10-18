@@ -50,7 +50,7 @@ void ServerParams::initializeFrom(int argc, char **argv) {
             urlMapFile = index(argv[i], '=') + 1;
         else if (strstr(argv[i], "--temp-dir=") == argv[i])
             tempDir = index(argv[i], '=') + 1;
-        else if (strstr(argv[i], "=") == argv[i])
+        else if (strstr(argv[i], "=") != nullptr)
             additionalKwargs[string(argv[i], index(argv[i], '='))] = index(argv[i], '=') + 1;
         else additionalKwargs[argv[i]];
     }

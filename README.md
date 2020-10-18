@@ -74,9 +74,9 @@ _Content is formatted for readability; actual data will be minified_
   "path": "/search",
   "requestType": "POST",
   "GET": {
-    "param1": "value1",
-    "param2": "value2",
-    "param3": "value3"
+    "param1": ["value1"], 
+    "param2": ["value for name='param2'", "value for second occurrence of name='param2'"],
+    "param3": ["value3"]
   },
   "HEADERS": {
     "Accept": ["text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9"],
@@ -96,8 +96,8 @@ _Content is formatted for readability; actual data will be minified_
     "User-Agent": ["Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36"]
   },
   "POST": {
-    "key1": "sample single text string",
-    "key2": "sample multi-line\r\ninput string"
+    "key1": ["sample multi-line\r\ninput string"],
+    "key2": ["sample single text string", "another text for same POST key ('key2')"]
   },
   "applicationParams": {
     "additionalKwargs": {
@@ -129,16 +129,19 @@ parameters of its installed modules can be found inside the sub-object `applicat
 i.e. if the same header key repeats in the HTTP request, the array will contain values of both they keys in headers. 
 The order in which they appear in headers is preserved in the `json array`.
 
+Since there can be multiple values with same name in `GET` parameters, the `GET` object in the `json` supplied to `stdin` will be a `string` to `array of strings` map. 
+
 As HTTP supports multiple `enctypes` for `POST` data, the type of `POST` `json object` may vary as follows.
 
 ##### application/x-www-form-urlencoded
 If `Content-Type` field in HTTP request headers is `application/x-www-form-urlencoded`, the `POST` data in that request will be parsed and encoded to `json` in the following format.<br/>
-The `POST` object will be a `string` to `string` key value map, with both key and value url decoded.<br/>
+The `POST` object will be a `string` to `array of strings` key value map, with both key and value **url decoded** in the `json`.
+The `value` object is encoded as an `array of strings` to accommodate multiple values with same name in `POST` data<br/>
 A sample `application/x-www-form-urlencoded` `POST` object will look like this
 ```json
 {
-  "key1": "sample single text string",
-  "key2": "sample multi-line\r\ninput string"
+  "key1": ["sample multi-line\r\ninput string"],
+  "key2": ["sample single text string", "A sample 2nd value for 'key2'"]
 }
 ```
 

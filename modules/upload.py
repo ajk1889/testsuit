@@ -63,11 +63,11 @@ data = json.loads(input().strip())
 post = data["POST"]
 default_path = '/home/'
 if 'path' in data['GET']:
-    default_path = data['GET']['path']
+    default_path = data['GET']['path'][0]
 
 if post:
     try:
-        success_msg = f"<script>window.location='{data['GET']['redirect']}'</script>"
+        success_msg = f"<script>window.location='{data['GET']['redirect'][0]}'</script>"
     except:
         success_msg = "<H3>Upload successful</H3>"
     if "path" in post and post["path"]:
@@ -87,7 +87,7 @@ else:
     success_msg = ""
 
 try:
-    redirect = f"&redirect={urllib.parse.quote(data['GET']['redirect'])}"
+    redirect = f"&redirect={urllib.parse.quote(data['GET']['redirect'][0])}"
 except:
     redirect = ''
 
