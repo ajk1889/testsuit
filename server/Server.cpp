@@ -81,7 +81,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
     }).detach();
 }
 
-void Server::start() {
+void Server::startAsync() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
     if (!exists(params.tempDir))
         system(("mkdir '" + params.tempDir + "'").c_str());
@@ -92,6 +92,17 @@ void Server::start() {
         }
     });
     clientAcceptor.detach();
+}
+
+
+void Server::startSync() {
+    serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
+    if (!exists(params.tempDir))
+        system(("mkdir '" + params.tempDir + "'").c_str());
+    while (isRunning) {
+        auto client = serverSocket->accept({0, 1000});
+        if (client) handleClient(client);
+    }
 }
 
 void printUnknownCommandError(const string &command, const map<string, string> &allowedParams) {
@@ -128,7 +139,7 @@ void Server::execute(const string &command) {
             } else if (parameter == "temp-dir") {
                 params.tempDir = value;
                 std::cout << "Temp dir changed to: " << params.tempDir << std::endl;
-            } else if (parameter == "urlmap") {
+            } else if (parameter == "url-map") {
                 params.initializeUrlMap(value);
                 std::cout << "URL map re-initialized from " << params.urlMapFile << std::endl;
             } else {

@@ -32,21 +32,23 @@ void ServerParams::initializeFrom(int argc, char **argv) {
     setMaxDownloadSpeed(UINT32_MAX);
     setMaxUploadSpeed(UINT32_MAX);
     for (int i = 1; i < argc; ++i) {
-        if (strstr(argv[i], "--pingMs=") != nullptr)
+        if (strstr(argv[i], "--pingMs=") == argv[i])
             pingMs = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--maxdspeed=") != nullptr)
+        else if (strstr(argv[i], "--maxdspeed=") == argv[i])
             setMaxDownloadSpeed(stol(index(argv[i], '=') + 1));
-        else if (strstr(argv[i], "--maxuspeed=") != nullptr)
+        else if (strstr(argv[i], "--maxuspeed=") == argv[i])
             setMaxUploadSpeed(stol(index(argv[i], '=') + 1));
-        else if (strstr(argv[i], "--port=") != nullptr)
+        else if (strstr(argv[i], "--port=") == argv[i])
             port = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--parallelConnections=") != nullptr)
+        else if (strstr(argv[i], "--parallelConnections=") == argv[i])
             parallelConnections = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--logging=") != nullptr)
-            loggingAllowed = stol(index(argv[i], '=') + 1);
-        else if (strstr(argv[i], "--urlMapFile=") != nullptr)
+        else if (strcmp(argv[i], "disable-log") == 0)
+            loggingAllowed = false;
+        else if (strcmp(argv[i], "disable-stdin") == 0)
+            disableStdin = true;
+        else if (strstr(argv[i], "--url-map=") == argv[i])
             urlMapFile = index(argv[i], '=') + 1;
-        else if (strstr(argv[i], "--tempDir=") != nullptr)
+        else if (strstr(argv[i], "--temp-dir=") == argv[i])
             tempDir = index(argv[i], '=') + 1;
         else if (strstr(argv[i], "=") != nullptr)
             additionalKwargs[string(argv[i], index(argv[i], '='))] = index(argv[i], '=') + 1;

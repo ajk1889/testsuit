@@ -21,6 +21,13 @@
     ]
   },
   {
+    "path": "^/generate.*",
+    "allowedArgs": [],
+    "command": [
+      "modules/generator"
+    ]
+  },
+  {
     "path": "^/reflect/?",
     "allowedArgs": [],
     "command": [

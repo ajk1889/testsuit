@@ -37,7 +37,7 @@ template = '''
     </style>
 </head>
 <body style="font-family: sans-serif;">
-    <a href="/upload?path={folder_path}"><h3>Upload files here</h3></a>
+    <a href="/upload?path={folder_path}&redirect={this_url}"><h3>Upload files here</h3></a>
     <h2 style="margin-left: 30px;">Folders</h2>
     <table style="font-size:20px;">
         <thead>
@@ -91,9 +91,13 @@ def get_files_list(folder):
     for f in sub_folders:
         link = urllib.parse.quote(os.path.join(base_url, relative_path, f))
         download_link = urllib.parse.quote(os.path.join("/download", relative_path, f))
+        try:
+            sub_contents = len(os.listdir(os.path.join(folder, f)))
+        except:
+            sub_contents = '---'
         folder_rows.append(folder_row_template.format(
             folder_link=link,
-            contents_len=len(os.listdir(os.path.join(folder, f))),
+            contents_len=sub_contents,
             folder_name=escape(shorten(f)),
             download_link=download_link,
             color='red'
@@ -104,9 +108,13 @@ def get_files_list(folder):
     for f in sub_files:
         link = urllib.parse.quote(os.path.join(base_url, relative_path, f))
         download_link = urllib.parse.quote(os.path.join("/download", relative_path, f))
+        try:
+            size = format_size(os.stat(os.path.join(folder, f)).st_size)
+        except:
+            size = '---'
         file_rows.append(folder_row_template.format(
             folder_link=link,
-            contents_len=format_size(os.stat(os.path.join(folder, f)).st_size),
+            contents_len=size,
             folder_name=escape(shorten(f)),
             download_link=download_link,
             color='darkgreen'
@@ -115,7 +123,8 @@ def get_files_list(folder):
         folder_name=os.path.dirname(folder).split('/')[-1],
         file_rows=''.join(file_rows),
         folder_rows=''.join(folder_rows),
-        folder_path=folder
+        folder_path=urllib.parse.quote(folder),
+        this_url=urllib.parse.quote(data["path"])
     )
 
 

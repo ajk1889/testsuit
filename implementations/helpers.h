@@ -102,14 +102,20 @@ void parseUrlEncodedPairs(const string &rawString, Mappable &outMap) {
         separator = rawString.find('=', start);
         if (end == string::npos) {
             if (separator != string::npos) {
-                outMap[urlDecode(rawString.substr(start, separator - start))] =
-                        urlDecode(rawString.substr(separator + 1));
+                auto key = urlDecode(rawString.substr(start, separator - start));
+                auto value = urlDecode(rawString.substr(separator + 1));
+                if (outMap.find(key) == outMap.end())
+                    outMap[key] = vector<string>();
+                outMap[key].push_back(value);
             } else outMap[urlDecode(rawString.substr(start))];
             break;
         } else {
             if (separator != string::npos) {
-                outMap[urlDecode(rawString.substr(start, separator - start))] =
-                        urlDecode(rawString.substr(separator + 1, end - separator - 1));
+                auto key = urlDecode(rawString.substr(start, separator - start));
+                auto value = urlDecode(rawString.substr(separator + 1, end - separator - 1));
+                if (outMap.find(key) == outMap.end())
+                    outMap[key] = vector<string>();
+                outMap[key].push_back(value);
             } else outMap[urlDecode(rawString.substr(start, end - start))];
             start = end + 1;
         }

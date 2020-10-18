@@ -2,6 +2,7 @@ import json
 import os
 import random
 import shutil
+import urllib.parse
 
 
 def echo(code, html):
@@ -60,8 +61,15 @@ def save_file(file):
 
 data = json.loads(input().strip())
 post = data["POST"]
+default_path = '/home/'
+if 'path' in data['GET']:
+    default_path = data['GET']['path'][0]
+
 if post:
-    success_msg = "<h3>Upload successful</h3>"
+    try:
+        success_msg = f"<script>window.location='{data['GET']['redirect'][0]}'</script>"
+    except:
+        success_msg = "<H3>Upload successful</H3>"
     if "path" in post and post["path"]:
         folder_path = post["path"][0]["data"]["data"]
         if folder_path[0] == '~':
@@ -78,15 +86,18 @@ if post:
 else:
     success_msg = ""
 
-default_path = '/home/'
-if 'path' in data['GET']:
-    default_path = data['GET']['path']
+try:
+    redirect = f"&redirect={urllib.parse.quote(data['GET']['redirect'][0])}"
+except:
+    redirect = ''
+
 response = f'''
 <html>
     <title>Upload files</title>
     <body>
         {success_msg}
-        <form method="POST" enctype="multipart/form-data" action="/upload">
+        <form method="POST" enctype="multipart/form-data" 
+            action="/upload?path={urllib.parse.quote(default_path)}{redirect}">
             Uploaded file store path: 
             <input type="text" name="path" value="{default_path}"><br/><br/>
             File:

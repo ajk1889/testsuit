@@ -3,15 +3,17 @@
 
 void runServer() {
     Server server;
-    server.start();
-    string command;
-    while (true) {
-        std::cin >> command;
-        if (command == "stop") {
-            server.stop();
-            break;
-        } else Server::execute(command);
-    }
+    if (!params.disableStdin) {
+        server.startAsync();
+        string command;
+        while (true) {
+            std::cin >> command;
+            if (command == "stop") {
+                server.stop();
+                break;
+            } else Server::execute(command);
+        }
+    } else server.startSync();
 }
 
 int main(int argc, char *argv[]) {

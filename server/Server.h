@@ -32,7 +32,9 @@ public:
 
     static void test();
 
-    void start();
+    void startAsync();
+
+    void startSync();
 
     void stop() {
         isRunning = false;

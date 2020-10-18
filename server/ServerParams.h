@@ -30,6 +30,7 @@ public:
     u_short port = 1234;
     string tempDir;
     bool loggingAllowed = true;
+    bool disableStdin = false;
     string urlMapFile = currentWorkingDir() + "/urlMap.json";
 
     constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
@@ -57,7 +58,7 @@ public:
             ServerParams, pingMs, maxDownloadSpeed,
             maxUploadSpeed, parallelConnections, port,
             tempDir, loggingAllowed, urlMapFile,
-            additionalKwargs
+            additionalKwargs, disableStdin
     )
 
     map<string, string> allowedParams = {
