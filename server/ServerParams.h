@@ -31,7 +31,7 @@ public:
     string tempDir;
     bool loggingAllowed = true;
     bool disableStdin = false;
-    string urlMapFile = currentWorkingDir() + "/urlMap.json";
+    string urlMapFile = thisExecutablePath() + "/urlMap.json";
 
     constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
     int32_t writeBytesPerTimeDiff;

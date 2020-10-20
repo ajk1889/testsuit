@@ -4,12 +4,20 @@
 #include "utils/ArrayJoiner.h"
 #include "boost/algorithm/string.hpp"
 #include "../server/ServerParams.h"
+#include <libgen.h>
 
 string currentWorkingDir() {
-    char cCurrentPath[FILENAME_MAX]{};
+    char cCurrentPath[PATH_MAX]{};
     if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
         throw std::runtime_error("Couldn't get current working directory");
     return cCurrentPath;
+}
+
+string thisExecutablePath() {
+    char result[PATH_MAX]{};
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    if (count != -1) return dirname(result);
+    return currentWorkingDir();
 }
 
 void *getCurl() {
