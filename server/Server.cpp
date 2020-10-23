@@ -11,20 +11,19 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
     auto rawMetaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
     boost::trim(rawMetaData);
     print("output: ", rawMetaData);
-    map <string, vector<string>> emptyHeader{};
     try {
         auto metaDataJson = json::parse(rawMetaData);
         if (metaDataJson["data"] == "inline") {
             return make_shared<DescriptorResponse>(
                     metaDataJson.value("responseCode", 200),
                     descriptor,
-                    metaDataJson.value("headers", emptyHeader),
+                    metaDataJson.value("headers", map<string, vector<string>>()),
                     metaDataJson.value("length", 0ULL));
         } else {
             return make_shared<FileResponse>(
                     metaDataJson.value("responseCode", 200),
                     metaDataJson["data"],
-                    metaDataJson.value("headers", emptyHeader),
+                    metaDataJson.value("headers", map<string, vector<string>>()),
                     metaDataJson.value("offset", 0ULL),
                     metaDataJson.value("limit", 0ULL));
         }
@@ -58,7 +57,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
             auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);
         } catch (std::runtime_error &e) {
-            printErr("Runtime Error", e.what());;
+            printErr("Runtime Error", e.what());
             try {
                 std::ostringstream data("<H1>Internal server error</H1>");
                 data << "<H3>Description</H3>";
@@ -66,7 +65,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
                 StringResponse response(ResponseCode::InternalServerError, data.str());
                 response.writeTo(*socketPtr);
             } catch (...) {
-                printErr("Exception while handling previous exception");;
+                printErr("Exception while handling previous exception");
             }
         } catch (...) {
             try {
@@ -74,7 +73,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
                                         "<H1>Internal server error</H1><H3>Unknown exception</H3>");
                 response.writeTo(*socketPtr);
             } catch (...) {
-                printErr("Unknown error");;
+                printErr("Unknown error");
             }
         }
         socketPtr->close();

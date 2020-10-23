@@ -16,7 +16,7 @@ struct ContentDisposition {
     ContentDisposition(const string &disposition) {
         const auto separatorPos = disposition.find(';');
         if (separatorPos == string::npos) {
-            printErr("Invalid Content-Disposition:", disposition);;
+            printErr("Invalid Content-Disposition:", disposition);
             throw std::runtime_error("Invalid Content-Disposition " + disposition);
         }
         type = disposition.substr(0, separatorPos);

@@ -23,7 +23,7 @@ void ServerParams::initializeUrlMap(string urlMapFilePath) {
         allowedParams.insert(extraCommands.cbegin(), extraCommands.cend());
         print("Url map file updated");
     } catch (...) {
-        printErr("Unknown error while setting url map, no changes made");;
+        printErr("Unknown error while setting url map, no changes made");
     }
 }
 
