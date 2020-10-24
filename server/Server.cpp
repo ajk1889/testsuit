@@ -29,9 +29,11 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
         }
     } catch (json::parse_error &e) {
         printErr("Error while parsing:", rawMetaData, '\n', "what: ", e.what());
+        descriptor.unread(rawMetaData.c_str(), rawMetaData.length());
         return make_shared<DescriptorResponse>(200, descriptor);
     } catch (json::type_error &e) {
         printErr("Error while parsing:", rawMetaData, '\n', "what:", e.what());
+        descriptor.unread(rawMetaData.c_str(), rawMetaData.length());
         return make_shared<DescriptorResponse>(200, descriptor);
     }
 }
