@@ -98,7 +98,7 @@ try:
     path = data["path"][len(base_url):]
     while path and path[0] == '/':
         path = path[1:]
-    path = os.path.join(base_path, path)
+    path = os.path.join(base_path, path) if path else base_path
     if not os.path.exists(path):
         echo(404, "<h1>File not found</h1>")
         exit(0)

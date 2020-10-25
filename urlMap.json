@@ -1,6 +1,6 @@
 [
   {
-    "path": "^/files/?.*",
+    "path": "^/files(?:$|/.*$)",
     "allowedArgs": [
       {
         "arg": "base-path",
@@ -13,7 +13,7 @@
     ]
   },
   {
-    "path": "^/download/?.*",
+    "path": "^/download(?:$|/.*$)",
     "allowedArgs": [],
     "command": [
       "python3",
@@ -21,14 +21,14 @@
     ]
   },
   {
-    "path": "^/generate.*",
+    "path": "^/generate/?$",
     "allowedArgs": [],
     "command": [
       "modules/generator"
     ]
   },
   {
-    "path": "^/reflect/?",
+    "path": "^/reflect(?:$|/.*$)",
     "allowedArgs": [],
     "command": [
       "python3",
@@ -37,11 +37,19 @@
     ]
   },
   {
-    "path": "^/upload/?",
+    "path": "^/upload/?$",
     "allowedArgs": [],
     "command": [
       "python3",
       "modules/upload.py"
+    ]
+  },
+  {
+    "path": "^/test(?:$|/.*$)",
+    "allowedArgs": [],
+    "command": [
+      "echo",
+      "Hello world!"
     ]
   },
   {
