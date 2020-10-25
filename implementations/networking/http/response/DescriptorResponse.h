@@ -8,7 +8,7 @@ class DescriptorResponse : public HttpResponse {
     StreamDescriptor descriptor;
     const uint_least64_t length;
 public:
-    DescriptorResponse(uint responseCode, const StreamDescriptor descriptor)
+    DescriptorResponse(uint responseCode, const StreamDescriptor &descriptor)
             : HttpResponse(responseCode), descriptor(descriptor), length(0) {}
 
     DescriptorResponse(

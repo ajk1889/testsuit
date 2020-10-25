@@ -25,7 +25,7 @@ struct HttpResponse {
     string httpVersion = "1.1";
     uint responseCode = 200;
 
-    explicit HttpResponse(uint code) : responseCode(code), HEADERS() {}
+    explicit HttpResponse(uint code) : responseCode(code) {}
 
     explicit HttpResponse(uint code, const map<string, vector<string>> &additionalHeaders) : responseCode(code) {
         for (auto &pair: additionalHeaders) HEADERS[pair.first] = pair.second;

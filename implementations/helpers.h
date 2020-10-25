@@ -35,6 +35,8 @@ inline auto max(const A &a, const B &b) -> decltype(a > b ? a : b) {
 
 string currentWorkingDir();
 
+string thisExecutablePath();
+
 inline size_t len(const string &);
 
 constexpr size_t len(char);

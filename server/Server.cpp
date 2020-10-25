@@ -11,28 +11,29 @@ shared_ptr<HttpResponse> parseProcessResponse(StreamDescriptor &descriptor) {
     auto rawMetaData = readUntilMatch(descriptor, "\n\n", 8 * KB);
     boost::trim(rawMetaData);
     print("output: ", rawMetaData);
-    map <string, vector<string>> emptyHeader{};
     try {
         auto metaDataJson = json::parse(rawMetaData);
         if (metaDataJson["data"] == "inline") {
             return make_shared<DescriptorResponse>(
                     metaDataJson.value("responseCode", 200),
                     descriptor,
-                    metaDataJson.value("headers", emptyHeader),
+                    metaDataJson.value("headers", map<string, vector<string>>()),
                     metaDataJson.value("length", 0ULL));
         } else {
             return make_shared<FileResponse>(
                     metaDataJson.value("responseCode", 200),
                     metaDataJson["data"],
-                    metaDataJson.value("headers", emptyHeader),
+                    metaDataJson.value("headers", map<string, vector<string>>()),
                     metaDataJson.value("offset", 0ULL),
                     metaDataJson.value("limit", 0ULL));
         }
     } catch (json::parse_error &e) {
         printErr("Error while parsing:", rawMetaData, '\n', "what: ", e.what());
+        descriptor.unread(rawMetaData.c_str(), rawMetaData.length());
         return make_shared<DescriptorResponse>(200, descriptor);
     } catch (json::type_error &e) {
         printErr("Error while parsing:", rawMetaData, '\n', "what:", e.what());
+        descriptor.unread(rawMetaData.c_str(), rawMetaData.length());
         return make_shared<DescriptorResponse>(200, descriptor);
     }
 }
@@ -58,7 +59,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
             auto output = process.run((input.dump() + "\n").c_str());
             parseProcessResponse(*output)->writeTo(*socketPtr);
         } catch (std::runtime_error &e) {
-            printErr("Runtime Error", e.what());;
+            printErr("Runtime Error", e.what());
             try {
                 std::ostringstream data("<H1>Internal server error</H1>");
                 data << "<H3>Description</H3>";
@@ -66,7 +67,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
                 StringResponse response(ResponseCode::InternalServerError, data.str());
                 response.writeTo(*socketPtr);
             } catch (...) {
-                printErr("Exception while handling previous exception");;
+                printErr("Exception while handling previous exception");
             }
         } catch (...) {
             try {
@@ -74,7 +75,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
                                         "<H1>Internal server error</H1><H3>Unknown exception</H3>");
                 response.writeTo(*socketPtr);
             } catch (...) {
-                printErr("Unknown error");;
+                printErr("Unknown error");
             }
         }
         socketPtr->close();
@@ -83,8 +84,8 @@ void Server::handleClient(const SocketPtr &socketPtr) {
 
 void Server::startAsync() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    if (!exists(params.tempDir))
-        system(("mkdir '" + params.tempDir + "'").c_str());
+    if (!exists(params.tempDir) && !system(("mkdir '" + params.tempDir + "'").c_str()))
+        throw std::runtime_error("Could not create temp directory " + params.tempDir);
     clientAcceptor = thread([=] {
         while (isRunning) {
             auto client = serverSocket->accept({0, 1000});
@@ -97,8 +98,8 @@ void Server::startAsync() {
 
 void Server::startSync() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    if (!exists(params.tempDir))
-        system(("mkdir '" + params.tempDir + "'").c_str());
+    if (!exists(params.tempDir) && !system(("mkdir '" + params.tempDir + "'").c_str()))
+        throw std::runtime_error("Could not create temp directory " + params.tempDir);
     while (isRunning) {
         auto client = serverSocket->accept({0, 1000});
         if (client) handleClient(client);
