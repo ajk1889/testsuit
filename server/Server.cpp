@@ -84,7 +84,7 @@ void Server::handleClient(const SocketPtr &socketPtr) {
 
 void Server::startAsync() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    if (!exists(params.tempDir) && !system(("mkdir '" + params.tempDir + "'").c_str()))
+    if (!exists(params.tempDir) && system(("mkdir '" + params.tempDir + "'").c_str()))
         throw std::runtime_error("Could not create temp directory " + params.tempDir);
     clientAcceptor = thread([=] {
         while (isRunning) {
@@ -98,7 +98,7 @@ void Server::startAsync() {
 
 void Server::startSync() {
     serverSocket = make_shared<ServerSocket>(this, params.port, params.parallelConnections);
-    if (!exists(params.tempDir) && !system(("mkdir '" + params.tempDir + "'").c_str()))
+    if (!exists(params.tempDir) && system(("mkdir '" + params.tempDir + "'").c_str()))
         throw std::runtime_error("Could not create temp directory " + params.tempDir);
     while (isRunning) {
         auto client = serverSocket->accept({0, 1000});
