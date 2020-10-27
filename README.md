@@ -21,7 +21,7 @@ Key | Description | Possible values | Default value
 `--maxdspeed` | Approximate expected download speed (in KB/s) at the client's end. The actual download speed at clients end may be affected by network conditions. | Any number between 0 and 4294967296 (2^32) | 4294967296
 `--maxuspeed` | Approximate expected upload speed (in KB/s) at the client's end. The actual upload speed at clients end may be affected by network conditions. _**Note:** This may affect download speed in conditions [specified here](#problems-with-inline-response)_ | Any number between 0 and 4294967296 (2^32) | 4294967296
 `--port` | The port to which server should listen | 0-65536 (2^16), port should not be used by other processes | 1234
-`--url-map` | Full path to url mapping file | A valid file path with or without quotes | [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json) in current working directory
+`--url-map` | Full path to url mapping file | A valid file path with or without quotes | [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json) in the application directory
 `--temp-dir` | Directory to store `POST` contents exceeding 2KB size | A valid file path with or without quotes | `/tmp/testsuit/`
 `disable-log` | Single word argument to disable Test suit's request logging | _Not applicable_ | _Not applicable_
 `disable-stdin` | Single word argument to disable accepting commands from `stdin`. If this parameter is passed while launching, [Test-suit's `stdin commands`](#list-of-test-suits-stdin-commands) will not work for that instance of testsuit server | _Not applicable_ | _Not applicable_
