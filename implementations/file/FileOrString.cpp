@@ -9,7 +9,7 @@ FileOrString FileOrString::readFrom(Socket &socket, const string &boundary) {
         const auto boundaryLen = boundary.length();
         string lastFew(data, data.length() - (boundaryLen - 1));
 
-        string filePath = params.tempDir + "/" + getRandomString(10);
+        string filePath = params.getTempDir() + "/" + getRandomString(10);
         std::ofstream op(filePath);
         char buffer[BUFFER_SIZE];
         ssize_t bytesRead;
@@ -56,7 +56,7 @@ FileOrString FileOrString::readFrom(Socket &socket, uint_least64_t nBytes) {
         data.append(readExact(socket, nBytes));
         return std::move(fileOrString);
     }
-    data = params.tempDir + "/" + getRandomString(10);
+    data = params.getTempDir() + "/" + getRandomString(10);
     std::ofstream op(data);
     char buffer[BUFFER_SIZE + 1]{};
     ssize_t bytesRead;

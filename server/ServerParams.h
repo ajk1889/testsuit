@@ -19,16 +19,19 @@ using std::string;
 using std::ifstream;
 using json = nlohmann::json;
 using std::chrono_literals::operator ""ms;
+class Server;
 
 class ServerParams {
     uint32_t maxDownloadSpeed;
     uint32_t maxUploadSpeed;
+    string tempDir;
     constexpr static auto TIME_DIFF_MS = 33;
+
+    friend class Server;
 public:
     uint32_t pingMs = 0;
     uint32_t parallelConnections = 10;
     u_short port = 1234;
-    string tempDir;
     bool loggingAllowed = true;
     bool disableStdin = false;
     string urlMapFile = thisExecutablePath() + "/urlMap.json";
@@ -46,6 +49,12 @@ public:
         maxDownloadSpeed = speed;
         writeBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
     };
+
+    const string &getTempDir() const {
+        if (!exists(tempDir) && system(("mkdir '" + tempDir + "'").c_str()))
+            throw std::runtime_error("Could not create temp directory " + tempDir);
+        return tempDir;
+    }
 
     [[nodiscard]] uint32_t getMaxUploadSpeed() const { return maxUploadSpeed; }
 
