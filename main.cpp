@@ -7,7 +7,7 @@ void runServer() {
         server.startAsync();
         string command;
         while (true) {
-            std::cin >> command;
+            std::getline(std::cin, command, '\n');
             if (command == "stop") {
                 server.stop();
                 break;
