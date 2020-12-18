@@ -1,6 +1,5 @@
 #include <thread>
 #include "StreamDescriptor.h"
-#include "../../server/ServerParams.h"
 
 ssize_t StreamDescriptor::read(char *buffer, const uint N) {
     if (N && unreadBytesCount) {

@@ -6,6 +6,7 @@
 #include <string>
 #include <limits>
 #include <fstream>
+#include <regex>
 #include <boost/algorithm/string/trim.hpp>
 #include "json/json.hpp"
 #include "../implementations/helpers.h"
@@ -23,7 +24,11 @@ class Server;
 
 class ServerParams {
     uint32_t maxDownloadSpeed;
+    uint32_t minDownloadSpeed;
     uint32_t maxUploadSpeed;
+    uint32_t minUploadSpeed;
+    uint32_t speedChangeInterval;
+
     string tempDir;
     constexpr static auto TIME_DIFF_MS = 33;
 
@@ -45,11 +50,6 @@ public:
 
     [[nodiscard]] uint32_t getMaxDownloadSpeed() const { return maxDownloadSpeed; };
 
-    void setMaxDownloadSpeed(uint32_t speed) {
-        maxDownloadSpeed = speed;
-        writeBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
-    };
-
     const string &getTempDir() const {
         if (!exists(tempDir) && system(("mkdir '" + tempDir + "'").c_str()))
             throw std::runtime_error("Could not create temp directory " + tempDir);
@@ -62,6 +62,28 @@ public:
         maxUploadSpeed = speed;
         readBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
     }
+    void setMaxDownloadSpeed(uint32_t speed) {
+        maxDownloadSpeed = speed;
+        writeBytesPerTimeDiff = 1024 * speed * TIME_DIFF_MS / 1000;
+    };
+
+    void setVaryingUploadSpeed(string command) {
+        std::regex expr(" *(\\d+) *- *(\\d+) +in +(\\d+) *(second|sec)?s? *");
+        std::smatch sm;
+        if (std::regex_match(command, sm, expr)) {
+            maxDownloadSpeed = std::stol(sm[1]);
+            minDownloadSpeed = std::stol(sm[2]);
+            speedChangeInterval = std::stol(sm[3]);
+            std::cout << "Download speed will randomly vary between " << maxDownloadSpeed 
+                      << "KB/s and " << minDownloadSpeed << "KB/s every "
+                      << speedChangeInterval << " seconds." << std::endl;
+        } else {
+            std::cout << "Invalid syntax, follow format specified below\n"
+                      << "random-dspeed=10-30 in 4 s\n"
+                      << "This command will vary download speed randomly between 10 and 30 in every 4 seconds"
+                      << std::endl;
+        }
+    }
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(
             ServerParams, pingMs, maxDownloadSpeed,
@@ -71,8 +93,9 @@ public:
     )
 
     map<string, string> allowedParams = {
-            {"maxdspeed", "Maximum download speed, in kb/s"},
-            {"maxuspeed", "Maximum upload speed, in kb/s"},
+            {"maxdspeed", "Maximum download speed, in KB/s"},
+            {"maxuspeed", "Maximum upload speed, in KB/s"},
+            {"random-dspeed", "Format `A-B in N s`. Add randomness to download speed in a range A KB/s to B KB/s. Download speed will vary in N second interval"},
             {"logging",   "Allow request logging"},
             {"temp-dir",  "Folder to which temporary files should be written"},
             {"ping",      "The time (in ms) for which server should idle wait after receiving a request"},
