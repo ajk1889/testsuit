@@ -5,6 +5,7 @@
 #include <string>
 #include "../constants.h"
 #include "../helpers.h"
+#include "../../server/ServerParams.h"
 #include <cstring>
 
 using std::string;
@@ -60,11 +61,21 @@ public:
 
     void delayRead(ssize_t bytesRead) const;
 
-    void resetRead(const decltype(preciseNow()) &now) const;
+    static void reset(
+            const decltype(preciseNow()) &now,
+            decltype(thisSectionReadCount) &thisSectionCount,
+            const uint32_t bytesPerTimeDiff,
+            decltype(thisReadTimeSectionEndTime) &thisTimeSectionEndTime
+    );
+
+    static void delay(
+            ssize_t bytes,
+            decltype(thisSectionReadCount) &thisSectionCount,
+            const uint32_t bytesPerTimeDiff,
+            decltype(thisReadTimeSectionEndTime) &thisTimeSectionEndTime
+    );
 
     void delayWrite(ssize_t bytesWritten) const;
-
-    void resetWrite(const decltype(preciseNow()) &now) const;
 
     ~StreamDescriptor() {
         close();

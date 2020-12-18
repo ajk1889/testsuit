@@ -53,42 +53,41 @@ void StreamDescriptor::unread(const char *extraReadBytes, uint N) {
     }
 }
 
-void StreamDescriptor::resetRead(const decltype(preciseNow()) &now) const {
-    if (thisSectionReadCount >= 2 * params.readBytesPerTimeDiff)
-        thisSectionReadCount = 0;
-    else thisSectionReadCount = thisSectionReadCount - params.readBytesPerTimeDiff;
-    if (now >= thisReadTimeSectionEndTime + ServerParams::timeDiff)
-        thisReadTimeSectionEndTime = now + ServerParams::timeDiff;
-    else thisReadTimeSectionEndTime += ServerParams::timeDiff;
+void StreamDescriptor::reset(
+        const decltype(preciseNow()) &now,
+        decltype(thisSectionReadCount) &thisSectionCount,
+        const uint32_t bytesPerTimeDiff,
+        decltype(thisReadTimeSectionEndTime) &thisTimeSectionEndTime
+)  {
+    if (thisSectionCount >= 2 * bytesPerTimeDiff)
+        thisSectionCount = 0;
+    else thisSectionCount = thisSectionCount - bytesPerTimeDiff;
+    if (now >= thisTimeSectionEndTime + ServerParams::timeDiff)
+        thisTimeSectionEndTime = now + ServerParams::timeDiff;
+    else thisTimeSectionEndTime += ServerParams::timeDiff;
 }
 
-void StreamDescriptor::resetWrite(const decltype(preciseNow()) &now) const {
-    if (thisSectionWriteCount >= 2 * params.writeBytesPerTimeDiff)
-        thisSectionWriteCount = 0;
-    else thisSectionWriteCount = thisSectionWriteCount - params.writeBytesPerTimeDiff;
-    if (now >= thisWriteTimeSectionEndTime + ServerParams::timeDiff)
-        thisWriteTimeSectionEndTime = now + ServerParams::timeDiff;
-    else thisWriteTimeSectionEndTime += ServerParams::timeDiff;
+void StreamDescriptor::delay(
+        ssize_t bytesWritten,
+        decltype(thisSectionReadCount) &thisSectionCount,
+        const uint32_t bytesPerTimeDiff,
+        decltype(thisReadTimeSectionEndTime) &thisTimeSectionEndTime
+)  {
+    thisSectionCount += bytesWritten;
+    auto now = preciseNow();
+    if (thisSectionCount >= bytesPerTimeDiff) {
+        if (now < thisTimeSectionEndTime)
+            std::this_thread::sleep_for(thisTimeSectionEndTime - now);
+        reset(now, thisSectionCount, bytesPerTimeDiff, thisTimeSectionEndTime);
+    }
+    if (now >= thisTimeSectionEndTime)
+        reset(now, thisSectionCount, bytesPerTimeDiff, thisTimeSectionEndTime);
 }
 
 void StreamDescriptor::delayRead(ssize_t bytesRead) const {
-    thisSectionReadCount += bytesRead;
-    auto now = preciseNow();
-    if (thisSectionReadCount >= params.readBytesPerTimeDiff) {
-        if (now < thisReadTimeSectionEndTime)
-            std::this_thread::sleep_for(thisReadTimeSectionEndTime - now);
-        resetRead(now);
-    }
-    if (now >= thisReadTimeSectionEndTime) resetRead(now);
+    delay(bytesRead, thisSectionReadCount, params.readBytesPerTimeDiff, thisReadTimeSectionEndTime);
 }
 
 void StreamDescriptor::delayWrite(ssize_t bytesWritten) const {
-    thisSectionWriteCount += bytesWritten;
-    auto now = preciseNow();
-    if (thisSectionWriteCount >= params.writeBytesPerTimeDiff) {
-        if (now < thisWriteTimeSectionEndTime)
-            std::this_thread::sleep_for(thisWriteTimeSectionEndTime - now);
-        resetWrite(now);
-    }
-    if (now >= thisWriteTimeSectionEndTime) resetWrite(now);
+    delay(bytesWritten, thisSectionWriteCount, params.writeBytesPerTimeDiff, thisWriteTimeSectionEndTime);
 }

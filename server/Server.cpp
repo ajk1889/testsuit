@@ -123,10 +123,10 @@ void Server::execute(const string &command) {
             auto value = command.substr(separatorPos + 1);
             if (parameter == "maxdspeed") {
                 params.setMaxDownloadSpeed(std::stol(value));
-                std::cout << "Max download speed set to " << params.getMaxDownloadSpeed() << std::endl;
+                std::cout << "Max download speed set to " << params.getMaxDownloadSpeed() << " KB/s" << std::endl;
             } else if (parameter == "maxuspeed") {
                 params.setMaxUploadSpeed(std::stol(value));
-                std::cout << "Max upload speed set to " << params.getMaxUploadSpeed() << std::endl;
+                std::cout << "Max upload speed set to " << params.getMaxUploadSpeed() << " KB/s" <<  std::endl;
             } else if (parameter == "logging") {
                 params.loggingAllowed = std::stoi(value);
                 std::cout << "Logging Allowed: " << params.loggingAllowed << std::endl;
