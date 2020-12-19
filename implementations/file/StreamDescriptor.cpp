@@ -89,4 +89,10 @@ void StreamDescriptor::delayRead(ssize_t bytesRead) const {
 
 void StreamDescriptor::delayWrite(ssize_t bytesWritten) const {
     delay(bytesWritten, thisSectionWriteCount, params.writeBytesPerTimeDiff, thisWriteTimeSectionEndTime);
+    const auto now = preciseNow();
+    if (params.lastDownloadSpeedChangedTime + std::chrono::milliseconds(params.downloadSpeedChangeInterval) < now) {
+        params.lastDownloadSpeedChangedTime = now;
+        auto randomSpeed = randomInRange(params.downloadSpeedRange);
+        params.setMaxDownloadSpeed(randomSpeed);
+    }
 }

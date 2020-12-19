@@ -21,18 +21,25 @@ using std::ifstream;
 using json = nlohmann::json;
 using std::chrono_literals::operator ""ms;
 class Server;
+class StreamDescriptor;
 
 class ServerParams {
     uint32_t maxDownloadSpeed;
-    uint32_t minDownloadSpeed;
     uint32_t maxUploadSpeed;
-    uint32_t minUploadSpeed;
-    uint32_t speedChangeInterval;
+    constexpr static auto TIME_DIFF_MS = 33;
+    std::pair<uint32_t, uint32_t> downloadSpeedRange;
+    std::pair<uint32_t, uint32_t> uploadSpeedRange;
+    constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
+    int32_t writeBytesPerTimeDiff;
+    int32_t readBytesPerTimeDiff;
+
+    uint32_t downloadSpeedChangeInterval;
+    decltype(preciseNow()) lastDownloadSpeedChangedTime = preciseNow();
 
     string tempDir;
-    constexpr static auto TIME_DIFF_MS = 33;
 
     friend class Server;
+    friend class StreamDescriptor;
 public:
     uint32_t pingMs = 0;
     uint32_t parallelConnections = 10;
@@ -40,10 +47,6 @@ public:
     bool loggingAllowed = true;
     bool disableStdin = false;
     string urlMapFile = thisExecutablePath() + "/urlMap.json";
-
-    constexpr static auto timeDiff = std::chrono::milliseconds(TIME_DIFF_MS);
-    int32_t writeBytesPerTimeDiff;
-    int32_t readBytesPerTimeDiff;
 
     vector<UrlMapObject> urlMap;
     map<string, string> additionalKwargs;
@@ -68,19 +71,18 @@ public:
     };
 
     void setVaryingUploadSpeed(string command) {
-        std::regex expr(" *(\\d+) *- *(\\d+) +in +(\\d+) *(second|sec)?s? *");
+        std::regex expr(" *(\\d+) *- *(\\d+) +in +([0-9.]+) *(ms)? *");
         std::smatch sm;
         if (std::regex_match(command, sm, expr)) {
-            maxDownloadSpeed = std::stol(sm[1]);
-            minDownloadSpeed = std::stol(sm[2]);
-            speedChangeInterval = std::stol(sm[3]);
-            std::cout << "Download speed will randomly vary between " << maxDownloadSpeed 
-                      << "KB/s and " << minDownloadSpeed << "KB/s every "
-                      << speedChangeInterval << " seconds." << std::endl;
+            downloadSpeedRange = std::pair<uint32_t, uint32_t>(std::stol(sm[1]), std::stol(sm[2]));
+            downloadSpeedChangeInterval = std::stol(sm[3]);
+            std::cout << "Download speed will randomly vary between " << downloadSpeedRange.first 
+                      << "KB/s and " << downloadSpeedRange.second << "KB/s every "
+                      << downloadSpeedChangeInterval << " milliseconds." << std::endl;
         } else {
             std::cout << "Invalid syntax, follow format specified below\n"
-                      << "random-dspeed=10-30 in 4 s\n"
-                      << "This command will vary download speed randomly between 10 and 30 in every 4 seconds"
+                      << "random-dspeed=10-30 in 4000\n"
+                      << "This command will vary download speed randomly between 10 and 30 in every 4000 milliseconds"
                       << std::endl;
         }
     }

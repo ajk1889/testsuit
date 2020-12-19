@@ -13,6 +13,9 @@ string currentWorkingDir() {
     return cCurrentPath;
 }
 
+std::random_device rd;     // only used once to initialise (seed) engine
+std::mt19937 randomEngine(rd());    // random-number engine used (Mersenne-Twister in this case)
+
 string thisExecutablePath() {
     char result[PATH_MAX]{};
     ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);

@@ -1,6 +1,7 @@
 #ifndef TESTSUIT_HELPERS_H
 #define TESTSUIT_HELPERS_H
 
+#include <random>
 #include <cstdio>
 #include <vector>
 #include <map>
@@ -123,6 +124,20 @@ void parseUrlEncodedPairs(const string &rawString, Mappable &outMap) {
         }
     }
 }
+
+extern std::random_device rd;     // only used once to initialise (seed) engine
+extern std::mt19937 randomEngine;    // random-number engine used (Mersenne-Twister in this case)
+
+template<typename T>
+T randomInRange(T start, T end) {
+    std::uniform_int_distribution<T> uni(start, end);
+    return uni(randomEngine);
+}
+template<typename T>
+T randomInRange(std::pair<T, T> pair) {
+    return randomInRange(pair.first, pair.second);
+}
+
 
 void parseHttpHeader(const string &headerKeyValues, map<string, vector<string>> &headerMap);
 
