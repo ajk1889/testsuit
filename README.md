@@ -44,6 +44,18 @@ Key | Description | Possible values
 All the command line arguments received by Test-suit is forwarded to its modules along with the HTTP request's data. 
 So modules can have their own global command line arguments. For example, inbuilt module [list-files.py](https://github.com/ajk1889/testsuit/blob/master/modules/list-files.py) accepts `base-path` as a command line argument.
 
+## Pre-packed modules
+#### Files listing module
+- This module lets clients browse through the file contents of the specified directory. The base directory can be specified either through command line argument (`--base-path=/path/to/the/folder/to/share`) or through `stdin` command `base-path=/path/to/the/folder/to/share`. File: [list-files.py](https://github.com/ajk1889/testsuit/blob/master/modules/list-files.py)
+- Users can download/view files in the shared folder. Folders can be downloaded too as zip file. The zip will be generated at runtime and will be directly sent to the client instead of creating a zip file and then sharing it. This avoids processing delays and storage limitations on server when sharing a large folder. But this makes the download size to be undetermined. File will need to be downloaded from beginning if download was interrupted. File: [download.py](https://github.com/ajk1889/testsuit/blob/master/modules/download.py)
+- Users can upload any file/folder to path they specify. The folder structure will be retained in the destination directory in server. File: [upload.py](https://github.com/ajk1889/testsuit/blob/master/modules/upload.py)
+#### File Generator module
+This module can be used to download a file of arbitary length. The contents of the file will be the following pattern of numbers.
+```
+0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16....
+```
+The module supports partial content, so download can be resumed if interrupted. A more detailed description [can be found here](https://github.com/ajk1889/number-generator)
+
 ## Building modules
 ### Concept of modules in Test-suit
 Upon receiving an HTTP request, test-suit server iterates through the contents of URL mapping file ([urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json)) until it finds a `regex` that matches the request path.
