@@ -1,5 +1,5 @@
 # Test-suit
-A highly configurable HTTP Test server for linux built on C++.
+A highly extensible HTTP Test server for linux built on C++. Test-suit runs predefined OS commands when it receives HTTP requests to URL paths defined in [urlMap.json](https://github.com/ajk1889/testsuit/blob/master/urlMap.json). This lets users add their own custom sscripts and use it with Testsuit. A detailed discussion on the best practices of reading HTTP Request data and returning result is [given here](#building-modules)
 
 ## How to use
 ### Starting Test-suit server
